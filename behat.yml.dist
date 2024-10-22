@@ -35,7 +35,7 @@ default:
                             chromedriver_arguments:
                                 - --log-path=etc/build/chromedriver.log
                                 - --verbose
-                        capabilities:
+                            capabilities:
                                 acceptSslCerts: true
                                 acceptInsecureCerts: true
                                 unexpectedAlertBehaviour: accept

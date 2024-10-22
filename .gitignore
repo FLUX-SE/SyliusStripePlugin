@@ -10,7 +10,7 @@
 
 /.phpunit.result.cache
 /behat.yml
-/phpspec.yml
+/phpstan.neon
 /.configurator/phpunit.xml
 .phpunit.result.cache
 

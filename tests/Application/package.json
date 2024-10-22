@@ -1,13 +1,19 @@
 {
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "build": "encore dev",
     "build:prod": "encore production",
-    "postinstall": "semantic-ui-css-patch",
     "lint": "yarn lint:js",
     "watch": "encore dev --watch"
   },
-  "devDependencies": {
-    "@sylius-ui/frontend": "^1.0"
-  }
+  "dependencies": {
+    "@sylius-ui/admin": "file:../../vendor/sylius/sylius/src/Sylius/Bundle/AdminBundle",
+    "@sylius-ui/shop": "file:../../vendor/sylius/sylius/src/Sylius/Bundle/ShopBundle",
+    "@symfony/ux-autocomplete": "file:../../vendor/symfony/ux-autocomplete/assets",
+    "@symfony/ux-live-component": "file:../../vendor/symfony/ux-live-component/assets"
+  },
+  "engines": {
+    "node": "^20 || ^22"
+  },
+  "engineStrict": true
 }
