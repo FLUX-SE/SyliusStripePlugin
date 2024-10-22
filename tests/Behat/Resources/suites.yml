@@ -1,0 +1,10 @@
+# Put your Behat suites definitions here
+
+default:
+    suites:
+#        greeting_customer:
+#            contexts:
+#                - Tests\App\Behat\Context\Ui\Shop\ExampleContext
+#
+#            filters:
+#                tags: "@greeting_customer"
