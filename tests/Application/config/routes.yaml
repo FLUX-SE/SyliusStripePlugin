@@ -1,9 +1,9 @@
-flux_s_e_sylius_stripe_shop:
+flux_se_sylius_stripe_shop:
     resource: "@FluxSESyliusStripePlugin/config/shop_routing.yml"
     prefix: /{_locale}
     requirements:
         _locale: ^[a-z]{2}(?:_[A-Z]{2})?$
 
-flux_s_e_sylius_stripe_admin:
+flux_se_sylius_stripe_admin:
     resource: "@FluxSESyliusStripePlugin/config/admin_routing.yml"
     prefix: /admin

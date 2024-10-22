@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace App;
+namespace Tests\FluxSE\SyliusStripePlugin\App;
 
-use PSS\SymfonyMockerContainer\DependencyInjection\MockerContainer;
 use Sylius\Bundle\CoreBundle\Application\Kernel as SyliusKernel;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
@@ -48,15 +47,6 @@ final class Kernel extends BaseKernel
         foreach ($this->getConfigurationDirectories() as $confDir) {
             $this->loadRoutesConfiguration($routes, $confDir);
         }
-    }
-
-    protected function getContainerBaseClass(): string
-    {
-        if ($this->isTestEnvironment() && class_exists(MockerContainer::class)) {
-            return MockerContainer::class;
-        }
-
-        return parent::getContainerBaseClass();
     }
 
     private function isTestEnvironment(): bool

@@ -1,19 +1,19 @@
 # SyliusStripePlugin
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/flux-s-e/sylius-stripe-plugin.svg?style=flat-square)](https://packagist.org/packages/flux-s-e/sylius-stripe-plugin)
-[![Total Downloads](https://img.shields.io/packagist/dt/flux-s-e/sylius-stripe-plugin.svg?style=flat-square)](https://packagist.org/packages/flux-s-e/sylius-stripe-plugin)  
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/flux-se/sylius-stripe-plugin.svg?style=flat-square)](https://packagist.org/packages/flux-se/sylius-stripe-plugin)
+[![Total Downloads](https://img.shields.io/packagist/dt/flux-se/sylius-stripe-plugin.svg?style=flat-square)](https://packagist.org/packages/flux-se/sylius-stripe-plugin)  
 
 This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
 
 ## Installation
 
-1. Run `composer require flux-s-e/sylius-stripe-plugin`.
+1. Run `composer require flux-se/sylius-stripe-plugin`.
 
 2. Import routes
     ```yaml
     # config/routes/sylius_shop.yaml
 
-    flux_s_e_sylius_stripe_shop:
+    flux_se_sylius_stripe_shop:
         resource: "@FluxSESyliusStripePlugin/config/shop_routing.yaml"
         prefix: /{_locale}
         requirements:
@@ -21,7 +21,7 @@ This is where your description should go. Limit it to a paragraph or two. Consid
 
     # config/routes/sylius_admin.yaml
 
-    flux_s_e_sylius_stripe_admin:
+    flux_se_sylius_stripe_admin:
         resource: "@FluxSESyliusStripePlugin/config/admin_routing.yml"
         prefix: /admin
     ```

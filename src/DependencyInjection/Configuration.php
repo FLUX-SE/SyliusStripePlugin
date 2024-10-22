@@ -14,7 +14,7 @@ final class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder('flux_s_e_sylius_stripe');
+        $treeBuilder = new TreeBuilder('flux_se_sylius_stripe');
         $rootNode = $treeBuilder->getRootNode();
 
         return $treeBuilder;
