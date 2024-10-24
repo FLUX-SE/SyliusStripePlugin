@@ -1,0 +1,17 @@
+services:
+    
+    flux_se.sylius_stripe.form.type.gateway_configuration.stripe_checkout:
+        class: FluxSE\SyliusStripePlugin\Form\Type\StripeGatewayConfigurationType
+        tags:
+            - name: sylius.gateway_configuration_type
+              type: stripe_checkout
+              label: flux_se_sylius_stripe_plugin.gateway_factory.stripe_checkout
+            - name: form.type
+
+    flux_se.sylius_stripe.form.type.gateway_configuration.stripe_web_elements:
+        class: FluxSE\SyliusStripePlugin\Form\Type\StripeGatewayConfigurationType
+        tags:
+            - name: sylius.gateway_configuration_type
+              type: stripe_web_elements
+              label: flux_se_sylius_stripe_plugin.gateway_factory.stripe_web_elements
+            - name: form.type

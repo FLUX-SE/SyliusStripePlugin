@@ -1,0 +1,23 @@
+{% from '@SyliusAdmin/shared/helper/icon.html.twig' import icon %}
+
+{% set form = hookable_metadata.context.form.gatewayConfig.config.use_authorize %}
+
+<div class="col-12">
+    {{ form_row(form, sylius_test_form_attribute('config-use-authorize')) }}
+</div>
+<div class="col-12 alert alert-info {{ form.vars.data ? '' : ' d-none' }}">
+    <div class="d-flex align-items-center">
+        <div>{{ icon({ 'icon': 'info_circle', 'class': 'alert-icon' }) }}</div>
+        <div>
+            <p>
+                {{ 'flux_se_sylius_stripe_plugin.form.gateway_configuration.stripe.info.use_authorize'|trans }}
+            </p>
+            <p>
+                <a href="https://stripe.com/docs/payments/capture-later" target="_blank">
+                    {{ 'sylius.ui.view_more'|trans }}
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+
