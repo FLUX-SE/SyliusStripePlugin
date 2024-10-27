@@ -1,0 +1,38 @@
+services:
+    
+    flux_se.sylius_stripe.provider.http_response.checkout:
+        class: Sylius\Bundle\PaymentBundle\Provider\ActionsHttpResponseProvider
+        arguments:
+            - !tagged_locator
+                tag: flux_se.sylius_stripe.provider.http_response.checkout
+                index_by: action
+        tags:
+            - name: sylius.payment_request.provider.http_response
+              'gateway-factory': 'stripe_checkout'
+
+
+    flux_se.sylius_stripe.provider.http_response.checkout.capture:
+        class: FluxSE\SyliusStripePlugin\OrderPay\Provider\Checkout\CaptureHttpResponseProvider
+        tags:
+            - name: flux_se.sylius_stripe.provider.http_response.checkout
+              action: !php/const Sylius\Component\Payment\Model\PaymentRequestInterface::ACTION_CAPTURE
+    
+    flux_se.sylius_stripe.provider.http_response.web_elements:
+        class: Sylius\Bundle\PaymentBundle\Provider\ActionsHttpResponseProvider
+        arguments:
+            - !tagged_locator
+                tag: flux_se.sylius_stripe.provider.http_response.web_elements
+                index_by: action
+        tags:
+            - name: sylius.payment_request.provider.http_response
+              'gateway-factory': 'stripe_web_elements'
+
+
+    flux_se.sylius_stripe.provider.http_response.web_elements.capture:
+        class: FluxSE\SyliusStripePlugin\OrderPay\Provider\WebElements\CaptureHttpResponseProvider
+        arguments:
+            - '@flux_se.sylius_stripe.provider.web_elements.after_url'
+            - '@twig'
+        tags:
+            - name: flux_se.sylius_stripe.provider.http_response.web_elements
+              action: !php/const Sylius\Component\Payment\Model\PaymentRequestInterface::ACTION_CAPTURE

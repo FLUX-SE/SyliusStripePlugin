@@ -9,8 +9,13 @@ flux_se_sylius_stripe_plugin:
                 secret_key: Clé secrète
                 use_authorize: Utiliser "authorize"
                 webhook_secret_keys: Clés secrètes du webhook
+                payment_method_types: Types de méthodes de paiement
                 info:
                     use_authorize:  Lorsqu'un paiement est autorisé, la banque garantit le montant et le conserve sur la carte du client jusqu'à sept jours.
                     webhook_secret_key: Créez un nouveau webhook endpoint pour créer une clé secrète de webhook sur le tableau de bord Stripe et écoutez plusieurs événements.
+                    payment_method_type: Il n'est normalement pas nécessaire de définir des méthodes de paiement, vous pouvez les gérer dans votre tableau de bord Stripe.
                 action:
                     webhook_secret_key: Créez un nouveau webhook endpoint.
+    order_pay:
+        web_elements:
+            pay: Payer

@@ -17,15 +17,18 @@ sylius_twig_hooks:
         'sylius_admin.payment_method.create.content.form.sections.gateway_configuration.stripe_checkout.form': &form_inner
             publishable_key:
                 template: '@FluxSESyliusStripePlugin/admin/payment_method/form/publishable_key.html.twig'
-                priority: 300
+                priority: 400
             secret_key:
                 template: '@FluxSESyliusStripePlugin/admin/payment_method/form/secret_key.html.twig'
-                priority: 200
+                priority: 300
             use_authorize:
                 template: '@FluxSESyliusStripePlugin/admin/payment_method/form/use_authorize.html.twig'
-                priority: 100
+                priority: 200
             webhook_secret_keys:
                 template: '@FluxSESyliusStripePlugin/admin/payment_method/form/webhook_secret_keys.html.twig'
+                priority: 100
+            payment_method_types:
+                template: '@FluxSESyliusStripePlugin/admin/payment_method/form/payment_method_types.html.twig'
                 priority: 0
         'sylius_admin.payment_method.create.content.form.sections.gateway_configuration.stripe_web_elements.form': *form_inner
         'sylius_admin.payment_method.update.content.form.sections.gateway_configuration.stripe_checkout.form': *form_inner
@@ -38,3 +41,11 @@ sylius_twig_hooks:
         'sylius_admin.payment_method.create.content.form.sections.gateway_configuration.stripe_web_elements.form.webhook_secret_keys': *webhook_secret_keys
         'sylius_admin.payment_method.update.content.form.sections.gateway_configuration.stripe_checkout.form.webhook_secret_keys': *webhook_secret_keys
         'sylius_admin.payment_method.update.content.form.sections.gateway_configuration.stripe_web_elements.form.webhook_secret_keys': *webhook_secret_keys
+
+        'sylius_admin.payment_method.create.content.form.sections.gateway_configuration.stripe_checkout.form.payment_method_types': &payment_method_types
+            webhook_secret_key:
+                template: '@FluxSESyliusStripePlugin/admin/payment_method/form/payment_method_types/payment_method_type.html.twig'
+                priority: 0
+        'sylius_admin.payment_method.create.content.form.sections.gateway_configuration.stripe_web_elements.form.payment_method_types': *payment_method_types
+        'sylius_admin.payment_method.update.content.form.sections.gateway_configuration.stripe_checkout.form.payment_method_types': *payment_method_types
+        'sylius_admin.payment_method.update.content.form.sections.gateway_configuration.stripe_web_elements.form.payment_method_types': *payment_method_types

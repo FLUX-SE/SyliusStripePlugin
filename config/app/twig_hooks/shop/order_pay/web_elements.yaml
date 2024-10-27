@@ -1,0 +1,18 @@
+sylius_twig_hooks:
+    hooks:
+
+        'flux_se_sylius_stripe_plugin.order_pay.stripe_web_elements.capture#javascripts':
+            stripe_lib:
+                template: '@FluxSESyliusStripePlugin/shop/order_pay/web_elements/capture/javascript.html.twig'
+                priority: 100
+            stripe_appearance:
+                template: '@FluxSESyliusStripePlugin/shop/order_pay/web_elements/capture/javascript_appearance.html.twig'
+                priority: 200
+            stripe_payment_intent:
+                template: '@FluxSESyliusStripePlugin/shop/order_pay/web_elements/capture/javascript_common.html.twig'
+                priority: 0
+
+        'flux_se_sylius_stripe_plugin.shop.order_pay.web_elements.capture':
+            form:
+                template: '@FluxSESyliusStripePlugin/shop/order_pay/web_elements/capture/form.html.twig'
+                priority: 0

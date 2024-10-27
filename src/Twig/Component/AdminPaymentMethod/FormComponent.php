@@ -8,12 +8,13 @@ use Sylius\Bundle\UiBundle\Twig\Component\LiveCollectionTrait;
 use Sylius\Bundle\UiBundle\Twig\Component\ResourceFormComponentTrait;
 use Sylius\Bundle\UiBundle\Twig\Component\TemplatePropTrait;
 use Sylius\Component\Core\Factory\PaymentMethodFactoryInterface;
-use Sylius\Component\Payment\Model\PaymentMethodInterface;
+use Sylius\Component\Core\Model\PaymentMethodInterface;
 use Sylius\Resource\Doctrine\Persistence\RepositoryInterface;
 use Sylius\Resource\Model\ResourceInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
+use Webmozart\Assert\Assert;
 
 #[AsLiveComponent]
 class FormComponent
@@ -26,6 +27,10 @@ class FormComponent
         initialize as public __construct;
     }
 
+    /**
+     * @param RepositoryInterface<PaymentMethodInterface> $paymentMethodRepository
+     * @param PaymentMethodFactoryInterface<PaymentMethodInterface> $paymentMethodFactory
+     */
     public function __construct(
         RepositoryInterface $paymentMethodRepository,
         FormFactoryInterface $formFactory,
@@ -40,6 +45,7 @@ class FormComponent
     public ?string $factoryName = null;
 
     protected function createResource(): ResourceInterface {
+        Assert::notNull($this->factoryName, 'A factory name is required to create a new payment method.');
         return $this->paymentMethodFactory->createWithGateway($this->factoryName);
     }
 }

@@ -11,8 +11,15 @@
             "email": "Prometee@users.noreply.github.com"
         }
     ],
+    "repositories": [
+        {
+            "type": "github",
+            "url": "https://github.com/Prometee/Sylius.git"
+        }
+    ],
     "require": {
-        "sylius/core-bundle": "^2.0.x-dev"
+        "sylius/sylius": "dev-payment-request-enhancement",
+        "stripe/stripe-php": "^16.1"
     },
     "require-dev": {
         "behat/behat": "^3.7",
@@ -32,7 +39,6 @@
         "phpstan/phpstan-webmozart-assert": "^1.0",
         "phpunit/phpunit": "^9.5",
         "robertfausk/behat-panther-extension": "^1.1",
-        "sylius/sylius": "^2.0.x-dev",
         "sylius-labs/coding-standard": "^4.1",
         "sylius-labs/suite-tags-extension": "^0.2.0",
         "symfony/browser-kit": "^6.4|^7.1",
@@ -40,7 +46,9 @@
         "symfony/dotenv": "^6.4|^7.1",
         "symfony/intl": "^6.4|^7.1",
         "symfony/runtime": "^6.4|^7.1",
-        "symfony/web-profiler-bundle": "^6.4|^7.1"
+        "symfony/web-profiler-bundle": "^6.4|^7.1",
+        "spaze/phpstan-stripe": "^3.2",
+        "nyholm/psr7": "^1.8"
     },
     "suggest": {
         "sylius/shop-bundle": "Use the Sylius default front shop",

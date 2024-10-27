@@ -1,0 +1,32 @@
+{% from '@SyliusAdmin/shared/helper/icon.html.twig' import icon %}
+
+{% set form = hookable_metadata.context.form.gatewayConfig.config.payment_method_types %}
+
+<div class="col-12{{ form.vars.valid ?: ' border rounded border-danger' }}">
+    {{ form_label(form) }}
+    <div class="col alert alert-info">
+        <div class="d-flex align-items-center">
+            <div>{{ icon({ 'icon': 'info_circle', 'class': 'alert-icon' }) }}</div>
+            <div>
+                <p>
+                    {{ 'flux_se_sylius_stripe_plugin.form.gateway_configuration.stripe.info.payment_method_type'|trans }}
+                </p>
+                <p>
+                    <a href="https://docs.stripe.com/api/checkout/sessions/create#create_checkout_session-payment_method_types" target="_blank">
+                        {{ 'sylius.ui.view_more'|trans }}
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    {{ form_errors(form) }}
+
+    <div {{ sylius_test_html_attribute('config-payment-method-types') }} >
+        {% for child_form in form %}
+            {% hook 'payment_method_types' with { form: child_form } %}
+        {% endfor %}
+    </div>
+
+    {{ form_row(form.vars.button_add, sylius_test_form_attribute('add-payment-method-type')) }}
+</div>

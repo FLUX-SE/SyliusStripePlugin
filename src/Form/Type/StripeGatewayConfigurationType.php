@@ -21,7 +21,11 @@ final class StripeGatewayConfigurationType extends AbstractType
                 'constraints' => [
                     new NotBlank([
                         'message' => 'flux_se_sylius_stripe_plugin.stripe.publishable_key.not_blank',
-                        'groups' => 'sylius',
+                        'groups' => [
+                            'sylius',
+                            'stripe_checkout',
+                            'stripe_web_elements'
+                        ],
                     ]),
                 ],
             ])
@@ -30,7 +34,11 @@ final class StripeGatewayConfigurationType extends AbstractType
                 'constraints' => [
                     new NotBlank([
                         'message' => 'flux_se_sylius_stripe_plugin.stripe.secret_key.not_blank',
-                        'groups' => 'sylius',
+                        'groups' => [
+                            'sylius',
+                            'stripe_checkout',
+                            'stripe_web_elements'
+                        ],
                     ]),
                 ],
             ])
@@ -57,7 +65,11 @@ final class StripeGatewayConfigurationType extends AbstractType
                 'constraints' => [
                     new NotBlank([
                         'message' => 'flux_se_sylius_stripe_plugin.stripe.webhook_secret_keys.not_blank',
-                        'groups' => 'sylius',
+                        'groups' => [
+                            'sylius',
+                            'stripe_checkout',
+                            'stripe_web_elements'
+                        ],
                     ]),
                 ],
                 'entry_options' => [
@@ -67,6 +79,23 @@ final class StripeGatewayConfigurationType extends AbstractType
                         'placeholder' => 'whsec_',
                     ],
                 ],
+            ])
+            ->add('payment_method_types', LiveCollectionType::class, [
+                'label' => 'flux_se_sylius_stripe_plugin.form.gateway_configuration.stripe.payment_method_types',
+                'required' => false,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'delete_empty' => true,
+                'button_delete_options' => [
+                    'label' => 'sylius.ui.delete',
+                    'attr' => [
+                        'class' => 'btn btn-danger',
+                    ],
+                ],
+                'button_add_options' => [
+                    'label' => 'sylius.ui.add',
+                ],
+                'error_bubbling' => false,
             ])
         ;
     }

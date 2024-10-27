@@ -1,0 +1,33 @@
+{% import "@SyliusShop/shared/macro/money.html.twig" as money %}
+
+{% set publishable_key = hookable_metadata.context.publishable_key %}
+{# @var model Stripe\PaymentIntent #}
+{% set model = hookable_metadata.context.model %}
+{% set action_url = hookable_metadata.context.action_url %}
+
+<script type="text/javascript">
+    var fluxSEStripePluginOrderPayWebElements = {
+        'publishable_key': '{{ publishable_key }}',
+        'client_secret': '{{ model.client_secret }}',
+        'action_url': '{{ action_url }}',
+    }
+</script>
+<div class="container my-auto">
+    <div class="row align-items-center justify-content-center vh-100">
+        <div class="col-12 col-md-6">
+            <h1>{{ 'sylius.ui.total'|trans }}: {{ money.format(model.amount, model.currency) }}</h1>
+        </div>
+        <form id="payment-form" class="col-12 col-md-6">
+            <div id="payment-element"></div>
+
+            <div class="btn-list mt-3">
+                <button type="submit" class="btn btn-primary" disabled>
+                    {{ 'flux_se_sylius_stripe_plugin.order_pay.web_elements.pay'|trans }}
+                </button>
+                <a class="btn" href="{{ action_url }}">{{ 'sylius.ui.cancel'|trans }}</a>
+            </div>
+
+            <div id="error-message" class="d-none alert alert-danger mt-3"></div>
+        </form>
+    </div>
+</div>

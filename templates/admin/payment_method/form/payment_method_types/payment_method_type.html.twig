@@ -1,0 +1,13 @@
+{% set form = hookable_metadata.context.form %}
+
+<div class="row" {{ sylius_test_html_attribute('config-payment-method-type') }} >
+    <div class="col">
+        {{ form_label(form) }}
+        {{ form_widget(form, sylius_test_form_attribute('payment-method-type')) }}
+        {{ form_help(form) }}
+    </div>
+    <div class="col-auto">
+        {{ form_row(form.vars.button_delete, sylius_test_form_attribute('delete-payment-method-type')) }}
+    </div>
+    {{ form_errors(form) }}
+</div>

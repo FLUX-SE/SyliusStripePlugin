@@ -1,0 +1,45 @@
+services:
+    
+    flux_se.sylius_stripe.command_handlers.checkout.capture:
+        class: FluxSE\SyliusStripePlugin\CommandHandler\Checkout\CapturePaymentRequestHandler
+        arguments:
+            - '@sylius.provider.payment_request'
+            - '@flux_se.sylius_stripe.stripe.factory.client'
+            - '@flux_se.sylius_stripe.provider.checkout.checkout_session_params'
+            - '@flux_se.sylius_stripe.provider.checkout.checkout_session_opts'
+            - '@sylius_abstraction.state_machine'
+        tags:
+            - name: messenger.message_handler
+              bus: sylius.payment_request.command_bus
+    
+    flux_se.sylius_stripe.command_handlers.checkout.status:
+        class: FluxSE\SyliusStripePlugin\CommandHandler\Checkout\StatusPaymentRequestHandler
+        arguments:
+            - '@sylius.provider.payment_request'
+            - '@flux_se.sylius_stripe.stripe.factory.client'
+            - '@sylius_abstraction.state_machine'
+        tags:
+            - name: messenger.message_handler
+              bus: sylius.payment_request.command_bus
+    
+    flux_se.sylius_stripe.command_handlers.web_elements.capture:
+        class: FluxSE\SyliusStripePlugin\CommandHandler\WebElements\CapturePaymentRequestHandler
+        arguments:
+            - '@sylius.provider.payment_request'
+            - '@flux_se.sylius_stripe.stripe.factory.client'
+            - '@flux_se.sylius_stripe.provider.web_elements.payment_intent_params'
+            - '@flux_se.sylius_stripe.provider.web_elements.payment_intent_opts'
+            - '@sylius_abstraction.state_machine'
+        tags:
+            - name: messenger.message_handler
+              bus: sylius.payment_request.command_bus
+    
+    flux_se.sylius_stripe.command_handlers.web_elements.status:
+        class: FluxSE\SyliusStripePlugin\CommandHandler\WebElements\StatusPaymentRequestHandler
+        arguments:
+            - '@sylius.provider.payment_request'
+            - '@flux_se.sylius_stripe.stripe.factory.client'
+            - '@sylius_abstraction.state_machine'
+        tags:
+            - name: messenger.message_handler
+              bus: sylius.payment_request.command_bus

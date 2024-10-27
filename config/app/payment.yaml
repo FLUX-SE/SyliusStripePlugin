@@ -1,0 +1,11 @@
+sylius_payment:
+    gateway_config:
+        validation_groups:
+            stripe_checkout:
+                - sylius
+                - stripe
+                - stripe_checkout
+            stripe_web_elements:
+                - sylius
+                - stripe
+                - stripe_web_elements

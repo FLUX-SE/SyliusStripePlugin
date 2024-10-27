@@ -1,0 +1,13 @@
+{% extends '@SyliusShop/shared/layout/base.html.twig' %}
+
+{% set prefixes = ['flux_se_sylius_stripe_plugin.order_pay.stripe_web_elements.capture'] %}
+
+{% block title %}{{ 'flux_se_sylius_stripe_plugin.gateway_factory.stripe_web_elements'|trans }} | {{ parent() }}{% endblock %}
+
+{% block body %}
+    {% hook 'flux_se_sylius_stripe_plugin.shop.order_pay.web_elements.capture' with {
+        publishable_key,
+        model,
+        action_url
+    } %}
+{% endblock %}
