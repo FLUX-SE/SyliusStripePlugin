@@ -22,6 +22,12 @@ services:
             - name: flux_se.sylius_stripe.command_provider.checkout
               action: !php/const Sylius\Component\Payment\Model\PaymentRequestInterface::ACTION_STATUS
     
+    flux_se.sylius_stripe.command_provider.checkout.notify:
+        class: FluxSE\SyliusStripePlugin\CommandProvider\Checkout\NotifyPaymentRequestCommandProvider
+        tags:
+            - name: flux_se.sylius_stripe.command_provider.checkout
+              action: !php/const Sylius\Component\Payment\Model\PaymentRequestInterface::ACTION_NOTIFY
+    
     flux_se.sylius_stripe.command_provider.web_elements:
         class: Sylius\Bundle\PaymentBundle\CommandProvider\ActionsCommandProvider
         arguments:
@@ -43,3 +49,9 @@ services:
         tags:
             - name: flux_se.sylius_stripe.command_provider.web_elements
               action: !php/const Sylius\Component\Payment\Model\PaymentRequestInterface::ACTION_STATUS
+    
+    flux_se.sylius_stripe.command_provider.web_elements.notify:
+        class: FluxSE\SyliusStripePlugin\CommandProvider\WebElements\NotifyPaymentRequestCommandProvider
+        tags:
+            - name: flux_se.sylius_stripe.command_provider.web_elements
+              action: !php/const Sylius\Component\Payment\Model\PaymentRequestInterface::ACTION_NOTIFY

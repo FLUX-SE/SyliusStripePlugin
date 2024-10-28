@@ -6,5 +6,8 @@ namespace FluxSE\SyliusStripePlugin\Stripe\Configurator;
 
 interface StripeConfiguratorInterface
 {
+    /**
+     * @param array<string, mixed> $config
+     */
     public function configure(array $config): void;
 }

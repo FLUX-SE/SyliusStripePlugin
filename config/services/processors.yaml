@@ -1,0 +1,55 @@
+parameters:
+    flux_se.sylius_stripe.processor.webhook_event.checkout_session:
+        - !php/const Stripe\Event::CHECKOUT_SESSION_COMPLETED
+        - !php/const Stripe\Event::CHECKOUT_SESSION_EXPIRED
+        - !php/const Stripe\Event::CHECKOUT_SESSION_ASYNC_PAYMENT_FAILED
+        - !php/const Stripe\Event::CHECKOUT_SESSION_ASYNC_PAYMENT_SUCCEEDED
+    flux_se.sylius_stripe.processor.webhook_event.payment_intent:
+        - !php/const Stripe\Event::PAYMENT_INTENT_SUCCEEDED
+        - !php/const Stripe\Event::PAYMENT_INTENT_CANCELED
+        - !php/const Stripe\Event::PAYMENT_INTENT_PROCESSING
+
+services:
+    
+    flux_se.sylius_stripe.processor.payment_transition.checkout:
+        class: FluxSE\SyliusStripePlugin\Processor\Checkout\CheckoutSessionTransitionProcessor
+        arguments:
+            - '@sylius_abstraction.state_machine'
+    
+    flux_se.sylius_stripe.processor.payment_transition.web_elements:
+        class: FluxSE\SyliusStripePlugin\Processor\WebElements\PaymentIntentTransitionProcessor
+        arguments:
+            - '@sylius_abstraction.state_machine'
+
+    FluxSE\SyliusStripePlugin\Processor\NotifyPayloadProcessor:
+        decorates: sylius.processor.notify_payload
+        arguments:
+            - '@.inner'
+    
+    flux_se.sylius_stripe.processor.webhook_event.checkout.composite:
+        class: FluxSE\SyliusStripePlugin\Processor\CompositeWebhookEventProcessor
+        arguments:
+            - !tagged_iterator flux_se.sylius_stripe.processor.webhook_event.checkout
+    
+    flux_se.sylius_stripe.processor.webhook_event.web_elements.composite:
+        class: FluxSE\SyliusStripePlugin\Processor\CompositeWebhookEventProcessor
+        arguments:
+            - !tagged_iterator flux_se.sylius_stripe.processor.webhook_event.web_elements
+        
+    FluxSE\SyliusStripePlugin\Processor\Checkout\CheckoutSessionEventProcessor:
+        arguments:
+            - '%flux_se.sylius_stripe.processor.webhook_event.checkout_session%'
+            - '@flux_se.sylius_stripe.stripe.factory.client'
+            - '@flux_se.sylius_stripe.provider.checkout.checkout_session_params'
+            - '@flux_se.sylius_stripe.provider.checkout.checkout_session_opts'
+        tags:
+            - name: flux_se.sylius_stripe.processor.webhook_event.checkout
+        
+    FluxSE\SyliusStripePlugin\Processor\WebElements\PaymentIntentEventProcessor:
+        arguments:
+            - '%flux_se.sylius_stripe.processor.webhook_event.payment_intent%'
+            - '@flux_se.sylius_stripe.stripe.factory.client'
+            - '@flux_se.sylius_stripe.provider.web_elements.payment_intent_params'
+            - '@flux_se.sylius_stripe.provider.web_elements.payment_intent_opts'
+        tags:
+            - name: flux_se.sylius_stripe.processor.webhook_event.web_elements

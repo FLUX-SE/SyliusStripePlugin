@@ -19,8 +19,12 @@ final readonly class PaymentIntentParamsProvider implements ParamsProviderInterf
     ) {
     }
 
-    public function getParams(PaymentRequestInterface $paymentRequest): ?array
+    public function getParams(PaymentRequestInterface $paymentRequest, string $method): ?array
     {
+        if (false === $this->supportsAction($paymentRequest, $method)) {
+            return null;
+        }
+
         $details = [
             'amount' => $this->amountProvider->getAmount($paymentRequest),
             'currency' => $this->currencyProvider->getCurrency($paymentRequest),
@@ -34,5 +38,20 @@ final readonly class PaymentIntentParamsProvider implements ParamsProviderInterf
         $details['metadata'] = $this->metadataProvider->getMetadata($paymentRequest);
 
         return $details;
+    }
+
+    private function supportsAction(PaymentRequestInterface $paymentRequest, string $method): bool
+    {
+        return
+            'create' === $method &&
+            in_array(
+                $paymentRequest->getAction(),
+                [
+                    PaymentRequestInterface::ACTION_CAPTURE,
+                    PaymentRequestInterface::ACTION_AUTHORIZE,
+                ],
+                true
+            )
+        ;
     }
 }

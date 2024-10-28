@@ -11,7 +11,7 @@ final readonly class MetadataProvider implements MetadataProviderInterface
     public function getMetadata(PaymentRequestInterface $paymentRequest): array
     {
         return [
-            MetadataProviderInterface::DEFAULT_TOKEN_HASH_KEY_NAME => $paymentRequest->getId(),
+            MetadataProviderInterface::DEFAULT_TOKEN_HASH_KEY_NAME => $paymentRequest->getHash()?->toRfc4122(),
         ];
     }
 }

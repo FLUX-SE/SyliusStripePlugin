@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace FluxSE\SyliusStripePlugin\CommandHandler\WebElements;
+namespace FluxSE\SyliusStripePlugin\CommandHandler;
 
-use FluxSE\SyliusStripePlugin\Command\WebElements\StatusPaymentRequest;
+use FluxSE\SyliusStripePlugin\Command\AbstractNotifyPaymentRequest;
 use FluxSE\SyliusStripePlugin\Processor\PaymentTransitionProcessorInterface;
+use FluxSE\SyliusStripePlugin\Processor\WebhookEventProcessorInterface;
 use FluxSE\SyliusStripePlugin\Provider\OptsProviderInterface;
 use FluxSE\SyliusStripePlugin\Provider\ParamsProviderInterface;
 use FluxSE\SyliusStripePlugin\Stripe\Factory\ClientFactoryInterface;
@@ -16,34 +17,38 @@ use Sylius\Component\Payment\PaymentRequestTransitions;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
-final readonly class StatusPaymentRequestHandler
+final readonly class NotifyPaymentRequestHandler
 {
     public function __construct(
         private PaymentRequestProviderInterface $paymentRequestProvider,
         private ClientFactoryInterface $stripeClientFactory,
-        private ParamsProviderInterface $paymentIntentParamsProvider,
-        private OptsProviderInterface $paymentIntentOptsProvider,
+        private ParamsProviderInterface $eventParamsProvider,
+        private OptsProviderInterface $eventOptsProvider,
+        private WebhookEventProcessorInterface $webhookProcessor,
         private PaymentTransitionProcessorInterface $paymentTransitionProcessor,
         private StateMachineInterface $stateMachine,
     ) {
     }
 
-    public function __invoke(StatusPaymentRequest $statusPaymentRequest): void
+    public function __invoke(AbstractNotifyPaymentRequest $capturePaymentRequest): void
     {
-        $paymentRequest = $this->paymentRequestProvider->provide($statusPaymentRequest);
+        $paymentRequest = $this->paymentRequestProvider->provide($capturePaymentRequest);
+        /** @var array{event: array<string, mixed>}|null $payload */
+        $payload = $paymentRequest->getPayload();
+        $data = $payload['event'] ?? [];
+        /** @var string|null $id */
+        $id = $data['id'] ?? null;
+        if (null === $id) {
+            throw new \LogicException('The payment request payload "[event][id]" is null.');
+        }
 
         /** @var StripeClient $stripe */
         $stripe = $this->stripeClientFactory->createFromPaymentMethod($paymentRequest->getMethod());
+        $params = $this->eventParamsProvider->getParams($paymentRequest, 'retrieve');
+        $opts = $this->eventOptsProvider->getOpts($paymentRequest, 'retrieve');
+        $event = $stripe->events->retrieve($id, $params, $opts);
 
-        $details = $paymentRequest->getPayment()->getDetails();
-        $params = $this->paymentIntentParamsProvider->getParams($paymentRequest, 'retrieve');
-        $opts = $this->paymentIntentOptsProvider->getOpts($paymentRequest, 'retrieve');
-        $paymentIntent = $stripe->paymentIntents->retrieve($details['id'], $params, $opts);
-
-        $payment = $paymentRequest->getPayment();
-        $data = $paymentIntent->toArray();
-        $paymentRequest->setResponseData($data);
-        $payment->setDetails($data);
+        $this->webhookProcessor->process($paymentRequest, $event);
 
         $this->paymentTransitionProcessor->process($paymentRequest);
 

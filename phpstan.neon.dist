@@ -8,3 +8,13 @@ parameters:
     ignoreErrors:
         - message: '/Cannot call method scalarNode\(\) on Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface\|null\./'
           path: src/DependencyInjection/Configuration.php
+        - message: '/Method FluxSE\\SyliusStripePlugin\\Stripe\\HttpClient\\PsrClient::[^\(]+\(\) has parameter \$[^ ]+ with no value type specified in iterable type array\./'
+          path: src/Stripe/HttpClient/PsrClient.php
+        - message: '/Method FluxSE\\SyliusStripePlugin\\Stripe\\HttpClient\\PsrClient::[^\(]+\(\) return type has no value type specified in iterable type array\./'
+          path: src/Stripe/HttpClient/PsrClient.php
+        - message: '/Parameter #1 \$params of static method Stripe\\Util\\Util::encodeParameters\(\) expects array, mixed given\./'
+          path: src/Stripe/HttpClient/PsrClient.php
+        - message: '/Parameter #1 \$name of method Psr\\Http\\Message\\MessageInterface::withHeader\(\) expects string, string\|null given\./'
+          path: src/Stripe/HttpClient/PsrClient.php
+        - message: '/Parameter #2 \$value of method Psr\\Http\\Message\\MessageInterface::withHeader\(\) expects array<string>\|string, string\|null given\./'
+          path: src/Stripe/HttpClient/PsrClient.php

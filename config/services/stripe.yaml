@@ -29,3 +29,7 @@ services:
     FluxSE\SyliusStripePlugin\Stripe\Factory\ClientFactoryInterface:
         alias: flux_se.sylius_stripe.stripe.factory.client
     
+    flux_se.sylius_stripe.stripe.resolver.event_resolver:
+        class: FluxSE\SyliusStripePlugin\Stripe\Resolver\EventResolver
+    FluxSE\SyliusStripePlugin\Stripe\Resolver\EventResolverInterface:
+        alias: flux_se.sylius_stripe.stripe.resolver.event_resolver

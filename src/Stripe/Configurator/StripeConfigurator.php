@@ -15,31 +15,35 @@ use Stripe\Util\LoggerInterface as StripeLoggerInterface;
 
 final class StripeConfigurator implements StripeConfiguratorInterface
 {
-    private ?array $savedAppInfo = null;
+    /**
+     * @var array<string, string>
+     */
+    private array $savedAppInfo = [];
 
     private null|LoggerInterface|StripeLoggerInterface $savedLogger = null;
-    private ?ClientInterface $savedHttpClient = null;
+    private ClientInterface $savedHttpClient;
 
-    private ?StreamingClientInterface $savedStreamingHttpClient = null;
+    private StreamingClientInterface $savedStreamingHttpClient;
 
     public function __construct(
         private LoggerInterface $logger,
         private ClientInterface $httpClient,
         private StreamingClientInterface $streamingHttpClient,
-    ) {}
+    ) {
+        $this->savedHttpClient = CurlClient::instance();
+        $this->savedStreamingHttpClient = CurlClient::instance();
+    }
 
     public function configure(array $config): void
     {
-        $this->savedAppInfo = Stripe::getAppInfo();
-        $this->savedHttpClient = CurlClient::instance();
-        $this->savedStreamingHttpClient = CurlClient::instance();
+        $this->savedAppInfo = Stripe::getAppInfo() ?? [];
         $this->savedLogger = Stripe::getLogger();
 
         $package = 'flux-se/stripe-plugin-stripe-plugin';
         if (InstalledVersions::isInstalled($package)) {
             $version = InstalledVersions::getVersion($package);
         } else {
-            $version = InstalledVersions::getRootPackage()['version'] ?? '';
+            $version = InstalledVersions::getRootPackage()['version'];
         }
         Stripe::setAppInfo("FluxSESyliusStripePlugin", $version, "https://github.com/FLUX-SE/SyliusStripePlugin");
 
@@ -51,18 +55,15 @@ final class StripeConfigurator implements StripeConfiguratorInterface
 
     public function unConfigure(): void
     {
-        if (null === $this->savedAppInfo) {
-            Stripe::$appInfo = null;
+        Stripe::$appInfo = $this->savedAppInfo;
+
+        // Stripe::$logger accepts null|LoggerInterface
+        // but Stripe::setLogger() accepts LoggerInterface|StripeLoggerInterface
+        if (null === $this->savedLogger) {
+            Stripe::$logger = $this->savedLogger;
+        } else {
+            Stripe::setLogger($this->savedLogger);
         }
-
-        Stripe::setAppInfo(
-            $this->savedAppInfo['name'],
-            $this->savedAppInfo['version'],
-            $this->savedAppInfo['url'],
-            $this->savedAppInfo['partner_id'],
-        );
-
-        Stripe::setLogger($this->savedLogger);
 
         ApiRequestor::setHttpClient($this->savedHttpClient);
         ApiRequestor::setStreamingHttpClient($this->savedStreamingHttpClient);

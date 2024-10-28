@@ -1,3 +1,8 @@
+parameters:
+    flux_se.sylius_stripe.factories:
+        - stripe_checkout
+        - stripe_web_elements
+
 services:
     # WEB ELEMENTS
     flux_se.sylius_stripe.provider.web_elements.payment_intent_params:
@@ -92,3 +97,18 @@ services:
 
     flux_se.sylius_stripe.provider.checkout.metadata:
         class: FluxSE\SyliusStripePlugin\Provider\MetadataProvider
+
+    flux_se.sylius_stripe.provider.event_params:
+        class: FluxSE\SyliusStripePlugin\Provider\EventParamsProvider
+
+    flux_se.sylius_stripe.provider.event_opts:
+        class: FluxSE\SyliusStripePlugin\Provider\EventOptsProvider
+
+    FluxSE\SyliusStripePlugin\Provider\StripeNotifyPaymentProvider:
+        arguments:
+            - '%flux_se.sylius_stripe.factories%'
+            - '@sylius.repository.payment_request'
+            - '@flux_se.sylius_stripe.stripe.resolver.event_resolver'
+        tags:
+            - name: sylius.payment_request.payment_notify_provider
+        

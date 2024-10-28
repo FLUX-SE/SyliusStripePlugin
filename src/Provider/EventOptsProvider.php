@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace FluxSE\SyliusStripePlugin\Provider\WebElements;
+namespace FluxSE\SyliusStripePlugin\Provider;
 
-use FluxSE\SyliusStripePlugin\Provider\OptsProviderInterface;
 use Stripe\Util\RequestOptions;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 
-final class PaymentIntentOptsProvider implements OptsProviderInterface
+final readonly class EventOptsProvider implements OptsProviderInterface
 {
     public function getOpts(PaymentRequestInterface $paymentRequest, string $method): ?RequestOptions
     {

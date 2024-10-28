@@ -24,8 +24,12 @@ final readonly class CheckoutSessionParamsProvider implements ParamsProviderInte
     ) {
     }
 
-    public function getParams(PaymentRequestInterface $paymentRequest): ?array
+    public function getParams(PaymentRequestInterface $paymentRequest, string $method): ?array
     {
+        if (false === $this->supportsAction($paymentRequest, $method)) {
+            return null;
+        }
+
         $details = [];
 
         $customerEmail = $this->customerEmailProvider->getCustomerEmail($paymentRequest);
@@ -55,5 +59,20 @@ final readonly class CheckoutSessionParamsProvider implements ParamsProviderInte
         }
 
         return $details;
+    }
+
+    protected function supportsAction(PaymentRequestInterface $paymentRequest, string $method): bool
+    {
+        return
+            'create' === $method &&
+            in_array(
+                $paymentRequest->getAction(),
+                [
+                    PaymentRequestInterface::ACTION_CAPTURE,
+                    PaymentRequestInterface::ACTION_AUTHORIZE,
+                ],
+                true
+            )
+        ;
     }
 }

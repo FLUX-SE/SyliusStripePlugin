@@ -7,6 +7,7 @@ services:
             - '@flux_se.sylius_stripe.stripe.factory.client'
             - '@flux_se.sylius_stripe.provider.checkout.checkout_session_params'
             - '@flux_se.sylius_stripe.provider.checkout.checkout_session_opts'
+            - '@flux_se.sylius_stripe.processor.payment_transition.checkout'
             - '@sylius_abstraction.state_machine'
         tags:
             - name: messenger.message_handler
@@ -17,6 +18,23 @@ services:
         arguments:
             - '@sylius.provider.payment_request'
             - '@flux_se.sylius_stripe.stripe.factory.client'
+            - '@flux_se.sylius_stripe.provider.checkout.checkout_session_params'
+            - '@flux_se.sylius_stripe.provider.checkout.checkout_session_opts'
+            - '@flux_se.sylius_stripe.processor.payment_transition.checkout'
+            - '@sylius_abstraction.state_machine'
+        tags:
+            - name: messenger.message_handler
+              bus: sylius.payment_request.command_bus
+    
+    flux_se.sylius_stripe.command_handlers.checkout.notify:
+        class: FluxSE\SyliusStripePlugin\CommandHandler\NotifyPaymentRequestHandler
+        arguments:
+            - '@sylius.provider.payment_request'
+            - '@flux_se.sylius_stripe.stripe.factory.client'
+            - '@flux_se.sylius_stripe.provider.event_params'
+            - '@flux_se.sylius_stripe.provider.event_opts'
+            - '@flux_se.sylius_stripe.processor.webhook_event.checkout.composite'
+            - '@flux_se.sylius_stripe.processor.payment_transition.checkout'
             - '@sylius_abstraction.state_machine'
         tags:
             - name: messenger.message_handler
@@ -29,6 +47,7 @@ services:
             - '@flux_se.sylius_stripe.stripe.factory.client'
             - '@flux_se.sylius_stripe.provider.web_elements.payment_intent_params'
             - '@flux_se.sylius_stripe.provider.web_elements.payment_intent_opts'
+            - '@flux_se.sylius_stripe.processor.payment_transition.web_elements'
             - '@sylius_abstraction.state_machine'
         tags:
             - name: messenger.message_handler
@@ -39,6 +58,23 @@ services:
         arguments:
             - '@sylius.provider.payment_request'
             - '@flux_se.sylius_stripe.stripe.factory.client'
+            - '@flux_se.sylius_stripe.provider.web_elements.payment_intent_params'
+            - '@flux_se.sylius_stripe.provider.web_elements.payment_intent_opts'
+            - '@flux_se.sylius_stripe.processor.payment_transition.web_elements'
+            - '@sylius_abstraction.state_machine'
+        tags:
+            - name: messenger.message_handler
+              bus: sylius.payment_request.command_bus
+    
+    flux_se.sylius_stripe.command_handlers.web_elements.notify:
+        class: FluxSE\SyliusStripePlugin\CommandHandler\NotifyPaymentRequestHandler
+        arguments:
+            - '@sylius.provider.payment_request'
+            - '@flux_se.sylius_stripe.stripe.factory.client'
+            - '@flux_se.sylius_stripe.provider.event_params'
+            - '@flux_se.sylius_stripe.provider.event_opts'
+            - '@flux_se.sylius_stripe.processor.webhook_event.web_elements.composite'
+            - '@flux_se.sylius_stripe.processor.payment_transition.web_elements'
             - '@sylius_abstraction.state_machine'
         tags:
             - name: messenger.message_handler

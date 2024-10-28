@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace FluxSE\SyliusStripePlugin\CommandHandler\Checkout;
 
 use FluxSE\SyliusStripePlugin\Command\Checkout\CapturePaymentRequest;
+use FluxSE\SyliusStripePlugin\Processor\PaymentTransitionProcessorInterface;
 use FluxSE\SyliusStripePlugin\Provider\OptsProviderInterface;
 use FluxSE\SyliusStripePlugin\Provider\ParamsProviderInterface;
 use FluxSE\SyliusStripePlugin\Stripe\Factory\ClientFactoryInterface;
@@ -22,6 +23,7 @@ final readonly class CapturePaymentRequestHandler
         private ClientFactoryInterface $stripeClientFactory,
         private ParamsProviderInterface $checkoutSessionParamsProvider,
         private OptsProviderInterface $checkoutSessionOptsProvider,
+        private PaymentTransitionProcessorInterface $paymentTransitionProcessor,
         private StateMachineInterface $stateMachine,
     ) {
     }
@@ -33,8 +35,8 @@ final readonly class CapturePaymentRequestHandler
         /** @var StripeClient $stripe */
         $stripe = $this->stripeClientFactory->createFromPaymentMethod($paymentRequest->getMethod());
 
-        $params = $this->checkoutSessionParamsProvider->getParams($paymentRequest);
-        $opts = $this->checkoutSessionOptsProvider->getOpts($paymentRequest);
+        $params = $this->checkoutSessionParamsProvider->getParams($paymentRequest, 'create');
+        $opts = $this->checkoutSessionOptsProvider->getOpts($paymentRequest, 'create');
 
         $session = $stripe->checkout->sessions->create($params, $opts);
 
@@ -43,6 +45,8 @@ final readonly class CapturePaymentRequestHandler
 
         $payment = $paymentRequest->getPayment();
         $payment->setDetails($data);
+
+        $this->paymentTransitionProcessor->process($paymentRequest);
 
         $this->stateMachine->apply(
             $paymentRequest,
