@@ -1,17 +1,9 @@
 {% import "@SyliusShop/shared/macro/money.html.twig" as money %}
 
-{% set publishable_key = hookable_metadata.context.publishable_key %}
 {# @var model Stripe\PaymentIntent #}
 {% set model = hookable_metadata.context.model %}
 {% set action_url = hookable_metadata.context.action_url %}
 
-<script type="text/javascript">
-    var fluxSEStripePluginOrderPayWebElements = {
-        'publishable_key': '{{ publishable_key }}',
-        'client_secret': '{{ model.client_secret }}',
-        'action_url': '{{ action_url }}',
-    }
-</script>
 <div class="container my-auto">
     <div class="row align-items-center justify-content-center vh-100">
         <div class="col-12 col-md-6">
