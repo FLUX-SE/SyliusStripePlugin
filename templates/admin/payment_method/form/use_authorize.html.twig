@@ -1,5 +1,3 @@
-{% from '@SyliusAdmin/shared/helper/icon.html.twig' import icon %}
-
 {% set form = hookable_metadata.context.form.gatewayConfig.config.use_authorize %}
 
 <div class="col-12">
@@ -7,7 +5,7 @@
 </div>
 <div class="col-12 alert alert-info {{ form.vars.data ? '' : ' d-none' }}">
     <div class="d-flex align-items-center">
-        <div>{{ icon({ 'icon': 'info_circle', 'class': 'alert-icon' }) }}</div>
+        <div>{{ ux_icon('tabler:info-circle', {'class': 'icon alert-icon'}) }}</div>
         <div>
             <p>
                 {{ 'flux_se_sylius_stripe_plugin.form.gateway_configuration.stripe.info.use_authorize'|trans }}

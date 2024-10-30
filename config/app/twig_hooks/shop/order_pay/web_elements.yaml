@@ -13,9 +13,6 @@ sylius_twig_hooks:
                 priority: 0
 
         'flux_se_sylius_stripe_plugin.shop.order_pay.web_elements.capture':
-            init_var:
-                template: '@FluxSESyliusStripePlugin/shop/order_pay/web_elements/capture/init_var.html.twig'
-                priority: 100
             form:
                 template: '@FluxSESyliusStripePlugin/shop/order_pay/web_elements/capture/form.html.twig'
                 priority: 0

@@ -1,71 +1,72 @@
+{% set publishable_key = hookable_metadata.context.publishable_key %}
+{# @var model \Stripe\PaymentIntent #}
+{% set model = hookable_metadata.context.model %}
+{% set action_url = hookable_metadata.context.action_url %}
 <script type="text/javascript" defer>
-    if (fluxSEStripePluginOrderPayWebElements !== undefined) {
+    var stripe = Stripe('{{ publishable_key }}');
+    var options = {
+        clientSecret: '{{ model.client_secret }}',
+        appearance: appearance,
+    };
 
-        var stripe = Stripe(fluxSEStripePluginOrderPayWebElements.publishable_key);
-        var options = {
-            clientSecret: fluxSEStripePluginOrderPayWebElements.client_secret,
-            appearance: appearance,
-        };
+    var elements = stripe.elements(options);
 
-        var elements = stripe.elements(options);
-
-        if (typeof confirmPaymentOptions === 'undefined') {
-            window.confirmPaymentOptions = {};
-        }
-
-        confirmPaymentOptions.elements = elements;
-        var action_url = fluxSEStripePluginOrderPayWebElements.action_url;
-        confirmPaymentOptions.confirmParams = {
-            return_url: action_url ?? window.location.href,
-        };
-
-        var submitPaymentIntent = function() {
-            changeLoadingState(true);
-            hideError();
-
-            stripe.confirmPayment(confirmPaymentOptions)
-                .then(function (e) {
-                    if (e) {
-                        changeLoadingState(false);
-                        // Show error to your customer
-                        showError(e.error.message);
-                    }
-                });
-        };
-
-        var displayError = document.getElementById('error-message');
-
-        var showError = function(errorMsgText) {
-            displayError.classList.remove('d-none');
-            displayError.textContent = errorMsgText;
-        };
-
-        var hideError = function(errorMsgText) {
-            displayError.classList.add('d-none');
-            displayError.textContent = errorMsgText;
-        };
-
-        // Show a spinner on payment submission
-        var changeLoadingState = function(isLoading) {
-            form.querySelector("button[type='submit']").disabled = !!isLoading;
-        };
-
-        // Create an instance of the payment Element.
-        var paymentElement = elements.create('payment');
-
-        // Add an instance of the card Element into the `card-element` <div>.
-        paymentElement.mount('#payment-element');
-
-        // Enable submit button when the payment elements are ready
-        paymentElement.on('ready', function() {
-            changeLoadingState(false);
-        });
-
-        // Handle form submission.
-        var form = document.getElementById('payment-form');
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
-            submitPaymentIntent();
-        });
+    if (typeof confirmPaymentOptions === 'undefined') {
+        window.confirmPaymentOptions = {};
     }
+
+    confirmPaymentOptions.elements = elements;
+    var action_url = '{{ action_url }}';
+    confirmPaymentOptions.confirmParams = {
+        return_url: action_url ?? window.location.href,
+    };
+
+    var submitPaymentIntent = function() {
+        changeLoadingState(true);
+        hideError();
+
+        stripe.confirmPayment(confirmPaymentOptions)
+            .then(function (e) {
+                if (e) {
+                    changeLoadingState(false);
+                    // Show error to your customer
+                    showError(e.error.message);
+                }
+            });
+    };
+
+    var displayError = document.getElementById('error-message');
+
+    var showError = function(errorMsgText) {
+        displayError.classList.remove('d-none');
+        displayError.textContent = errorMsgText;
+    };
+
+    var hideError = function(errorMsgText) {
+        displayError.classList.add('d-none');
+        displayError.textContent = errorMsgText;
+    };
+
+    // Show a spinner on payment submission
+    var changeLoadingState = function(isLoading) {
+        form.querySelector("button[type='submit']").disabled = !!isLoading;
+    };
+
+    // Create an instance of the payment Element.
+    var paymentElement = elements.create('payment');
+
+    // Add an instance of the card Element into the `card-element` <div>.
+    paymentElement.mount('#payment-element');
+
+    // Enable submit button when the payment elements are ready
+    paymentElement.on('ready', function() {
+        changeLoadingState(false);
+    });
+
+    // Handle form submission.
+    var form = document.getElementById('payment-form');
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        submitPaymentIntent();
+    });
 </script>
