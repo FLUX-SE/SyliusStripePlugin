@@ -1,0 +1,12 @@
+parameters:
+    flux_se.sylius_stripe.stripe.client.chunk_size: 8192
+
+services:
+
+    flux_se.sylius_stripe.stripe.http_client:
+        class: FluxSE\SyliusStripePlugin\Stripe\HttpClient\PsrClient
+        arguments:
+            - '@sylius.http_client'
+            - '@sylius.http_client'
+            - '@sylius.http_client'
+            - '%flux_se.sylius_stripe.stripe.client.chunk_size%'

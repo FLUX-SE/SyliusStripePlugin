@@ -11,5 +11,5 @@ interface ParamsProviderInterface
     /**
      * @return array<array-key, mixed>|null
      */
-    public function getParams(PaymentRequestInterface $paymentRequest, string $method): ?array;
+    public function getParams(PaymentRequestInterface $paymentRequest): ?array;
 }

@@ -1,0 +1,10 @@
+services:
+
+    flux_se.sylius_stripe.stripe.configurator:
+        class: FluxSE\SyliusStripePlugin\Stripe\Configurator\StripeConfigurator
+        arguments:
+            - '@logger'
+            - '@flux_se.sylius_stripe.stripe.http_client'
+            - '@flux_se.sylius_stripe.stripe.http_client'
+    FluxSE\SyliusStripePlugin\Stripe\Configurator\StripeConfiguratorInterface:
+        alias: flux_se.sylius_stripe.stripe.configurator

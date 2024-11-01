@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace FluxSE\SyliusStripePlugin\Stripe\Factory;
 
-use Stripe\StripeClientInterface;
+use Stripe\StripeClient;
 use Sylius\Component\Payment\Model\PaymentMethodInterface;
 
 interface ClientFactoryInterface
@@ -12,7 +12,7 @@ interface ClientFactoryInterface
     /**
      * @param array<string, mixed> $config
      */
-    public function createNew(array $config): StripeClientInterface;
+    public function createNew(array $config): StripeClient;
 
-    public function createFromPaymentMethod(PaymentMethodInterface $paymentMethod): StripeClientInterface;
+    public function createFromPaymentMethod(PaymentMethodInterface $paymentMethod): StripeClient;
 }

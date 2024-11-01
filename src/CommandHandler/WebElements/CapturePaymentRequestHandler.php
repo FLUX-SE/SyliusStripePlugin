@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace FluxSE\SyliusStripePlugin\CommandHandler\WebElements;
 
 use FluxSE\SyliusStripePlugin\Command\WebElements\CapturePaymentRequest;
+use FluxSE\SyliusStripePlugin\Manager\WebElements\CreateManagerInterface;
 use FluxSE\SyliusStripePlugin\Processor\PaymentTransitionProcessorInterface;
-use FluxSE\SyliusStripePlugin\Provider\OptsProviderInterface;
-use FluxSE\SyliusStripePlugin\Provider\ParamsProviderInterface;
-use FluxSE\SyliusStripePlugin\Stripe\Factory\ClientFactoryInterface;
-use Stripe\StripeClient;
 use Sylius\Abstraction\StateMachine\StateMachineInterface;
 use Sylius\Bundle\PaymentBundle\Provider\PaymentRequestProviderInterface;
 use Sylius\Component\Payment\PaymentRequestTransitions;
@@ -20,9 +17,7 @@ final readonly class CapturePaymentRequestHandler
 {
     public function __construct(
         private PaymentRequestProviderInterface $paymentRequestProvider,
-        private ClientFactoryInterface $stripeClientFactory,
-        private ParamsProviderInterface $paymentIntentParamsProvider,
-        private OptsProviderInterface $paymentIntentOptsProvider,
+        private CreateManagerInterface $createWebElementsManager,
         private PaymentTransitionProcessorInterface $paymentTransitionProcessor,
         private StateMachineInterface $stateMachine,
     ) {
@@ -32,19 +27,14 @@ final readonly class CapturePaymentRequestHandler
     {
         $paymentRequest = $this->paymentRequestProvider->provide($capturePaymentRequest);
 
-        /** @var StripeClient $stripe */
-        $stripe = $this->stripeClientFactory->createFromPaymentMethod($paymentRequest->getMethod());
+        $paymentIntent = $this->createWebElementsManager->create($paymentRequest);
 
-        $params = $this->paymentIntentParamsProvider->getParams($paymentRequest, 'create');
-        $opts = $this->paymentIntentOptsProvider->getOpts($paymentRequest, 'create');
+        $paymentRequest->setResponseData([
+            'publishable_key' => $paymentRequest->getMethod()->getGatewayConfig()?->getConfig()['publishable_key'],
+            'client_secret' => $paymentIntent->client_secret,
+        ]);
 
-        $session = $stripe->paymentIntents->create($params, $opts);
-
-        $data = $session->toArray();
-        $paymentRequest->setResponseData($data);
-
-        $payment = $paymentRequest->getPayment();
-        $payment->setDetails($data);
+        $paymentRequest->getPayment()->setDetails($paymentIntent->toArray());
 
         $this->paymentTransitionProcessor->process($paymentRequest);
 

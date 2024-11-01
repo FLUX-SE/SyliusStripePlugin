@@ -1,0 +1,12 @@
+parameters:
+    flux_se.sylius_stripe.stripe.client: \Stripe\StripeClient
+
+services:
+
+    flux_se.sylius_stripe.stripe.factory.client:
+        class: FluxSE\SyliusStripePlugin\Stripe\Factory\ClientFactory
+        arguments:
+            - '%flux_se.sylius_stripe.stripe.client%'
+            - '@flux_se.sylius_stripe.stripe.configurator'
+    FluxSE\SyliusStripePlugin\Stripe\Factory\ClientFactoryInterface:
+        alias: flux_se.sylius_stripe.stripe.factory.client

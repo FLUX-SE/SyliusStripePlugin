@@ -9,7 +9,7 @@ use Sylius\Component\Payment\Model\PaymentRequestInterface;
 
 final readonly class EventOptsProvider implements OptsProviderInterface
 {
-    public function getOpts(PaymentRequestInterface $paymentRequest, string $method): ?RequestOptions
+    public function getOpts(PaymentRequestInterface $paymentRequest): ?RequestOptions
     {
         return null;
     }

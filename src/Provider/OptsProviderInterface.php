@@ -9,5 +9,5 @@ use Sylius\Component\Payment\Model\PaymentRequestInterface;
 
 interface OptsProviderInterface
 {
-    public function getOpts(PaymentRequestInterface $paymentRequest, string $method): ?RequestOptions;
+    public function getOpts(PaymentRequestInterface $paymentRequest): ?RequestOptions;
 }

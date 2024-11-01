@@ -2,30 +2,25 @@ parameters:
     flux_se.sylius_stripe.factories:
         - stripe_checkout
         - stripe_web_elements
+    flux_se.sylius_stripe.checkout.after_urls:
+      !php/const FluxSE\SyliusStripePlugin\Provider\AfterUrlProviderInterface::CANCEL_URL: ~
+      !php/const FluxSE\SyliusStripePlugin\Provider\AfterUrlProviderInterface::SUCCESS_URL: ~
 
 services:
     # WEB ELEMENTS
-    flux_se.sylius_stripe.provider.web_elements.payment_intent_params:
-        class: FluxSE\SyliusStripePlugin\Provider\WebElements\PaymentIntentParamsProvider
+    flux_se.sylius_stripe.provider.web_elements.create.payment_intent_params:
+        class: FluxSE\SyliusStripePlugin\Provider\WebElements\Create\PaymentIntentParamsProvider
         arguments:
             - '@flux_se.sylius_stripe.provider.web_elements.amount'
             - '@flux_se.sylius_stripe.provider.web_elements.currency'
             - '@flux_se.sylius_stripe.provider.web_elements.payment_method_types'
             - '@flux_se.sylius_stripe.provider.web_elements.metadata'
 
-    flux_se.sylius_stripe.provider.web_elements.payment_intent_opts:
-        class: FluxSE\SyliusStripePlugin\Provider\WebElements\PaymentIntentOptsProvider
-
     flux_se.sylius_stripe.provider.web_elements.amount:
-        class: FluxSE\SyliusStripePlugin\Provider\WebElements\AmountProvider
+        class: FluxSE\SyliusStripePlugin\Provider\WebElements\Create\AmountProvider
 
     flux_se.sylius_stripe.provider.web_elements.currency:
-        class: FluxSE\SyliusStripePlugin\Provider\WebElements\CurrencyProvider
-
-    flux_se.sylius_stripe.provider.web_elements.after_url:
-        class: FluxSE\SyliusStripePlugin\Provider\AfterUrlProvider
-        arguments:
-            - '@sylius_shop.provider.order_pay.after_pay_url'
+        class: FluxSE\SyliusStripePlugin\Provider\WebElements\Create\CurrencyProvider
 
     flux_se.sylius_stripe.provider.web_elements.customer_email:
         class: FluxSE\SyliusStripePlugin\Provider\CustomerEmailProvider
@@ -37,8 +32,8 @@ services:
         class: FluxSE\SyliusStripePlugin\Provider\MetadataProvider
         
     # CHECKOUT
-    flux_se.sylius_stripe.provider.checkout.checkout_session_params:
-        class: FluxSE\SyliusStripePlugin\Provider\Checkout\CheckoutSessionParamsProvider
+    flux_se.sylius_stripe.provider.checkout.create.checkout_session_params:
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\CheckoutSessionParamsProvider
         arguments:
             - '@flux_se.sylius_stripe.provider.checkout.customer_email'
             - '@flux_se.sylius_stripe.provider.checkout.mode'
@@ -47,26 +42,32 @@ services:
             - '@flux_se.sylius_stripe.provider.checkout.metadata'
             - '@flux_se.sylius_stripe.provider.checkout.after_url'
 
-    flux_se.sylius_stripe.provider.checkout.checkout_session_opts:
-        class: FluxSE\SyliusStripePlugin\Provider\Checkout\CheckoutSessionOptsProvider
+    flux_se.sylius_stripe.provider.checkout.after_url.default:
+        class: FluxSE\SyliusStripePlugin\Provider\DefaultAfterUrlProvider
+        arguments:
+            - '%flux_se.sylius_stripe.checkout.after_urls%'
+    flux_se.sylius_stripe.provider.checkout.after_url:
+        class: FluxSE\SyliusStripePlugin\Provider\AfterUrlProvider
+        arguments:
+            - '@flux_se.sylius_stripe.provider.checkout.after_url.default'
         
     flux_se.sylius_stripe.provider.checkout.mode:
-        class: FluxSE\SyliusStripePlugin\Provider\Checkout\ModeProvider
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\ModeProvider
 
     flux_se.sylius_stripe.provider.checkout.line_items:
-        class: FluxSE\SyliusStripePlugin\Provider\Checkout\LineItemsProvider
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItemsProvider
         arguments:
             - '@flux_se.sylius_stripe.provider.checkout.line_item'
             - '@flux_se.sylius_stripe.provider.checkout.shipping_line_item'
 
     flux_se.sylius_stripe.provider.checkout.line_item:
-        class: FluxSE\SyliusStripePlugin\Provider\Checkout\LineItemProvider
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItemProvider
         arguments:
             - '@flux_se.sylius_stripe.provider.checkout.line_item_images'
             - '@flux_se.sylius_stripe.provider.checkout.line_item_name'
 
     flux_se.sylius_stripe.provider.checkout.line_item_images:
-        class: FluxSE\SyliusStripePlugin\Provider\Checkout\LineItemImagesProvider
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItemImagesProvider
         arguments:
             - '@liip_imagine.cache.manager'
             - '%flux_se.sylius_stripe.line_item_image.imagine_filter%'
@@ -74,20 +75,15 @@ services:
             - '%flux_se.sylius_stripe.line_item_image.localhost_pattern%'
 
     flux_se.sylius_stripe.provider.checkout.line_item_name:
-        class: FluxSE\SyliusStripePlugin\Provider\Checkout\LinetItemNameProvider
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LinetItemNameProvider
 
     flux_se.sylius_stripe.provider.checkout.shipping_line_item:
-        class: FluxSE\SyliusStripePlugin\Provider\Checkout\ShippingLineItemProvider
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\ShippingLineItemProvider
         arguments:
             - '@flux_se.sylius_stripe.provider.checkout.shipping_line_item_name'
 
     flux_se.sylius_stripe.provider.checkout.shipping_line_item_name:
-        class: FluxSE\SyliusStripePlugin\Provider\Checkout\ShippingLineItemNameProvider
-
-    flux_se.sylius_stripe.provider.checkout.after_url:
-        class: FluxSE\SyliusStripePlugin\Provider\AfterUrlProvider
-        arguments:
-            - '@sylius_shop.provider.order_pay.after_pay_url'
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\ShippingLineItemNameProvider
     
     flux_se.sylius_stripe.provider.checkout.customer_email:
         class: FluxSE\SyliusStripePlugin\Provider\CustomerEmailProvider
@@ -111,4 +107,3 @@ services:
             - '@flux_se.sylius_stripe.stripe.resolver.event_resolver'
         tags:
             - name: sylius.payment_request.payment_notify_provider
-        

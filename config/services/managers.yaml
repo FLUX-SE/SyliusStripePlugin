@@ -1,0 +1,38 @@
+services:
+
+    flux_se.sylius_stripe.manager.checkout.create:
+        class: FluxSE\SyliusStripePlugin\Manager\Checkout\CreateManager
+        arguments:
+            - '@flux_se.sylius_stripe.stripe.factory.client'
+            - '@flux_se.sylius_stripe.provider.checkout.create.checkout_session_params'
+    FluxSE\SyliusStripePlugin\Manager\Checkout\CreateManagerInterface:
+        alias: flux_se.sylius_stripe.manager.checkout.create
+
+    flux_se.sylius_stripe.manager.checkout.retrieve:
+        class: FluxSE\SyliusStripePlugin\Manager\Checkout\RetrieveManager
+        arguments:
+            - '@flux_se.sylius_stripe.stripe.factory.client'
+    FluxSE\SyliusStripePlugin\Manager\Checkout\RetrieveManagerInterface:
+        alias: flux_se.sylius_stripe.manager.checkout.retrieve
+
+    flux_se.sylius_stripe.manager.web_elements.create:
+        class: FluxSE\SyliusStripePlugin\Manager\WebElements\CreateManager
+        arguments:
+            - '@flux_se.sylius_stripe.stripe.factory.client'
+            - '@flux_se.sylius_stripe.provider.web_elements.create.payment_intent_params'
+    FluxSE\SyliusStripePlugin\Manager\WebElements\CreateManagerInterface:
+        alias: flux_se.sylius_stripe.manager.web_elements.create
+
+    flux_se.sylius_stripe.manager.web_elements.retrieve:
+        class: FluxSE\SyliusStripePlugin\Manager\WebElements\RetrieveManager
+        arguments:
+            - '@flux_se.sylius_stripe.stripe.factory.client'
+    FluxSE\SyliusStripePlugin\Manager\WebElements\RetrieveManagerInterface:
+        alias: flux_se.sylius_stripe.manager.web_elements.retrieve
+
+    flux_se.sylius_stripe.manager.event.retrieve:
+        class: FluxSE\SyliusStripePlugin\Manager\Event\RetrieveManager
+        arguments:
+            - '@flux_se.sylius_stripe.stripe.factory.client'
+    FluxSE\SyliusStripePlugin\Manager\Event\RetrieveManagerInterface:
+        alias: flux_se.sylius_stripe.manager.event.retrieve

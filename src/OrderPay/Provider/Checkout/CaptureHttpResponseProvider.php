@@ -31,6 +31,6 @@ final readonly class CaptureHttpResponseProvider implements HttpResponseProvider
             throw new \LogicException('The Checkout Session "url" has not been provided.');
         }
 
-        return new RedirectResponse($url);
+        return new RedirectResponse($url, Response::HTTP_SEE_OTHER);
     }
 }

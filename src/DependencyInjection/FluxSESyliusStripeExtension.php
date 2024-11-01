@@ -44,6 +44,8 @@ final class FluxSESyliusStripeExtension extends AbstractResourceExtension implem
     public function prepend(ContainerBuilder $container): void
     {
         $this->prependDoctrineMigrations($container);
+
+        $this->prependSyliusShop($container);
     }
 
     protected function getMigrationsNamespace(): string
@@ -64,5 +66,14 @@ final class FluxSESyliusStripeExtension extends AbstractResourceExtension implem
         return [
             'Sylius\Bundle\CoreBundle\Migrations',
         ];
+    }
+
+    private function prependSyliusShop(ContainerBuilder $container): void
+    {
+        $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../../config/integrations'));
+
+        if ($container->hasExtension('sylius_shop')) {
+            $loader->load('sylius_shop.yaml');
+        }
     }
 }

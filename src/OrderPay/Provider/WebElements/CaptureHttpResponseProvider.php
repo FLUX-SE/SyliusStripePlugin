@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace FluxSE\SyliusStripePlugin\OrderPay\Provider\WebElements;
 
 use FluxSE\SyliusStripePlugin\Provider\AfterUrlProviderInterface;
-use FluxSE\SyliusStripePlugin\Provider\AfterUrlTypeEnum;
 use Stripe\PaymentIntent;
 use Sylius\Bundle\PaymentBundle\Provider\HttpResponseProviderInterface;
 use Sylius\Bundle\ResourceBundle\Controller\RequestConfiguration;
@@ -47,9 +46,9 @@ final readonly class CaptureHttpResponseProvider implements HttpResponseProvider
             $this->twig->render(
                 '@FluxSESyliusStripePlugin/shop/order_pay/web_elements/capture.html.twig',
                 [
-                    'publishable_key' => $paymentRequest->getMethod()->getGatewayConfig()?->getConfig()['publishable_key'],
+                    'publishable_key' => $paymentRequest->getResponseData()['publishable_key'],
                     'model' => PaymentIntent::constructFrom($data),
-                    'action_url' => $this->afterUrlProvider->getUrl($paymentRequest, AfterUrlTypeEnum::ACTION),
+                    'action_url' => $this->afterUrlProvider->getUrl($paymentRequest, AfterUrlProviderInterface::ACTION_URL),
                 ],
             )
         );

@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace FluxSE\SyliusStripePlugin\CommandHandler\Checkout;
 
 use FluxSE\SyliusStripePlugin\Command\Checkout\CapturePaymentRequest;
+use FluxSE\SyliusStripePlugin\Manager\Checkout\CreateManagerInterface;
 use FluxSE\SyliusStripePlugin\Processor\PaymentTransitionProcessorInterface;
-use FluxSE\SyliusStripePlugin\Provider\OptsProviderInterface;
-use FluxSE\SyliusStripePlugin\Provider\ParamsProviderInterface;
-use FluxSE\SyliusStripePlugin\Stripe\Factory\ClientFactoryInterface;
-use Stripe\StripeClient;
 use Sylius\Abstraction\StateMachine\StateMachineInterface;
 use Sylius\Bundle\PaymentBundle\Provider\PaymentRequestProviderInterface;
+use Sylius\Component\Payment\Model\PaymentRequestInterface;
 use Sylius\Component\Payment\PaymentRequestTransitions;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -20,9 +18,7 @@ final readonly class CapturePaymentRequestHandler
 {
     public function __construct(
         private PaymentRequestProviderInterface $paymentRequestProvider,
-        private ClientFactoryInterface $stripeClientFactory,
-        private ParamsProviderInterface $checkoutSessionParamsProvider,
-        private OptsProviderInterface $checkoutSessionOptsProvider,
+        private CreateManagerInterface $createCheckoutManager,
         private PaymentTransitionProcessorInterface $paymentTransitionProcessor,
         private StateMachineInterface $stateMachine,
     ) {
@@ -32,26 +28,25 @@ final readonly class CapturePaymentRequestHandler
     {
         $paymentRequest = $this->paymentRequestProvider->provide($capturePaymentRequest);
 
-        /** @var StripeClient $stripe */
-        $stripe = $this->stripeClientFactory->createFromPaymentMethod($paymentRequest->getMethod());
+        if (PaymentRequestInterface::STATE_PROCESSING === $paymentRequest->getState()) {
+            return;
+        }
 
-        $params = $this->checkoutSessionParamsProvider->getParams($paymentRequest, 'create');
-        $opts = $this->checkoutSessionOptsProvider->getOpts($paymentRequest, 'create');
+        $session = $this->createCheckoutManager->create($paymentRequest);
 
-        $session = $stripe->checkout->sessions->create($params, $opts);
-
-        $data = $session->toArray();
-        $paymentRequest->setResponseData($data);
+        $paymentRequest->setResponseData([
+            'url' => $session->url,
+        ]);
 
         $payment = $paymentRequest->getPayment();
-        $payment->setDetails($data);
+        $payment->setDetails($session->toArray());
 
         $this->paymentTransitionProcessor->process($paymentRequest);
 
         $this->stateMachine->apply(
             $paymentRequest,
             PaymentRequestTransitions::GRAPH,
-            PaymentRequestTransitions::TRANSITION_COMPLETE,
+            PaymentRequestTransitions::TRANSITION_PROCESS,
         );
     }
 }
