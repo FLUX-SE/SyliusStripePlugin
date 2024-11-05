@@ -24,7 +24,7 @@ final class StripeGatewayConfigurationType extends AbstractType
                         'groups' => [
                             'sylius',
                             'stripe_checkout',
-                            'stripe_web_elements'
+                            'stripe_web_elements',
                         ],
                     ]),
                 ],
@@ -37,7 +37,7 @@ final class StripeGatewayConfigurationType extends AbstractType
                         'groups' => [
                             'sylius',
                             'stripe_checkout',
-                            'stripe_web_elements'
+                            'stripe_web_elements',
                         ],
                     ]),
                 ],
@@ -68,7 +68,7 @@ final class StripeGatewayConfigurationType extends AbstractType
                         'groups' => [
                             'sylius',
                             'stripe_checkout',
-                            'stripe_web_elements'
+                            'stripe_web_elements',
                         ],
                     ]),
                 ],

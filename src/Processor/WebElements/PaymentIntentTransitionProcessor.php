@@ -32,11 +32,12 @@ final readonly class PaymentIntentTransitionProcessor implements PaymentTransiti
         }
 
         if (in_array(
-            $paymentIntent->status, [
+            $paymentIntent->status,
+            [
                 PaymentIntent::STATUS_REQUIRES_ACTION,
                 PaymentIntent::STATUS_REQUIRES_PAYMENT_METHOD,
             ],
-            true
+            true,
         )) {
             return;
         }

@@ -16,8 +16,9 @@ final class LineItemImagesProvider implements LineItemImagesProviderInterface
         private CacheManager $imagineCacheManager,
         private ?string $filterName,
         private string $fallbackImage,
-        private string $localhostPattern
-    ) {}
+        private string $localhostPattern,
+    ) {
+    }
 
     public function getImageUrls(PaymentRequestInterface $paymentRequest, OrderItemInterface $orderItem): array
     {

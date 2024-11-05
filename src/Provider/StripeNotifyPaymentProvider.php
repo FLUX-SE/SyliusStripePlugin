@@ -43,7 +43,7 @@ final readonly class StripeNotifyPaymentProvider implements NotifyPaymentProvide
             throw new \LogicException('The Stripe event data object is not a StripeObject.');
         }
 
-        /** @var null|ArrayAccess<string, string> $metadata */
+        /** @var ArrayAccess<string, string>|null $metadata */
         $metadata = $object->offsetGet('metadata');
         if (false === $metadata instanceof ArrayAccess) {
             throw new \LogicException('The Stripe event metadata is not an \ArrayAccess.');
@@ -53,7 +53,7 @@ final readonly class StripeNotifyPaymentProvider implements NotifyPaymentProvide
         if (!is_string($hash)) {
             throw new \LogicException(sprintf(
                 'The Stripe event object metadata (key: "%s") must be a string.',
-                MetadataProviderInterface::DEFAULT_TOKEN_HASH_KEY_NAME
+                MetadataProviderInterface::DEFAULT_TOKEN_HASH_KEY_NAME,
             ));
         }
 
@@ -64,7 +64,7 @@ final readonly class StripeNotifyPaymentProvider implements NotifyPaymentProvide
             throw new \LogicException(sprintf(
                 'Unable to retrieve the payment request (hash:%s) related to this Stripe event (ID:"%s").',
                 $hash,
-                $event->id
+                $event->id,
             ));
         }
 
@@ -76,7 +76,7 @@ final readonly class StripeNotifyPaymentProvider implements NotifyPaymentProvide
         return in_array(
             $paymentMethod->getGatewayConfig()?->getFactoryName(),
             $this->supportedFactories,
-            true
+            true,
         );
     }
 }

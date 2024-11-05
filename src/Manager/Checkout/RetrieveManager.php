@@ -13,6 +13,7 @@ use Stripe\Service\Checkout\SessionService;
 final class RetrieveManager implements RetrieveManagerInterface
 {
     use CheckoutSessionServiceAwareTrait;
+
     /** @use RetrieveManagerTrait<SessionService> */
     use RetrieveManagerTrait;
 

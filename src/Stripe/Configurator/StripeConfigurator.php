@@ -15,12 +15,11 @@ use Stripe\Util\LoggerInterface as StripeLoggerInterface;
 
 final class StripeConfigurator implements StripeConfiguratorInterface
 {
-    /**
-     * @var array<string, string>
-     */
+    /** @var array<string, string> */
     private array $savedAppInfo = [];
 
     private null|LoggerInterface|StripeLoggerInterface $savedLogger = null;
+
     private ClientInterface $savedHttpClient;
 
     private StreamingClientInterface $savedStreamingHttpClient;
@@ -45,7 +44,7 @@ final class StripeConfigurator implements StripeConfiguratorInterface
         } else {
             $version = InstalledVersions::getRootPackage()['version'];
         }
-        Stripe::setAppInfo("FluxSESyliusStripePlugin", $version, "https://github.com/FLUX-SE/SyliusStripePlugin");
+        Stripe::setAppInfo('FluxSESyliusStripePlugin', $version, 'https://github.com/FLUX-SE/SyliusStripePlugin');
 
         Stripe::setLogger($this->logger);
 

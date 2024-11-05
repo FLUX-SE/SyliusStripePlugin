@@ -11,7 +11,6 @@ use Webmozart\Assert\Assert;
 
 final readonly class ClientFactory implements ClientFactoryInterface
 {
-
     /**
      * @param class-string<StripeClient> $className
      */
@@ -33,10 +32,10 @@ final readonly class ClientFactory implements ClientFactoryInterface
         $gatewayConfig = $paymentMethod->getGatewayConfig();
         Assert::notNull($gatewayConfig, sprintf(
             'The payment method (code: %s) has not been configured.',
-            $paymentMethod->getCode()
+            $paymentMethod->getCode(),
         ));
 
-        /** @var string|null  $secretKey */
+        /** @var string|null $secretKey */
         $secretKey = $gatewayConfig->getConfig()['secret_key'] ?? null;
 
         return $this->createNew([

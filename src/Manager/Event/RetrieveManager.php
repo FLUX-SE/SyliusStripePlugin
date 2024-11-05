@@ -13,6 +13,7 @@ use Stripe\Service\EventService;
 final class RetrieveManager implements RetrieveManagerInterface
 {
     use EventServiceAwareTrait;
+
     /** @use RetrieveManagerTrait<EventService> */
     use RetrieveManagerTrait;
 

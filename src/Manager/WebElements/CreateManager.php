@@ -13,6 +13,7 @@ use Stripe\Service\PaymentIntentService;
 final class CreateManager implements CreateManagerInterface
 {
     use PaymentIntentServiceAwareTrait;
+
     /** @use CreateManagerTrait<PaymentIntentService> */
     use CreateManagerTrait;
 

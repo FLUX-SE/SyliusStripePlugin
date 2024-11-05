@@ -44,8 +44,10 @@ class FormComponent
     #[LiveProp(fieldName: 'factoryName')]
     public ?string $factoryName = null;
 
-    protected function createResource(): ResourceInterface {
+    protected function createResource(): ResourceInterface
+    {
         Assert::notNull($this->factoryName, 'A factory name is required to create a new payment method.');
+
         return $this->paymentMethodFactory->createWithGateway($this->factoryName);
     }
 }

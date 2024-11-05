@@ -12,7 +12,8 @@ final class NotifyPayloadProcessor implements NotifyPayloadProcessorInterface
 {
     public function __construct(
         private NotifyPayloadProcessorInterface $decoratedNotifyPayloadProcessor,
-    ) {}
+    ) {
+    }
 
     public function process(PaymentRequestInterface $paymentRequest, Request $request): void
     {

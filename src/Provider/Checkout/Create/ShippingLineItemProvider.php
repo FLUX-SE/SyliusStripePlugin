@@ -44,7 +44,7 @@ final readonly class ShippingLineItemProvider implements ShippingLineItemProvide
         ];
     }
 
-    protected function getShippingTotal(ShipmentInterface $shipment): int
+    private function getShippingTotal(ShipmentInterface $shipment): int
     {
         $shippingTotal = $shipment->getAdjustmentsTotal(AdjustmentInterface::SHIPPING_ADJUSTMENT);
         $shippingTotal += $shipment->getAdjustmentsTotal(AdjustmentInterface::ORDER_SHIPPING_PROMOTION_ADJUSTMENT);

@@ -23,11 +23,15 @@ final readonly class WebhookEventProcessor implements WebhookEventProcessorInter
     ) {
     }
 
-    public function process(PaymentRequestInterface $paymentRequest, Event $event): void {
+    public function process(PaymentRequestInterface $paymentRequest, Event $event): void
+    {
         /** @var StripeObject|null $object */
         $object = $event->data->object;
-        Assert::isInstanceOf($object, StripeObject::class,
-            'The Stripe event data object must be an instance of StripeObject.');
+        Assert::isInstanceOf(
+            $object,
+            StripeObject::class,
+            'The Stripe event data object must be an instance of StripeObject.',
+        );
 
         $id = $object->id;
         Assert::notNull($id, 'The Stripe event data object "id" must not be null.');

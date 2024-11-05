@@ -13,6 +13,7 @@ use Stripe\Service\PaymentIntentService;
 final class RetrieveManager implements RetrieveManagerInterface
 {
     use PaymentIntentServiceAwareTrait;
+
     /** @use RetrieveManagerTrait<PaymentIntentService> */
     use RetrieveManagerTrait;
 

@@ -50,7 +50,7 @@ final readonly class CaptureHttpResponseProvider implements HttpResponseProvider
                     'model' => PaymentIntent::constructFrom($data),
                     'action_url' => $this->afterUrlProvider->getUrl($paymentRequest, AfterUrlProviderInterface::ACTION_URL),
                 ],
-            )
+            ),
         );
     }
 }

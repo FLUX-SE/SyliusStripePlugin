@@ -31,5 +31,4 @@ trait RetrieveManagerTrait
 
         return $this->getService($stripeClient)->retrieve($id, $params, $opts);
     }
-
 }

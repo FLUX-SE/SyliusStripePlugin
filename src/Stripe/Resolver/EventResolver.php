@@ -35,16 +35,17 @@ final readonly class EventResolver implements EventResolverInterface
                 $signatureVerificationErrors[] = sprintf(
                     '- Tried with "%s": "%s"',
                     $webhookSecretKey,
-                    $e->getMessage()
+                    $e->getMessage(),
                 );
             }
         }
 
-        $signatureResults = implode(PHP_EOL, $signatureVerificationErrors);
+        $signatureResults = implode(\PHP_EOL, $signatureVerificationErrors);
+
         throw SignatureVerificationException::factory(sprintf(
             'Unable to check Stripe Signature using several webhook keys:%s%s',
-            PHP_EOL,
-            $signatureResults
+            \PHP_EOL,
+            $signatureResults,
         ));
     }
 }

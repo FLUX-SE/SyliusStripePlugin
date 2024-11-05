@@ -20,7 +20,7 @@ final class Configuration implements ConfigurationInterface
         return $treeBuilder;
     }
 
-    protected function addGlobalSection(ArrayNodeDefinition $node): void
+    private function addGlobalSection(ArrayNodeDefinition $node): void
     {
         $node
             ->addDefaultsIfNotSet()

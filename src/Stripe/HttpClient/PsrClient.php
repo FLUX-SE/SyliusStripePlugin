@@ -48,7 +48,6 @@ final class PsrClient implements ClientInterface, StreamingClientInterface
         }
 
         return $this->prepareReturnedResponse($response);
-
     }
 
     /**
@@ -95,6 +94,7 @@ final class PsrClient implements ClientInterface, StreamingClientInterface
                 $e,
             );
         }
+
         return $response;
     }
 
