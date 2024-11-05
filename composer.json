@@ -11,14 +11,8 @@
             "email": "Prometee@users.noreply.github.com"
         }
     ],
-    "repositories": [
-        {
-            "type": "github",
-            "url": "https://github.com/Prometee/Sylius"
-        }
-    ],
     "require": {
-        "sylius/sylius": "dev-payment-request-capture-url",
+        "sylius/core-bundle": "^2.0-dev",
         "stripe/stripe-php": "^16.1"
     },
     "require-dev": {
@@ -41,6 +35,7 @@
         "robertfausk/behat-panther-extension": "^1.1",
         "sylius-labs/coding-standard": "^4.1",
         "sylius-labs/suite-tags-extension": "^0.2.0",
+        "sylius/sylius": "^2.0-dev",
         "symfony/browser-kit": "^6.4|^7.1",
         "symfony/debug-bundle": "^6.4|^7.1",
         "symfony/dotenv": "^6.4|^7.1",
