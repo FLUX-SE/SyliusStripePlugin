@@ -23,27 +23,60 @@ final readonly class PaymentIntentTransitionProcessor implements PaymentTransiti
         $details = $payment->getDetails();
         $paymentIntent = PaymentIntent::constructFrom($details);
 
-        $transition = PaymentTransitions::TRANSITION_CANCEL;
-        if ($paymentIntent->status === PaymentIntent::STATUS_SUCCEEDED) {
-            $transition = PaymentTransitions::TRANSITION_COMPLETE;
-        }
-        if ($paymentIntent->status === PaymentIntent::STATUS_PROCESSING) {
-            $transition = PaymentTransitions::TRANSITION_PROCESS;
-        }
-
-        if (in_array(
-            $paymentIntent->status,
-            [
-                PaymentIntent::STATUS_REQUIRES_ACTION,
-                PaymentIntent::STATUS_REQUIRES_PAYMENT_METHOD,
-            ],
-            true,
-        )) {
+        $transition = $this->getTransition($paymentIntent);
+        if (null === $transition) {
             return;
         }
 
         if ($this->stateMachine->can($payment, PaymentTransitions::GRAPH, $transition)) {
             $this->stateMachine->apply($payment, PaymentTransitions::GRAPH, $transition);
         }
+    }
+
+    private function getTransition(PaymentIntent $paymentIntent): ?string
+    {
+        $status = $paymentIntent->status;
+        if (PaymentIntent::STATUS_SUCCEEDED === $status) {
+            return PaymentTransitions::TRANSITION_COMPLETE;
+        }
+
+        if (PaymentIntent::STATUS_REQUIRES_CAPTURE === $status) {
+            return PaymentTransitions::TRANSITION_AUTHORIZE;
+        }
+
+        if (PaymentIntent::STATUS_PROCESSING === $status) {
+            return PaymentTransitions::TRANSITION_PROCESS;
+        }
+
+        if ($this->isCanceledStatus($status) || $this->isSpecialCanceledStatus($paymentIntent)) {
+            return PaymentTransitions::TRANSITION_CANCEL;
+        }
+
+        return null;
+    }
+
+    /**
+     * @see https://stripe.com/docs/payments/paymentintents/lifecycle
+     */
+    private function isCanceledStatus(?string $status): bool
+    {
+        return PaymentIntent::STATUS_CANCELED === $status;
+    }
+
+    /**
+     * @see https://stripe.com/docs/payments/paymentintents/lifecycle
+     */
+    protected function isSpecialCanceledStatus(PaymentIntent $paymentIntent): bool
+    {
+        $status = $paymentIntent->status;
+        $lastPaymentError = $paymentIntent->last_payment_error;
+
+        if (PaymentIntent::STATUS_REQUIRES_PAYMENT_METHOD === $status) {
+            if (null !== $lastPaymentError) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

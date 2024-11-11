@@ -23,21 +23,57 @@ final readonly class CheckoutSessionTransitionProcessor implements PaymentTransi
         $details = $payment->getDetails();
         $session = Session::constructFrom($details);
 
-        $transition = PaymentTransitions::TRANSITION_CANCEL;
-        if ($session->payment_status === Session::PAYMENT_STATUS_PAID) {
-            $transition = PaymentTransitions::TRANSITION_COMPLETE;
-        }
+        $transition = $this->getTransition($session);
 
-        if ($session->status === Session::STATUS_OPEN) {
+        if (null === $transition) {
             return;
         }
 
         if ($this->stateMachine->can($payment, PaymentTransitions::GRAPH, $transition)) {
-            $this->stateMachine->apply(
-                $payment,
-                PaymentTransitions::GRAPH,
-                $transition,
-            );
+            $this->stateMachine->apply($payment, PaymentTransitions::GRAPH, $transition);
         }
+    }
+
+    private function getTransition(Session $session): ?string
+    {
+        $status = $session->status;
+        $paymentStatus = $session->payment_status;
+
+        if ($this->isCompleteStatus($status, $paymentStatus)) {
+            return PaymentTransitions::TRANSITION_COMPLETE;
+        }
+
+        if ($this->isFailStatus($status)) {
+            return PaymentTransitions::TRANSITION_FAIL;
+        }
+
+        if ($this->isProcessStatus($status, $paymentStatus)) {
+            return PaymentTransitions::TRANSITION_PROCESS;
+        }
+
+        return null;
+    }
+
+    private function isCompleteStatus(?string $status, string $paymentStatus): bool
+    {
+        if (Session::STATUS_COMPLETE !== $status) {
+            return false;
+        }
+
+        return Session::PAYMENT_STATUS_UNPAID !== $paymentStatus;
+    }
+
+    private function isFailStatus(?string $status): bool
+    {
+        return Session::STATUS_EXPIRED === $status;
+    }
+
+    private function isProcessStatus(?string $status, string $paymentStatus): bool
+    {
+        if (Session::STATUS_COMPLETE !== $status) {
+            return false;
+        }
+
+        return Session::PAYMENT_STATUS_UNPAID === $paymentStatus;
     }
 }
