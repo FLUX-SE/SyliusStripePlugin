@@ -15,6 +15,13 @@ services:
     FluxSE\SyliusStripePlugin\Manager\Checkout\RetrieveManagerInterface:
         alias: flux_se.sylius_stripe.manager.checkout.retrieve
 
+    flux_se.sylius_stripe.manager.checkout.expire:
+        class: FluxSE\SyliusStripePlugin\Manager\Checkout\ExpireManager
+        arguments:
+            - '@flux_se.sylius_stripe.stripe.factory.client'
+    FluxSE\SyliusStripePlugin\Manager\Checkout\ExpireManagerInterface:
+        alias: flux_se.sylius_stripe.manager.checkout.expire
+
     flux_se.sylius_stripe.manager.web_elements.create:
         class: FluxSE\SyliusStripePlugin\Manager\WebElements\CreateManager
         arguments:
@@ -30,9 +37,31 @@ services:
     FluxSE\SyliusStripePlugin\Manager\WebElements\RetrieveManagerInterface:
         alias: flux_se.sylius_stripe.manager.web_elements.retrieve
 
+    flux_se.sylius_stripe.manager.web_elements.cancel:
+        class: FluxSE\SyliusStripePlugin\Manager\WebElements\CancelManager
+        arguments:
+            - '@flux_se.sylius_stripe.stripe.factory.client'
+    FluxSE\SyliusStripePlugin\Manager\WebElements\CancelManagerInterface:
+        alias: flux_se.sylius_stripe.manager.web_elements.cancel
+
+    flux_se.sylius_stripe.manager.web_elements.capture:
+        class: FluxSE\SyliusStripePlugin\Manager\WebElements\CaptureManager
+        arguments:
+            - '@flux_se.sylius_stripe.stripe.factory.client'
+    FluxSE\SyliusStripePlugin\Manager\WebElements\CaptureManagerInterface:
+        alias: flux_se.sylius_stripe.manager.web_elements.capture
+
     flux_se.sylius_stripe.manager.event.retrieve:
         class: FluxSE\SyliusStripePlugin\Manager\Event\RetrieveManager
         arguments:
             - '@flux_se.sylius_stripe.stripe.factory.client'
     FluxSE\SyliusStripePlugin\Manager\Event\RetrieveManagerInterface:
         alias: flux_se.sylius_stripe.manager.event.retrieve
+
+    flux_se.sylius_stripe.manager.refund.create:
+        class: FluxSE\SyliusStripePlugin\Manager\Refund\CreateManager
+        arguments:
+            - '@flux_se.sylius_stripe.stripe.factory.client'
+            - '@flux_se.sylius_stripe.provider.refund.create'
+    FluxSE\SyliusStripePlugin\Manager\Refund\CreateManagerInterface:
+        alias: flux_se.sylius_stripe.manager.refund.create

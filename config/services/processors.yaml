@@ -24,7 +24,7 @@ services:
             - '@sylius_abstraction.state_machine'
 
     FluxSE\SyliusStripePlugin\Processor\NotifyPayloadProcessor:
-        decorates: sylius.processor.notify_payload
+        decorates: sylius.processor.payment_request.notify_payload
         arguments:
             - '@.inner'
     

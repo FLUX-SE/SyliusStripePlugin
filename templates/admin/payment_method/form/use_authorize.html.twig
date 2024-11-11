@@ -1,9 +1,9 @@
 {% set form = hookable_metadata.context.form.gatewayConfig.config.use_authorize %}
 
 <div class="col-12">
-    {{ form_row(form, sylius_test_form_attribute('config-use-authorize')) }}
+    {{ form_row(form, sylius_test_form_attribute('use-authorize')) }}
 </div>
-<div class="col-12 alert alert-info {{ form.vars.data ? '' : ' d-none' }}">
+<div class="col-12 alert alert-info {{ form.vars.data ? '' : ' d-none' }}" {{ sylius_test_html_attribute('use-authorize-info') }}>
     <div class="d-flex align-items-center">
         <div>{{ ux_icon('tabler:info-circle', {'class': 'icon alert-icon'}) }}</div>
         <div>

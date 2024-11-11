@@ -36,6 +36,30 @@ services:
               bus: sylius.payment_request.command_bus
               handles: FluxSE\SyliusStripePlugin\Command\Checkout\NotifyPaymentRequest
     
+    flux_se.sylius_stripe.command_handlers.checkout.cancel:
+        class: FluxSE\SyliusStripePlugin\CommandHandler\Checkout\CancelPaymentRequestHandler
+        arguments:
+            - '@sylius.provider.payment_request'
+            - '@flux_se.sylius_stripe.manager.checkout.retrieve'
+            - '@flux_se.sylius_stripe.manager.checkout.expire'
+            - '@flux_se.sylius_stripe.processor.payment_transition.checkout'
+            - '@sylius_abstraction.state_machine'
+        tags:
+            - name: messenger.message_handler
+              bus: sylius.payment_request.command_bus
+    
+    flux_se.sylius_stripe.command_handlers.checkout.refund:
+        class: FluxSE\SyliusStripePlugin\CommandHandler\Checkout\RefundPaymentRequestHandler
+        arguments:
+            - '@sylius.provider.payment_request'
+            - '@flux_se.sylius_stripe.manager.checkout.retrieve'
+            - '@flux_se.sylius_stripe.manager.refund.create'
+            - '@flux_se.sylius_stripe.processor.payment_transition.checkout'
+            - '@sylius_abstraction.state_machine'
+        tags:
+            - name: messenger.message_handler
+              bus: sylius.payment_request.command_bus
+    
     flux_se.sylius_stripe.command_handlers.web_elements.capture:
         class: FluxSE\SyliusStripePlugin\CommandHandler\WebElements\CapturePaymentRequestHandler
         arguments:
@@ -71,3 +95,27 @@ services:
             - name: messenger.message_handler
               bus: sylius.payment_request.command_bus
               handles: FluxSE\SyliusStripePlugin\Command\WebElements\NotifyPaymentRequest
+    
+    flux_se.sylius_stripe.command_handlers.web_elements.cancel:
+        class: FluxSE\SyliusStripePlugin\CommandHandler\WebElements\CancelPaymentRequestHandler
+        arguments:
+            - '@sylius.provider.payment_request'
+            - '@flux_se.sylius_stripe.manager.web_elements.retrieve'
+            - '@flux_se.sylius_stripe.manager.web_elements.cancel'
+            - '@flux_se.sylius_stripe.processor.payment_transition.web_elements'
+            - '@sylius_abstraction.state_machine'
+        tags:
+            - name: messenger.message_handler
+              bus: sylius.payment_request.command_bus
+    
+    flux_se.sylius_stripe.command_handlers.web_elements.refund:
+        class: FluxSE\SyliusStripePlugin\CommandHandler\WebElements\RefundPaymentRequestHandler
+        arguments:
+            - '@sylius.provider.payment_request'
+            - '@flux_se.sylius_stripe.manager.web_elements.retrieve'
+            - '@flux_se.sylius_stripe.manager.refund.create'
+            - '@flux_se.sylius_stripe.processor.payment_transition.web_elements'
+            - '@sylius_abstraction.state_machine'
+        tags:
+            - name: messenger.message_handler
+              bus: sylius.payment_request.command_bus

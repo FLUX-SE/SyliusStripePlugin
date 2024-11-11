@@ -35,13 +35,11 @@ final readonly class StatusPaymentRequestHandler
 
         /** @var string|null $id */
         $id = $paymentRequest->getPayment()->getDetails()['id'] ?? null;
-        Assert::notNull($id, 'An id is required to retrieve the related stripe api resource (Session|PaymentIntent).');
+        Assert::notNull($id, 'An id is required to retrieve the related Stripe API Resource (Session|PaymentIntent).');
 
         $stripeApiResource = $this->retrieveManager->retrieve($paymentRequest, $id);
 
-        $data = $stripeApiResource->toArray();
-        $paymentRequest->setResponseData($data);
-        $paymentRequest->getPayment()->setDetails($data);
+        $paymentRequest->getPayment()->setDetails($stripeApiResource->toArray());
 
         $this->paymentTransitionProcessor->process($paymentRequest);
 

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+
+        <service id="tests.flux_se.sylius_stripe_plugin.behat.page.admin.payment_method.create"
+                 parent="sylius.behat.page.admin.payment_method.create"
+                 class="Tests\FluxSE\SyliusStripePlugin\Behat\Page\Admin\PaymentMethod\CreatePage">
+        </service>
+
+        <service id="tests.flux_se.sylius_stripe_plugin.behat.page.notify_page"
+                 parent="sylius.behat.symfony_page" shared="false"
+                 class="Tests\FluxSE\SyliusStripePlugin\Behat\Page\NotifyPage">
+            <argument>sylius_payment_method_notify</argument>
+        </service>
+
+        <service id="tests.flux_se.sylius_stripe_plugin.behat.page.external.stripe_checkout_session"
+                 parent="sylius.behat.page"
+                 class="Tests\FluxSE\SyliusStripePlugin\Behat\Page\External\StripePage">
+            <argument type="service" id="sylius.repository.payment_request" />
+            <argument type="service" id="test.client" />
+            <argument type="service" id="tests.flux_se.sylius_stripe_plugin.behat.page.notify_page" />
+            <argument type="service" id="flux_se.sylius_stripe.shop.provider.checkout.after_url" />
+        </service>
+
+        <service id="tests.flux_se.sylius_stripe_plugin.behat.page.external.stripe_web_elements"
+                 parent="sylius.behat.page"
+                 class="Tests\FluxSE\SyliusStripePlugin\Behat\Page\External\StripePage">
+            <argument type="service" id="sylius.repository.payment_request" />
+            <argument type="service" id="test.client" />
+            <argument type="service" id="tests.flux_se.sylius_stripe_plugin.behat.page.notify_page" />
+            <argument type="service" id="flux_se.sylius_stripe.order_pay.provider.web_elements.after_url" />
+        </service>
+
+    </services>
+</container>

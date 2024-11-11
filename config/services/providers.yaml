@@ -29,7 +29,7 @@ services:
         class: FluxSE\SyliusStripePlugin\Provider\PaymentMethodTypesProvider
 
     flux_se.sylius_stripe.provider.web_elements.metadata:
-        class: FluxSE\SyliusStripePlugin\Provider\MetadataProvider
+        class: FluxSE\SyliusStripePlugin\Provider\PaymentMetadataProvider
         
     # CHECKOUT
     flux_se.sylius_stripe.provider.checkout.create.checkout_session_params:
@@ -92,13 +92,7 @@ services:
         class: FluxSE\SyliusStripePlugin\Provider\PaymentMethodTypesProvider
 
     flux_se.sylius_stripe.provider.checkout.metadata:
-        class: FluxSE\SyliusStripePlugin\Provider\MetadataProvider
-
-    flux_se.sylius_stripe.provider.event_params:
-        class: FluxSE\SyliusStripePlugin\Provider\EventParamsProvider
-
-    flux_se.sylius_stripe.provider.event_opts:
-        class: FluxSE\SyliusStripePlugin\Provider\EventOptsProvider
+        class: FluxSE\SyliusStripePlugin\Provider\PaymentMetadataProvider
 
     FluxSE\SyliusStripePlugin\Provider\StripeNotifyPaymentProvider:
         arguments:
@@ -107,3 +101,12 @@ services:
             - '@flux_se.sylius_stripe.stripe.resolver.event_resolver'
         tags:
             - name: sylius.payment_request.payment_notify_provider
+              
+    # REFUND
+    flux_se.sylius_stripe.provider.refund.create:
+        class: FluxSE\SyliusStripePlugin\Provider\Refund\Create\RefundParamsProvider
+        arguments:
+            - '@flux_se.sylius_stripe.provider.refund.metadata'
+
+    flux_se.sylius_stripe.provider.refund.metadata:
+        class: FluxSE\SyliusStripePlugin\Provider\Refund\Create\RefundMetadataProvider

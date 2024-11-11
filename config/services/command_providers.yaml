@@ -28,6 +28,18 @@ services:
             - name: flux_se.sylius_stripe.command_provider.checkout
               action: !php/const Sylius\Component\Payment\Model\PaymentRequestInterface::ACTION_NOTIFY
     
+    flux_se.sylius_stripe.command_provider.checkout.cancel:
+        class: FluxSE\SyliusStripePlugin\CommandProvider\Checkout\CancelPaymentRequestCommandProvider
+        tags:
+            - name: flux_se.sylius_stripe.command_provider.checkout
+              action: !php/const Sylius\Component\Payment\Model\PaymentRequestInterface::ACTION_CANCEL
+    
+    flux_se.sylius_stripe.command_provider.checkout.refund:
+        class: FluxSE\SyliusStripePlugin\CommandProvider\Checkout\RefundPaymentRequestCommandProvider
+        tags:
+            - name: flux_se.sylius_stripe.command_provider.checkout
+              action: !php/const Sylius\Component\Payment\Model\PaymentRequestInterface::ACTION_REFUND
+    
     flux_se.sylius_stripe.command_provider.web_elements:
         class: Sylius\Bundle\PaymentBundle\CommandProvider\ActionsCommandProvider
         arguments:
@@ -55,3 +67,15 @@ services:
         tags:
             - name: flux_se.sylius_stripe.command_provider.web_elements
               action: !php/const Sylius\Component\Payment\Model\PaymentRequestInterface::ACTION_NOTIFY
+    
+    flux_se.sylius_stripe.command_provider.web_elements.cancel:
+        class: FluxSE\SyliusStripePlugin\CommandProvider\WebElements\CancelPaymentRequestCommandProvider
+        tags:
+            - name: flux_se.sylius_stripe.command_provider.web_elements
+              action: !php/const Sylius\Component\Payment\Model\PaymentRequestInterface::ACTION_CANCEL
+    
+    flux_se.sylius_stripe.command_provider.web_elements.refund:
+        class: FluxSE\SyliusStripePlugin\CommandProvider\WebElements\RefundPaymentRequestCommandProvider
+        tags:
+            - name: flux_se.sylius_stripe.command_provider.web_elements
+              action: !php/const Sylius\Component\Payment\Model\PaymentRequestInterface::ACTION_REFUND

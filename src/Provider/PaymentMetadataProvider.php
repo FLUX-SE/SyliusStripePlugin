@@ -6,12 +6,12 @@ namespace FluxSE\SyliusStripePlugin\Provider;
 
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 
-final readonly class MetadataProvider implements MetadataProviderInterface
+final readonly class PaymentMetadataProvider implements MetadataProviderInterface
 {
     public function getMetadata(PaymentRequestInterface $paymentRequest): array
     {
         return [
-            MetadataProviderInterface::DEFAULT_TOKEN_HASH_KEY_NAME => $paymentRequest->getHash()?->toRfc4122(),
+            MetadataProviderInterface::DEFAULT_TOKEN_HASH_KEY_NAME => $paymentRequest->getId(),
         ];
     }
 }

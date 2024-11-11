@@ -16,7 +16,3 @@ sylius_shop:
 
 sylius_api:
     enabled: true
-
-sylius_payment:
-    encryption:
-        enabled: false

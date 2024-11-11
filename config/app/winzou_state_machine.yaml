@@ -1,0 +1,16 @@
+winzou_state_machine:
+  sylius_payment:
+    callbacks:
+      after:
+        flux_se.sylius_stripe_refund:
+          on: ["refund"]
+          do: ["@flux_se.sylius_stripe.state_machine.refund", "__invoke"]
+          args: ["object", "event.getState()"]
+        flux_se.sylius_stripe_cancel:
+          on: ["cancel"]
+          do: ["@flux_se.sylius_stripe.state_machine.cancel", "__invoke"]
+          args: ["object", "event.getState()"]
+        flux_se.sylius_stripe_complete_authorized:
+          on: ["complete"]
+          do: ["@flux_se.sylius_stripe.state_machine.capture_authorized", "__invoke"]
+          args: ["object", "event.getState()"]

@@ -1,10 +1,7 @@
-# Put your Behat suites definitions here
-
-default:
-    suites:
-#        greeting_customer:
-#            contexts:
-#                - Tests\App\Behat\Context\Ui\Shop\ExampleContext
-#
-#            filters:
-#                tags: "@greeting_customer"
+imports:
+    - 'suites/ui/admin.yaml'
+    - 'suites/ui/stripe_checkout/shop.yaml'
+    - 'suites/ui/stripe_web_elements/shop.yaml'
+    - 'suites/api/admin.yaml'
+    #- 'suites/api/stripe_checkout/shop.yaml'
+    #- 'suites/api/stripe_web_elements/shop.yaml'

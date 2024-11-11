@@ -1,0 +1,48 @@
+parameters:
+    flux_se.sylius_stripe.state_machine.supported_factories:
+        - 'stripe_checkout'
+        - 'stripe_web_elements'
+    
+services:
+    
+    flux_se.sylius_stripe.state_machine.payment_state:
+        abstract: true
+        class: FluxSE\SyliusStripePlugin\StateMachine\PaymentStateProcessor
+        arguments:
+            - '@sylius.provider.payment_request.gateway_factory_name'
+            - '@sylius.checker.finalized_payment_request'
+            - '@sylius.factory.payment_request'
+            - '@sylius.repository.payment_request'
+            - '@sylius.announcer.payment_request'
+            - '%flux_se.sylius_stripe.state_machine.supported_factories%'
+    
+    flux_se.sylius_stripe.state_machine.refund:
+        public: true
+        class: FluxSE\SyliusStripePlugin\StateMachine\PaymentStateProcessorInterface
+        parent: flux_se.sylius_stripe.state_machine.payment_state
+        arguments:
+            - []
+            - !php/const Sylius\Component\Payment\Model\PaymentInterface::STATE_REFUNDED
+            - !php/const Sylius\Component\Payment\Model\PaymentRequestInterface::ACTION_REFUND
+    
+    flux_se.sylius_stripe.state_machine.cancel:
+        public: true
+        class: FluxSE\SyliusStripePlugin\StateMachine\PaymentStateProcessorInterface
+        parent: flux_se.sylius_stripe.state_machine.payment_state
+        arguments:
+            -
+              - !php/const Sylius\Component\Payment\Model\PaymentInterface::STATE_NEW
+              - !php/const Sylius\Component\Payment\Model\PaymentInterface::STATE_AUTHORIZED
+            - !php/const Sylius\Component\Payment\Model\PaymentInterface::STATE_CANCELLED
+            - !php/const Sylius\Component\Payment\Model\PaymentRequestInterface::ACTION_CANCEL
+        
+    
+    flux_se.sylius_stripe.state_machine.capture_authorized:
+        public: true
+        class: FluxSE\SyliusStripePlugin\StateMachine\PaymentStateProcessorInterface
+        parent: flux_se.sylius_stripe.state_machine.payment_state
+        arguments:
+            -
+                - !php/const Sylius\Component\Payment\Model\PaymentInterface::STATE_AUTHORIZED
+            - !php/const Sylius\Component\Payment\Model\PaymentInterface::STATE_COMPLETED
+            - !php/const Sylius\Component\Payment\Model\PaymentRequestInterface::ACTION_AUTHORIZE

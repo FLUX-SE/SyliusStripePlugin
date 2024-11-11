@@ -38,8 +38,7 @@ final readonly class CapturePaymentRequestHandler
             'url' => $session->url,
         ]);
 
-        $payment = $paymentRequest->getPayment();
-        $payment->setDetails($session->toArray());
+        $paymentRequest->getPayment()->setDetails($session->toArray());
 
         $this->paymentTransitionProcessor->process($paymentRequest);
 
