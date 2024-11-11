@@ -16,8 +16,8 @@ final readonly class AfterUrlProvider implements AfterUrlProviderInterface
 
     public function getUrl(PaymentRequestInterface $paymentRequest, string $type): string
     {
+        /** @var string[] $responseData */
         $responseData = $paymentRequest->getResponseData();
-        Assert::isArray($responseData, 'The payment request responseData must be an array.');
 
         return $responseData[$type] ?? $this->defaultAfterPayUrlProvider->getUrl($paymentRequest, $type);
     }
