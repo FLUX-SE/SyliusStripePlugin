@@ -1,6 +1,5 @@
 {
     "name": "flux-se/sylius-stripe-plugin",
-    "version": "1.0.0",
     "description": "Sylius Stripe plugin using Payment Request",
     "type": "sylius-plugin",
     "keywords": ["sylius", "sylius-plugin", "stripe", "payum", "gateway", "sca", "checkout", "session"],
