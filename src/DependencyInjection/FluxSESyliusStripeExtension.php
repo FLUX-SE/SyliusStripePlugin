@@ -39,13 +39,19 @@ final class FluxSESyliusStripeExtension extends AbstractResourceExtension implem
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../../config'));
 
         $loader->load('services.yaml');
+
+        if ($container->hasParameter('kernel.bundles')) {
+            /** @var string[] $bundles */
+            $bundles = $container->getParameter('kernel.bundles');
+            if (array_key_exists('SyliusShopBundle', $bundles)) {
+                $loader->load('services/integrations/sylius_shop.yaml');
+            }
+        }
     }
 
     public function prepend(ContainerBuilder $container): void
     {
         $this->prependDoctrineMigrations($container);
-
-        $this->prependSyliusShop($container);
     }
 
     protected function getMigrationsNamespace(): string
@@ -66,14 +72,5 @@ final class FluxSESyliusStripeExtension extends AbstractResourceExtension implem
         return [
             'Sylius\Bundle\CoreBundle\Migrations',
         ];
-    }
-
-    private function prependSyliusShop(ContainerBuilder $container): void
-    {
-        $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../../config/integrations'));
-
-        if ($container->hasExtension('sylius_shop')) {
-            $loader->load('sylius_shop.yaml');
-        }
     }
 }
