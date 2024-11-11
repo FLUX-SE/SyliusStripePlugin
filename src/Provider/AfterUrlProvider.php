@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace FluxSE\SyliusStripePlugin\Provider;
 
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
-use Webmozart\Assert\Assert;
 
 final readonly class AfterUrlProvider implements AfterUrlProviderInterface
 {
