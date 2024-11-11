@@ -8,8 +8,6 @@ parameters:
         - tests/Behat
 
     ignoreErrors:
-        - message: '/Cannot call method scalarNode\(\) on Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface\|null\./'
-          path: src/DependencyInjection/Configuration.php
         - message: '/Method FluxSE\\SyliusStripePlugin\\Stripe\\HttpClient\\PsrClient::[^\(]+\(\) has parameter \$[^ ]+ with no value type specified in iterable type array\./'
           path: src/Stripe/HttpClient/PsrClient.php
         - message: '/Method FluxSE\\SyliusStripePlugin\\Stripe\\HttpClient\\PsrClient::[^\(]+\(\) return type has no value type specified in iterable type array\./'

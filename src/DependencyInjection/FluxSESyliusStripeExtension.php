@@ -18,22 +18,19 @@ final class FluxSESyliusStripeExtension extends AbstractResourceExtension implem
     /** @psalm-suppress UnusedVariable */
     public function load(array $configs, ContainerBuilder $container): void
     {
-        $configuration = $this->getConfiguration([], $container);
-        assert(null !== $configuration, 'Configuration cannot be null.');
-
-        $configs = $this->processConfiguration($configuration, $configs);
+        $config = $this->processConfiguration($this->getConfiguration([], $container), $configs);
 
         $container->setParameter(
             'flux_se.sylius_stripe.line_item_image.imagine_filter',
-            $configs['line_item_image']['imagine_filter'],
+            $config['line_item_image']['imagine_filter'],
         );
         $container->setParameter(
             'flux_se.sylius_stripe.line_item_image.fallback_image',
-            $configs['line_item_image']['fallback_image'],
+            $config['line_item_image']['fallback_image'],
         );
         $container->setParameter(
             'flux_se.sylius_stripe.line_item_image.localhost_pattern',
-            $configs['line_item_image']['localhost_pattern'],
+            $config['line_item_image']['localhost_pattern'],
         );
 
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../../config'));
