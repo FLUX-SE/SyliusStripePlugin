@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\FluxSE\SyliusStripePlugin\Behat\Context\Ui\Shop;
 
-use Behat\Behat\Context\Context;
 use Behat\MinkExtension\Context\MinkContext;
 use FluxSE\SyliusStripePlugin\Provider\MetadataProviderInterface;
 use RuntimeException;
@@ -21,7 +20,7 @@ class StripeWebElementsContext extends MinkContext
         private StripeWebElementsMocker $stripeJsMocker,
         private CompletePageInterface $summaryPage,
         private ShowPageInterface $orderDetails,
-        private StripePage $stripePage
+        private StripePage $stripePage,
     ) {
     }
 
@@ -53,7 +52,7 @@ class StripeWebElementsContext extends MinkContext
             },
             function () {
                 $this->stripePage->captureOrAuthorizeThenGoToAfterUrl();
-            }
+            },
         );
     }
 
@@ -85,7 +84,7 @@ class StripeWebElementsContext extends MinkContext
             },
             function () {
                 $this->stripePage->captureOrAuthorizeThenGoToAfterUrl();
-            }
+            },
         );
     }
 

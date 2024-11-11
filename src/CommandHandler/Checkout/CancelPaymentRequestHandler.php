@@ -10,7 +10,6 @@ use FluxSE\SyliusStripePlugin\Manager\Checkout\RetrieveManagerInterface;
 use FluxSE\SyliusStripePlugin\Processor\PaymentTransitionProcessorInterface;
 use Sylius\Abstraction\StateMachine\StateMachineInterface;
 use Sylius\Bundle\PaymentBundle\Provider\PaymentRequestProviderInterface;
-use Sylius\Component\Payment\Model\PaymentRequestInterface;
 use Sylius\Component\Payment\PaymentRequestTransitions;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Webmozart\Assert\Assert;

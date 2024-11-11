@@ -19,7 +19,7 @@ class ManagingOrdersContext implements Context
     public function __construct(
         private StateMachineInterface $stateMachine,
         private ObjectManager $objectManager,
-        private StripeCheckoutMocker $stripeCheckoutSessionMocker
+        private StripeCheckoutMocker $stripeCheckoutSessionMocker,
     ) {
     }
 
@@ -42,7 +42,7 @@ class ManagingOrdersContext implements Context
         $this->stateMachine->apply(
             $payment,
             PaymentTransitions::GRAPH,
-            PaymentTransitions::TRANSITION_COMPLETE
+            PaymentTransitions::TRANSITION_COMPLETE,
         );
 
         $this->objectManager->flush();
@@ -67,7 +67,7 @@ class ManagingOrdersContext implements Context
         $this->stateMachine->apply(
             $payment,
             PaymentTransitions::GRAPH,
-            PaymentTransitions::TRANSITION_AUTHORIZE
+            PaymentTransitions::TRANSITION_AUTHORIZE,
         );
 
         $this->objectManager->flush();
@@ -121,7 +121,7 @@ class ManagingOrdersContext implements Context
         $this->stateMachine->apply(
             $payment,
             PaymentTransitions::GRAPH,
-            PaymentTransitions::TRANSITION_CANCEL
+            PaymentTransitions::TRANSITION_CANCEL,
         );
 
         $this->objectManager->flush();
@@ -157,7 +157,7 @@ class ManagingOrdersContext implements Context
     {
         $this->stripeCheckoutSessionMocker->mockCancelPayment(
             PaymentIntent::STATUS_REQUIRES_PAYMENT_METHOD,
-            PaymentIntent::CAPTURE_METHOD_AUTOMATIC
+            PaymentIntent::CAPTURE_METHOD_AUTOMATIC,
         );
     }
 

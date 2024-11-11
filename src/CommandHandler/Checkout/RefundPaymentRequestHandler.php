@@ -40,18 +40,20 @@ final readonly class RefundPaymentRequestHandler
             $reason = sprintf(
                 'Checkout Session payment status is "%s" instead of "%s".',
                 $session->payment_status,
-                $session::PAYMENT_STATUS_PAID
+                $session::PAYMENT_STATUS_PAID,
             );
             $this->setFailed($paymentRequest, $reason);
+
             return;
         }
 
         if (0 >= $session->amount_total) {
             $reason = sprintf(
                 'Checkout Session amount total is not greater than 0 (amount_total: %s)',
-                $session->amount_total
+                $session->amount_total,
             );
             $this->setFailed($paymentRequest, $reason);
+
             return;
         }
 
@@ -77,7 +79,7 @@ final readonly class RefundPaymentRequestHandler
 
     private function setFailed(
         PaymentRequestInterface $paymentRequest,
-        string $reason
+        string $reason,
     ): void {
         $paymentRequest->setResponseData([
             'reason' => $reason,

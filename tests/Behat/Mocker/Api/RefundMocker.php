@@ -25,9 +25,9 @@ final class RefundMocker
                     json_encode(array_merge([
                         'id' => 're_1',
                         'object' => Refund::OBJECT_NAME,
-                    ], $params), JSON_THROW_ON_ERROR),
+                    ], $params), \JSON_THROW_ON_ERROR),
                     200,
-                    []
+                    [],
                 ];
             });
     }

@@ -26,7 +26,7 @@ final class StripeWebElementsMocker
         $this->paymentIntentMocker->mockCreateAction();
         $this->mockPaymentIntentSync(
             $action,
-            PaymentIntent::STATUS_REQUIRES_PAYMENT_METHOD
+            PaymentIntent::STATUS_REQUIRES_PAYMENT_METHOD,
         );
     }
 
@@ -59,7 +59,7 @@ final class StripeWebElementsMocker
     {
         $this->mockPaymentIntentSync(
             $action,
-            PaymentIntent::STATUS_REQUIRES_PAYMENT_METHOD
+            PaymentIntent::STATUS_REQUIRES_PAYMENT_METHOD,
         );
     }
 
@@ -67,7 +67,7 @@ final class StripeWebElementsMocker
     {
         $this->mockPaymentIntentSync(
             $notifyAction,
-            PaymentIntent::STATUS_SUCCEEDED
+            PaymentIntent::STATUS_SUCCEEDED,
         );
         $this->mockPaymentIntentSync($action, PaymentIntent::STATUS_SUCCEEDED);
     }
@@ -76,7 +76,7 @@ final class StripeWebElementsMocker
     {
         $this->mockPaymentIntentSync(
             $notifyAction,
-            PaymentIntent::STATUS_REQUIRES_CAPTURE
+            PaymentIntent::STATUS_REQUIRES_CAPTURE,
         );
         $this->mockPaymentIntentSync($action, PaymentIntent::STATUS_REQUIRES_CAPTURE);
     }
@@ -85,7 +85,7 @@ final class StripeWebElementsMocker
     {
         $this->mockPaymentIntentSync(
             $action,
-            PaymentIntent::STATUS_SUCCEEDED
+            PaymentIntent::STATUS_SUCCEEDED,
         );
     }
 
@@ -93,7 +93,7 @@ final class StripeWebElementsMocker
     {
         $this->mockPaymentIntentSync(
             $action,
-            PaymentIntent::STATUS_REQUIRES_CAPTURE
+            PaymentIntent::STATUS_REQUIRES_CAPTURE,
         );
     }
 

@@ -11,7 +11,6 @@ use Webmozart\Assert\Assert;
 
 final class PaymentCompletedStateListener
 {
-
     public function __construct(
         private PaymentStateProcessorInterface $paymentStateProcessor,
     ) {

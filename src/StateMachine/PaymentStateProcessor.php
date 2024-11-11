@@ -37,9 +37,12 @@ final readonly class PaymentStateProcessor implements PaymentStateProcessorInter
     public function __invoke(PaymentInterface $payment, string $fromState): void
     {
         if (
-            $this->allowedPaymentFromStates !== []
-            && false === in_array($fromState, $this->allowedPaymentFromStates, true
-        )) {
+            $this->allowedPaymentFromStates !== [] &&
+            false === in_array(
+                $fromState,
+                $this->allowedPaymentFromStates,
+                true,
+            )) {
             return;
         }
 
@@ -59,17 +62,17 @@ final readonly class PaymentStateProcessor implements PaymentStateProcessorInter
             sprintf(
                 'The payment must have state "%s" at this point, found "%s".',
                 $this->requiredPaymentState,
-                $payment->getState()
-            )
+                $payment->getState(),
+            ),
         );
 
         $paymentRequest = $this->paymentRequestRepository->findOneByActionPaymentAndMethod(
             $this->paymentRequestAction,
             $payment,
-            $paymentMethod
+            $paymentMethod,
         );
 
-        if ( null === $paymentRequest  || $this->finalizedPaymentRequestChecker->isFinal($paymentRequest)) {
+        if (null === $paymentRequest || $this->finalizedPaymentRequestChecker->isFinal($paymentRequest)) {
             $paymentRequest = $this->paymentRequestFactory->create($payment, $paymentMethod);
             $paymentRequest->setAction($this->paymentRequestAction);
 

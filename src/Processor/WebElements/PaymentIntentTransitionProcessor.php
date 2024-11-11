@@ -66,7 +66,7 @@ final readonly class PaymentIntentTransitionProcessor implements PaymentTransiti
     /**
      * @see https://stripe.com/docs/payments/paymentintents/lifecycle
      */
-    protected function isSpecialCanceledStatus(PaymentIntent $paymentIntent): bool
+    private function isSpecialCanceledStatus(PaymentIntent $paymentIntent): bool
     {
         $status = $paymentIntent->status;
         $lastPaymentError = $paymentIntent->last_payment_error;

@@ -27,9 +27,9 @@ final class CheckoutSessionMocker
                         'object' => Session::OBJECT_NAME,
                         'payment_intent' => 'pi_test_1',
                         'url' => 'https://checkout.stripe.com/c/pay/cs_1',
-                    ], $params), JSON_THROW_ON_ERROR),
+                    ], $params), \JSON_THROW_ON_ERROR),
                     200,
-                    []
+                    [],
                 ];
             });
     }
@@ -38,9 +38,10 @@ final class CheckoutSessionMocker
     {
         $this->mockClient
             ->expects('request')
-            ->withArgs(['get', \Mockery::pattern('#^'.Session::classUrl().'/cs_test_[^/]+$#')])
+            ->withArgs(['get', \Mockery::pattern('#^' . Session::classUrl() . '/cs_test_[^/]+$#')])
             ->andReturnUsing(function ($method, $absUrl) use ($status, $paymentStatus) {
-                $id = str_replace(Session::classUrl().'/', '', $absUrl);
+                $id = str_replace(Session::classUrl() . '/', '', $absUrl);
+
                 return [
                     json_encode([
                         'id' => $id,
@@ -48,9 +49,9 @@ final class CheckoutSessionMocker
                         'status' => $status,
                         'payment_status' => $paymentStatus,
                         'payment_intent' => 'pi_test_1',
-                    ], JSON_THROW_ON_ERROR),
+                    ], \JSON_THROW_ON_ERROR),
                     200,
-                    []
+                    [],
                 ];
             });
     }
@@ -68,9 +69,9 @@ final class CheckoutSessionMocker
                             'object' => Session::OBJECT_NAME,
                             'status' => $status,
                         ],
-                    ]], JSON_THROW_ON_ERROR),
+                    ]], \JSON_THROW_ON_ERROR),
                     200,
-                    []
+                    [],
                 ];
             });
     }
@@ -79,17 +80,18 @@ final class CheckoutSessionMocker
     {
         $this->mockClient
             ->expects('request')
-            ->withArgs(['get', \Mockery::pattern('#^'.Session::classUrl().'/cs_test_[^/]+/expire$#')])
+            ->withArgs(['get', \Mockery::pattern('#^' . Session::classUrl() . '/cs_test_[^/]+/expire$#')])
             ->andReturnUsing(function ($method, $absUrl, $params) {
                 $id = str_replace([Session::classUrl() . '/', '/expire'], '', $absUrl);
+
                 return [
                     json_encode([
                     'id' => $id,
                     'object' => Session::OBJECT_NAME,
                     'status' => Session::STATUS_EXPIRED,
-                ], JSON_THROW_ON_ERROR),
+                ], \JSON_THROW_ON_ERROR),
                     200,
-                    []
+                    [],
                 ];
             });
     }

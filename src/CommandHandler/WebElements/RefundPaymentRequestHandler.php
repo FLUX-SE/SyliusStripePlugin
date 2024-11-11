@@ -40,18 +40,20 @@ final readonly class RefundPaymentRequestHandler
             $reason = sprintf(
                 'Payment Intent status is "%s" instead of "%s".',
                 $paymentIntent->status,
-                $paymentIntent::STATUS_SUCCEEDED
+                $paymentIntent::STATUS_SUCCEEDED,
             );
             $this->setFailed($paymentRequest, $reason);
+
             return;
         }
 
         if (0 >= $paymentIntent->amount) {
             $reason = sprintf(
                 'Payment Intent amount is not greater than 0 (amount: %s)',
-                $paymentIntent->amount
+                $paymentIntent->amount,
             );
             $this->setFailed($paymentRequest, $reason);
+
             return;
         }
 
@@ -77,7 +79,7 @@ final readonly class RefundPaymentRequestHandler
 
     private function setFailed(
         PaymentRequestInterface $paymentRequest,
-        string $reason
+        string $reason,
     ): void {
         $paymentRequest->setResponseData([
             'reason' => $reason,

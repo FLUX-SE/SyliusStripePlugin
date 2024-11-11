@@ -6,6 +6,6 @@ namespace FluxSE\SyliusStripePlugin\Command\Checkout;
 
 use FluxSE\SyliusStripePlugin\Command\AbstractRefundPaymentRequest;
 
-class RefundPaymentRequest  extends AbstractRefundPaymentRequest
+class RefundPaymentRequest extends AbstractRefundPaymentRequest
 {
 }

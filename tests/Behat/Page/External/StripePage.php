@@ -85,16 +85,16 @@ final class StripePage extends Page implements StripePageInterface
             [],
             [],
             $this->generateSignature($payload),
-            $payload
+            $payload,
         );
     }
 
     private function findLatestPaymentRequest(string $state = PaymentRequestInterface::STATE_NEW): PaymentRequestInterface
     {
         $paymentRequests = $this->paymentRequestRepository->findBy(
-            [ 'state' => $state ],
-            [ 'createdAt' => 'ASC' ],
-            1
+            ['state' => $state],
+            ['createdAt' => 'ASC'],
+            1,
         );
 
         $paymentRequest = $paymentRequests[0] ?? null;

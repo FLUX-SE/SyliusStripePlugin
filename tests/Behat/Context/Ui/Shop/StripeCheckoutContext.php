@@ -20,7 +20,7 @@ class StripeCheckoutContext extends MinkContext
         private StripeCheckoutMocker $stripeCheckoutSessionMocker,
         private CompletePageInterface $summaryPage,
         private ShowPageInterface $orderDetails,
-        private StripePage $stripePage
+        private StripePage $stripePage,
     ) {
     }
 
@@ -63,7 +63,7 @@ class StripeCheckoutContext extends MinkContext
             },
             function () {
                 $this->stripePage->captureOrAuthorizeThenGoToAfterUrl();
-            }
+            },
         );
     }
 
@@ -95,7 +95,7 @@ class StripeCheckoutContext extends MinkContext
             },
             function () {
                 $this->stripePage->captureOrAuthorizeThenGoToAfterUrl();
-            }
+            },
         );
     }
 
