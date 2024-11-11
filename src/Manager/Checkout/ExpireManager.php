@@ -20,10 +20,11 @@ final class ExpireManager implements ExpireManagerInterface
     use StripeClientAwareManagerTrait;
 
     public function __construct(
-        private ClientFactoryInterface $stripeClientFactory,
+        ClientFactoryInterface $stripeClientFactory,
         private ?ParamsProviderInterface $paramsProvider = null,
         private ?OptsProviderInterface $optsProvider = null,
     ) {
+        $this->stripeClientFactory = $stripeClientFactory;
     }
 
     public function expire(PaymentRequestInterface $paymentRequest, string $id): Session

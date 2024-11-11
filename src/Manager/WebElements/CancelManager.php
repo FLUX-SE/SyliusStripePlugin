@@ -20,10 +20,11 @@ final class CancelManager implements CancelManagerInterface
     use StripeClientAwareManagerTrait;
 
     public function __construct(
-        private ClientFactoryInterface $stripeClientFactory,
+        ClientFactoryInterface $stripeClientFactory,
         private ?ParamsProviderInterface $paramsProvider = null,
         private ?OptsProviderInterface $optsProvider = null,
     ) {
+        $this->stripeClientFactory = $stripeClientFactory;
     }
 
     public function cancel(PaymentRequestInterface $paymentRequest, string $id): PaymentIntent

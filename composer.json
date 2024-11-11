@@ -44,7 +44,8 @@
         "symfony/web-profiler-bundle": "^6.4|^7.1",
         "spaze/phpstan-stripe": "^3.2",
         "nyholm/psr7": "^1.8",
-        "mockery/mockery": "^1.6"
+        "mockery/mockery": "^1.6",
+        "phpstan/phpstan-mockery": "^1.1"
     },
     "suggest": {
         "sylius/shop-bundle": "Use the Sylius default front shop",

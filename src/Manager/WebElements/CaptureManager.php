@@ -20,10 +20,11 @@ final class CaptureManager implements CaptureManagerInterface
     use StripeClientAwareManagerTrait;
 
     public function __construct(
-        private ClientFactoryInterface $stripeClientFactory,
+        ClientFactoryInterface $stripeClientFactory,
         private ?ParamsProviderInterface $paramsProvider = null,
         private ?OptsProviderInterface $optsProvider = null,
     ) {
+        $this->stripeClientFactory = $stripeClientFactory;
     }
 
     public function capture(PaymentRequestInterface $paymentRequest, string $id): PaymentIntent
