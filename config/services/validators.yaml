@@ -1,0 +1,20 @@
+parameters:
+    flux_se.sylius_stripe.validator.payload_requirements.supported_factory_names:
+        - stripe_checkout
+    flux_se.sylius_stripe.validator.payload_requirements.supported_actions:
+        - ~
+        - !php/const Sylius\Component\Payment\Model\PaymentRequestInterface::ACTION_AUTHORIZE
+        - !php/const Sylius\Component\Payment\Model\PaymentRequestInterface::ACTION_CAPTURE
+
+services:
+    
+    flux_se.sylius_stripe.validator.checkout_session_create_payload_requirement:
+        class: FluxSE\SyliusStripePlugin\Validator\Constraints\CheckoutSessionCreatePayloadRequirementValidator
+        arguments:
+            - '@sylius.repository.payment_method'
+            - '@sylius.provider.payment_request.gateway_factory_name'
+            - '%flux_se.sylius_stripe.validator.payload_requirements.supported_factory_names%'
+            - '%flux_se.sylius_stripe.validator.payload_requirements.supported_actions%'
+        tags:
+            - name: validator.constraint_validator
+              alias: flux_se_sylius_stripe_checkout_session_create_payload_requirement

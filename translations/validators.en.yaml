@@ -6,3 +6,8 @@ flux_se_sylius_stripe_plugin:
             not_blank: Please enter stripe secret key.
         publishable_key:
             not_blank: Please enter stripe publishable key.
+    stripe_checkout:
+        success_url:
+            not_found: The payload must contain a "success_url" array property to be able to redirect the visitor after the Stripe Checkout Session portal completion.
+        cancel_url:
+            not_found: The payload must contain a "cancel_url" array property to be able to redirect the visitor after the Stripe Checkout Session portal completion.

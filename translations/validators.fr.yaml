@@ -6,3 +6,8 @@ flux_se_sylius_stripe_plugin:
             not_blank: Veuillez entrer votre clé secrète Stripe.
         publishable_key:
             not_blank: Veuillez entrer votre clé publique Stripe.
+    stripe_checkout:
+        success_url:
+            not_found: Le "payload" doit contenir un champ de tableau nommé "success_url" pour rediriger le visiteur après avoir terminé une Stripe Checkout Session.
+        cancel_url:
+            not_found: Le "payload" doit contenir un champ de tableau nommé "cancel_url" pour rediriger le visiteur après avoir terminé une Stripe Checkout Session.
