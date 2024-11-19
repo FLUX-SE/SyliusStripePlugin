@@ -4,15 +4,23 @@ declare(strict_types=1);
 
 namespace FluxSE\SyliusStripePlugin\Provider;
 
+use Stripe\ApiResource;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 
-final readonly class PaymentMethodTypesProvider implements PaymentMethodTypesProviderInterface
+/**
+ * @template T as ApiResource
+ * @implements DetailsProviderInterface<T>
+ */
+final readonly class PaymentMethodTypesProvider implements DetailsProviderInterface
 {
-    public function getPaymentMethodTypes(PaymentRequestInterface $paymentRequest): array
+    public function getDetails(PaymentRequestInterface $paymentRequest, array &$details): void
     {
         /** @var string[] $types */
-        $types = $paymentRequest->getMethod()->getGatewayConfig()?->getConfig()['payment_method_types'] ?? [];
+        $paymentMethodTypes = $paymentRequest->getMethod()->getGatewayConfig()?->getConfig()['payment_method_types'] ?? [];
+        if ([] === $paymentMethodTypes) {
+            return;
+        }
 
-        return $types;
+        $details['payment_method_types'] = $paymentMethodTypes;
     }
 }

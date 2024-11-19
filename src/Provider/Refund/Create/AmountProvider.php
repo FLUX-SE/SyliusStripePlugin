@@ -2,21 +2,25 @@
 
 declare(strict_types=1);
 
-namespace FluxSE\SyliusStripePlugin\Provider\WebElements\Create;
+namespace FluxSE\SyliusStripePlugin\Provider\Refund\Create;
 
 use FluxSE\SyliusStripePlugin\Provider\DetailsProviderInterface;
-use Stripe\PaymentIntent;
+use Stripe\Refund;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 
 /**
- * @implements DetailsProviderInterface<PaymentIntent>
+ * @implements DetailsProviderInterface<Refund>
  */
 final readonly class AmountProvider implements DetailsProviderInterface
 {
-
     public function getDetails(PaymentRequestInterface $paymentRequest, array &$details): void
     {
-        $amount = $paymentRequest->getPayment()->getAmount();
+        $payload = $paymentRequest->getPayload();
+        if (false === is_array($payload)) {
+            return;
+        }
+
+        $amount = $payload['amount'] ?? null;
         if (null === $amount) {
             return;
         }

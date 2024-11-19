@@ -4,16 +4,23 @@ declare(strict_types=1);
 
 namespace FluxSE\SyliusStripePlugin\Provider\WebElements\Create;
 
+use FluxSE\SyliusStripePlugin\Provider\DetailsProviderInterface;
+use Stripe\PaymentIntent;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 use Webmozart\Assert\Assert;
 
-final readonly class CurrencyProvider implements CurrencyProviderInterface
+/**
+ * @implements DetailsProviderInterface<PaymentIntent>
+ */
+final readonly class CurrencyProvider implements DetailsProviderInterface
 {
-    public function getCurrency(PaymentRequestInterface $paymentRequest): string
+    public function getDetails(PaymentRequestInterface $paymentRequest, array &$details): void
     {
         $currencyCode = $paymentRequest->getPayment()->getCurrencyCode();
-        Assert::notNull($currencyCode, 'The currency code cannot be null.');
+        if (null === $currencyCode) {
+            return;
+        }
 
-        return $currencyCode;
+        $details['currency'] = $currencyCode;
     }
 }

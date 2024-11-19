@@ -2,15 +2,16 @@
 
 declare(strict_types=1);
 
-namespace FluxSE\SyliusStripePlugin\Provider\Checkout\Create;
+namespace FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem;
 
+use FluxSE\SyliusStripePlugin\Provider\Checkout\Create\OrderItemLineItemProviderInterface;
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
 use Sylius\Component\Core\Model\OrderItemInterface;
 use Sylius\Component\Core\Model\ProductImageInterface;
 use Sylius\Component\Core\Model\ProductInterface;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 
-final class LineItemImagesProvider implements LineItemImagesProviderInterface
+final class OrderItemProductDataImagesProvider implements OrderItemLineItemProviderInterface
 {
     public function __construct(
         private CacheManager $imagineCacheManager,
@@ -20,7 +21,23 @@ final class LineItemImagesProvider implements LineItemImagesProviderInterface
     ) {
     }
 
-    public function getImageUrls(PaymentRequestInterface $paymentRequest, OrderItemInterface $orderItem): array
+    public function getDetails(
+        PaymentRequestInterface $paymentRequest,
+        OrderItemInterface $orderItem,
+        array &$details,
+    ): void {
+        if (false === isset($details['price_data'])) {
+            $details['price_data'] = [];
+        }
+
+        if (false === isset($details['price_data']['product_data'])) {
+            $details['price_data']['product_data'] = [];
+        }
+
+        $details['price_data']['product_data']['images'] = $this->getImageUrls($orderItem);
+    }
+
+    private function getImageUrls(OrderItemInterface $orderItem): array
     {
         $product = $orderItem->getProduct();
 
@@ -28,7 +45,7 @@ final class LineItemImagesProvider implements LineItemImagesProviderInterface
             return [];
         }
 
-        $imageUrl = $this->getImageUrlFromProduct($paymentRequest, $product);
+        $imageUrl = $this->getImageUrlFromProduct($product);
         if ('' === $imageUrl) {
             return [];
         }
@@ -38,7 +55,7 @@ final class LineItemImagesProvider implements LineItemImagesProviderInterface
         ];
     }
 
-    public function getImageUrlFromProduct(PaymentRequestInterface $paymentRequest, ProductInterface $product): string
+    private function getImageUrlFromProduct(ProductInterface $product): string
     {
         $path = '';
 
