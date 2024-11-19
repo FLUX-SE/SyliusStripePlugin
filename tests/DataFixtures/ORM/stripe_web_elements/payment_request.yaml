@@ -1,0 +1,9 @@
+Sylius\Component\Payment\Model\PaymentRequest:
+    payment_request_authorize:
+        __construct: [ '@payment', '@payment_method_stripe_web_elements_authorize' ]
+        state: "new"
+        action: "authorize"
+    payment_request_capture:
+        __construct: [ '@payment', '@payment_method_stripe_web_elements' ]
+        state: "new"
+        action: "capture"

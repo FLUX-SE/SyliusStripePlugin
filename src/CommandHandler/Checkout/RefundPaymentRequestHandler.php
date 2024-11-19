@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace FluxSE\SyliusStripePlugin\CommandHandler\Checkout;
 
 use FluxSE\SyliusStripePlugin\Command\Checkout\RefundPaymentRequest;
+use FluxSE\SyliusStripePlugin\CommandHandler\FailedAwarePaymentRequestHandlerTrait;
 use FluxSE\SyliusStripePlugin\Manager\Checkout\RetrieveManagerInterface;
 use FluxSE\SyliusStripePlugin\Manager\Refund\CreateManagerInterface;
 use FluxSE\SyliusStripePlugin\Processor\PaymentTransitionProcessorInterface;
@@ -18,13 +19,16 @@ use Webmozart\Assert\Assert;
 #[AsMessageHandler]
 final readonly class RefundPaymentRequestHandler
 {
+    use FailedAwarePaymentRequestHandlerTrait;
+
     public function __construct(
         private PaymentRequestProviderInterface $paymentRequestProvider,
         private RetrieveManagerInterface $retrieveCheckoutManager,
         private CreateManagerInterface $createRefundManager,
         private PaymentTransitionProcessorInterface $paymentTransitionProcessor,
-        private StateMachineInterface $stateMachine,
+        StateMachineInterface $stateMachine,
     ) {
+        $this->stateMachine = $stateMachine;
     }
 
     public function __invoke(RefundPaymentRequest $refundPaymentRequest): void
@@ -33,26 +37,35 @@ final readonly class RefundPaymentRequestHandler
 
         /** @var string|null $id */
         $id = $paymentRequest->getPayment()->getDetails()['id'] ?? null;
-        Assert::notNull($id, 'An id is required to retrieve the related Stripe Checkout Session.');
+        if (null === $id) {
+            $this->failWithReason(
+                $paymentRequest,
+                'An id is required to retrieve the related Stripe Checkout/Session.'
+            );
+            return;
+        }
 
         $session = $this->retrieveCheckoutManager->retrieve($paymentRequest, $id);
         if ($session::PAYMENT_STATUS_PAID !== $session->payment_status) {
-            $reason = sprintf(
-                'Checkout Session payment status is "%s" instead of "%s".',
-                $session->payment_status,
-                $session::PAYMENT_STATUS_PAID,
+            $this->failWithReason(
+                $paymentRequest,
+                sprintf(
+                    'Checkout Session payment status is "%s" instead of "%s".',
+                    $session->payment_status,
+                    $session::PAYMENT_STATUS_PAID,
+                )
             );
-            $this->setFailed($paymentRequest, $reason);
-
             return;
         }
 
         if (0 >= $session->amount_total) {
-            $reason = sprintf(
-                'Checkout Session amount total is not greater than 0 (amount_total: %s)',
-                $session->amount_total,
+            $this->failWithReason(
+                $paymentRequest,
+                sprintf(
+                    'Checkout Session amount total is not greater than 0 (amount_total: %s)',
+                    $session->amount_total,
+                )
             );
-            $this->setFailed($paymentRequest, $reason);
 
             return;
         }
@@ -74,21 +87,6 @@ final readonly class RefundPaymentRequestHandler
             $paymentRequest,
             PaymentRequestTransitions::GRAPH,
             PaymentRequestTransitions::TRANSITION_COMPLETE,
-        );
-    }
-
-    private function setFailed(
-        PaymentRequestInterface $paymentRequest,
-        string $reason,
-    ): void {
-        $paymentRequest->setResponseData([
-            'reason' => $reason,
-        ]);
-
-        $this->stateMachine->apply(
-            $paymentRequest,
-            PaymentRequestTransitions::GRAPH,
-            PaymentRequestTransitions::TRANSITION_FAIL,
         );
     }
 }

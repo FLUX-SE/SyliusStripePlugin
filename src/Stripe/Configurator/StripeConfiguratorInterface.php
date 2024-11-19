@@ -10,4 +10,6 @@ interface StripeConfiguratorInterface
      * @param array<string, mixed> $config
      */
     public function configure(array $config): void;
+
+    public function unConfigure(): void;
 }

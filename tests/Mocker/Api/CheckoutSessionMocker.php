@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api;
+namespace Tests\FluxSE\SyliusStripePlugin\Mocker\Api;
 
 use Mockery\MockInterface;
 use Stripe\Checkout\Session;
 use Stripe\HttpClient\ClientInterface;
+use Stripe\Stripe;
 
 final class CheckoutSessionMocker
 {
@@ -19,14 +20,16 @@ final class CheckoutSessionMocker
     {
         $this->mockClient
             ->expects('request')
-            ->withArgs(['post', Session::classUrl()])
+            ->withSomeOfArgs('post', $this->getCheckoutSessionBaseUrl())
             ->andReturnUsing(function ($method, $absUrl, $params) {
                 return [
                     json_encode(array_merge([
                         'id' => 'cs_test_1',
                         'object' => Session::OBJECT_NAME,
                         'payment_intent' => 'pi_test_1',
-                        'url' => 'https://checkout.stripe.com/c/pay/cs_1',
+                        'url' => 'https://checkout.stripe.com/c/pay/cs_test_1',
+                        'status' => Session::STATUS_OPEN,
+                        'payment_status' => Session::PAYMENT_STATUS_UNPAID,
                     ], $params), \JSON_THROW_ON_ERROR),
                     200,
                     [],
@@ -38,9 +41,17 @@ final class CheckoutSessionMocker
     {
         $this->mockClient
             ->expects('request')
-            ->withArgs(['get', \Mockery::pattern('#^' . Session::classUrl() . '/cs_test_[^/]+$#')])
+            ->withArgs(function ($method, $url) {
+                if ('get' !== $method) {
+                    return false;
+                }
+                if (false === preg_match('#'. $this->getCheckoutSessionBaseUrl() .'/[^/]+$#', $url)) {
+                    return false;
+                }
+                return true;
+            })
             ->andReturnUsing(function ($method, $absUrl) use ($status, $paymentStatus) {
-                $id = str_replace(Session::classUrl() . '/', '', $absUrl);
+                $id = str_replace($this->getCheckoutSessionBaseUrl() . '/', '', $absUrl);
 
                 return [
                     json_encode([
@@ -60,7 +71,7 @@ final class CheckoutSessionMocker
     {
         $this->mockClient
             ->expects('request')
-            ->withArgs(['get', Session::classUrl()])
+            ->with('get', $this->getCheckoutSessionBaseUrl())
             ->andReturnUsing(function () use ($status) {
                 return [
                     json_encode(['data' => [
@@ -80,19 +91,33 @@ final class CheckoutSessionMocker
     {
         $this->mockClient
             ->expects('request')
-            ->withArgs(['get', \Mockery::pattern('#^' . Session::classUrl() . '/cs_test_[^/]+/expire$#')])
-            ->andReturnUsing(function ($method, $absUrl, $params) {
-                $id = str_replace([Session::classUrl() . '/', '/expire'], '', $absUrl);
+            ->withArgs(function ($method, $url) {
+                if ('post' !== $method) {
+                    return false;
+                }
+                if (false === preg_match('#'. $this->getCheckoutSessionBaseUrl() .'/[^/]+/expire$#', $url)) {
+                    return false;
+                }
+                return true;
+            })
+            ->andReturnUsing(function ($method, $absUrl) {
+                $id = str_replace([$this->getCheckoutSessionBaseUrl() . '/', '/expire'], '', $absUrl);
 
                 return [
                     json_encode([
                     'id' => $id,
                     'object' => Session::OBJECT_NAME,
                     'status' => Session::STATUS_EXPIRED,
+                    'payment_status' => Session::PAYMENT_STATUS_UNPAID,
                 ], \JSON_THROW_ON_ERROR),
                     200,
                     [],
                 ];
             });
+    }
+
+    private function getCheckoutSessionBaseUrl(): string
+    {
+        return Stripe::$apiBase.Session::classUrl();
     }
 }

@@ -3,10 +3,16 @@ parameters:
 
 services:
 
-    flux_se.sylius_stripe.stripe.http_client:
-        class: FluxSE\SyliusStripePlugin\Stripe\HttpClient\PsrClient
+    FluxSE\SyliusStripePlugin\Stripe\HttpClient\PsrClient:
+        abstract: true
         arguments:
             - '@sylius.http_client'
             - '@sylius.http_client'
             - '@sylius.http_client'
             - '%flux_se.sylius_stripe.stripe.client.chunk_size%'
+
+    flux_se.sylius_stripe.stripe.http_client:
+        parent: FluxSE\SyliusStripePlugin\Stripe\HttpClient\PsrClient
+
+    flux_se.sylius_stripe.stripe.streaming_http_client:
+        parent: FluxSE\SyliusStripePlugin\Stripe\HttpClient\PsrClient

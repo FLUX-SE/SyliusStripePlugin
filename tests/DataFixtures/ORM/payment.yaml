@@ -1,0 +1,6 @@
+Sylius\Component\Core\Model\Payment:
+    payment:
+        order: "@order"
+        state: "new"
+        amount: 1500
+        currencyCode: "USD"

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api;
+namespace Tests\FluxSE\SyliusStripePlugin\Mocker\Api;
 
 use Mockery\MockInterface;
 use Stripe\HttpClient\ClientInterface;

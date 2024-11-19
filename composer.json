@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "sylius/core-bundle": "^2.0-dev",
+        "sylius/core-bundle": "^2.0",
         "stripe/stripe-php": "^16.1"
     },
     "require-dev": {
@@ -34,7 +34,7 @@
         "robertfausk/behat-panther-extension": "^1.1",
         "sylius-labs/coding-standard": "^4.1",
         "sylius-labs/suite-tags-extension": "^0.2.0",
-        "sylius/sylius": "^2.0-dev",
+        "sylius/sylius": "^2.0",
         "symfony/browser-kit": "^6.4|^7.1",
         "symfony/debug-bundle": "^6.4|^7.1",
         "symfony/dotenv": "^6.4|^7.1",
@@ -45,7 +45,11 @@
         "nyholm/psr7": "^1.8",
         "mockery/mockery": "^1.6",
         "phpstan/phpstan-mockery": "^1.1",
-        "phpstan/phpstan-symfony": "^1.4"
+        "phpstan/phpstan-symfony": "^1.4",
+        "theofidry/alice-data-fixtures": "^1.7",
+        "doctrine/orm": "^2.20",
+        "doctrine/data-fixtures": "^1.8",
+        "lchrusciel/api-test-case": "^5.3"
     },
     "suggest": {
         "sylius/shop-bundle": "Use the Sylius default front shop",

@@ -1,0 +1,25 @@
+Sylius\Component\Payment\Model\PaymentRequest:
+    payment_request_authorize:
+        __construct: [ '@payment', '@payment_method_stripe_checkout_authorize' ]
+        state: "new"
+        action: "authorize"
+    payment_request_authorize_via_api:
+        __construct: [ '@payment', '@payment_method_stripe_checkout_authorize' ]
+        state: "new"
+        action: "authorize"
+        payload: {
+            "success_url": "https://myshop.tld/target-path",
+            "cancel_url": "https://myshop.tld/after-path",
+        }
+    payment_request_capture:
+        __construct: [ '@payment', '@payment_method_stripe_checkout' ]
+        state: "new"
+        action: "capture"
+    payment_request_capture_via_api:
+        __construct: [ '@payment', '@payment_method_stripe_checkout' ]
+        state: "new"
+        action: "capture"
+        payload: {
+            "success_url": "https://myshop.tld/target-path",
+            "cancel_url": "https://myshop.tld/after-path",
+        }

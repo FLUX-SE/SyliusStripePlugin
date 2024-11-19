@@ -18,7 +18,7 @@ Feature: Canceling an order with Stripe JS
     @ui @api
     Scenario: Cancelling the order when a payment intent is still available
         Given I am viewing the summary of this order
-        And I am prepared to cancel the payment intent on this order
+        And I am prepared to cancel the payment intent
         When I cancel this order
         Then I should be notified that it has been successfully updated
         And it should have payment with state cancelled
@@ -32,4 +32,4 @@ Feature: Canceling an order with Stripe JS
         When I cancel this order
         Then I should be notified that it has been successfully updated
         And it should have payment with state cancelled
-        And it should have payment state cancelled
+        And it should have payment state "Cancelled"

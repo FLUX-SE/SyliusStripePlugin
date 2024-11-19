@@ -18,6 +18,8 @@ use Webmozart\Assert\Assert;
 #[AsMessageHandler]
 final readonly class StatusPaymentRequestHandler
 {
+    use FailedAwarePaymentRequestHandlerTrait;
+
     /**
      * @param RetrieveManagerInterface<Session|PaymentIntent> $retrieveManager
      */
@@ -25,8 +27,9 @@ final readonly class StatusPaymentRequestHandler
         private PaymentRequestProviderInterface $paymentRequestProvider,
         private RetrieveManagerInterface $retrieveManager,
         private PaymentTransitionProcessorInterface $paymentTransitionProcessor,
-        private StateMachineInterface $stateMachine,
+        StateMachineInterface $stateMachine,
     ) {
+        $this->stateMachine = $stateMachine;
     }
 
     public function __invoke(AbstractStatusPaymentRequest $statusPaymentRequest): void
@@ -35,7 +38,13 @@ final readonly class StatusPaymentRequestHandler
 
         /** @var string|null $id */
         $id = $paymentRequest->getPayment()->getDetails()['id'] ?? null;
-        Assert::notNull($id, 'An id is required to retrieve the related Stripe API Resource (Session|PaymentIntent).');
+        if (null === $id) {
+            $this->failWithReason(
+                $paymentRequest,
+                'An id is required to retrieve the related Stripe API Resource (Session|PaymentIntent).'
+            );
+            return;
+        }
 
         $stripeApiResource = $this->retrieveManager->retrieve($paymentRequest, $id);
 

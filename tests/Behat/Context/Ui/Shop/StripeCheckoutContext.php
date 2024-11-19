@@ -11,8 +11,8 @@ use Stripe\Checkout\Session;
 use Stripe\Event;
 use Sylius\Behat\Page\Shop\Checkout\CompletePageInterface;
 use Sylius\Behat\Page\Shop\Order\ShowPageInterface;
-use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\StripeCheckoutMocker;
 use Tests\FluxSE\SyliusStripePlugin\Behat\Page\External\StripePage;
+use Tests\FluxSE\SyliusStripePlugin\Mocker\StripeCheckoutMocker;
 
 class StripeCheckoutContext extends MinkContext
 {

@@ -5,6 +5,6 @@ services:
         arguments:
             - '@logger'
             - '@flux_se.sylius_stripe.stripe.http_client'
-            - '@flux_se.sylius_stripe.stripe.http_client'
+            - '@flux_se.sylius_stripe.stripe.streaming_http_client'
     FluxSE\SyliusStripePlugin\Stripe\Configurator\StripeConfiguratorInterface:
         alias: flux_se.sylius_stripe.stripe.configurator

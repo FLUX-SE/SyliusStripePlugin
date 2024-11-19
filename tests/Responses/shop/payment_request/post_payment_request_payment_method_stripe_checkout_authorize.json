@@ -1,0 +1,19 @@
+{
+  "@context": "\/api\/v2\/contexts\/PaymentRequest",
+  "@id": "\/api\/v2\/shop\/payment-requests\/@string@",
+  "@type": "PaymentRequest",
+  "hash": "@string@",
+  "state": "processing",
+  "action": "authorize",
+  "payload": {
+    "success_url": "https:\/\/myshop.tld\/target-path",
+    "cancel_url": "https:\/\/myshop.tld\/after-path"
+  },
+  "responseData": {
+    "url": "https:\/\/checkout.stripe.com\/c\/pay\/cs_test_1"
+  },
+  "payment": "\/api\/v2\/shop\/orders\/@string@\/payments\/@integer@",
+  "method": "\/api\/v2\/shop\/payment-methods\/STRIPE_CHECKOUT_AUTHORIZE",
+  "createdAt": "@datetime@",
+  "updatedAt": "@datetime@"
+}

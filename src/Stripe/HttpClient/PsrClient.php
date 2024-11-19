@@ -15,7 +15,7 @@ use Stripe\HttpClient\ClientInterface;
 use Stripe\HttpClient\StreamingClientInterface;
 use Stripe\Util\Util;
 
-class PsrClient implements ClientInterface, StreamingClientInterface
+final class PsrClient implements ClientInterface, StreamingClientInterface
 {
     public function __construct(
         private PsrClientInterface $httpClient,

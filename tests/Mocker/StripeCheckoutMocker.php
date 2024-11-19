@@ -2,18 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Tests\FluxSE\SyliusStripePlugin\Behat\Mocker;
+namespace Tests\FluxSE\SyliusStripePlugin\Mocker;
 
 use Mockery\MockInterface;
+use Stripe\Checkout\Session;
 use Stripe\HttpClient\ClientInterface;
 use Stripe\PaymentIntent;
-use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api\PaymentIntentMocker;
-use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api\RefundMocker;
+use Tests\FluxSE\SyliusStripePlugin\Mocker\Api\CheckoutSessionMocker;
+use Tests\FluxSE\SyliusStripePlugin\Mocker\Api\PaymentIntentMocker;
+use Tests\FluxSE\SyliusStripePlugin\Mocker\Api\RefundMocker;
 
-final class StripeWebElementsMocker
+final class StripeCheckoutMocker
 {
     public function __construct(
         private MockInterface&ClientInterface $mockClient,
+        private CheckoutSessionMocker $checkoutSessionMocker,
         private PaymentIntentMocker $paymentIntentMocker,
         private RefundMocker $refundMocker,
     ) {
@@ -23,9 +26,12 @@ final class StripeWebElementsMocker
     {
         $this->mockClient->expects([]);
 
-        $this->paymentIntentMocker->mockCreateAction();
-        $this->mockPaymentIntentSync(
+        $this->checkoutSessionMocker->mockCreateAction();
+
+        $this->mockSessionSync(
             $action,
+            Session::STATUS_OPEN,
+            Session::PAYMENT_STATUS_UNPAID,
             PaymentIntent::STATUS_REQUIRES_PAYMENT_METHOD,
         );
     }
@@ -34,9 +40,11 @@ final class StripeWebElementsMocker
     {
         $this->mockClient->expects([]);
 
-        $this->paymentIntentMocker->mockUpdateAction($status, $captureMethod);
-        $this->paymentIntentMocker->mockCancelAction($captureMethod);
-        $this->paymentIntentMocker->mockRetrieveAction(PaymentIntent::STATUS_CANCELED);
+        $this->checkoutSessionMocker->mockRetrieveAction(
+            Session::STATUS_COMPLETE,
+            Session::PAYMENT_STATUS_PAID,
+        );
+        $this->checkoutSessionMocker->mockExpireAction();
     }
 
     public function mockRefundPayment(): void
@@ -44,6 +52,22 @@ final class StripeWebElementsMocker
         $this->mockClient->expects([]);
 
         $this->refundMocker->mockCreateAction();
+    }
+
+    public function mockExpirePayment(string $status, string $paymentStatus): void
+    {
+        $this->mockClient->expects([]);
+
+        $this->checkoutSessionMocker->mockRetrieveAction(
+            $status,
+            $paymentStatus,
+        );
+
+        if ($status !== Session::STATUS_OPEN) {
+            return;
+        }
+
+        $this->checkoutSessionMocker->mockExpireAction();
     }
 
     public function mockCaptureAuthorization(string $status, string $captureMethod): void
@@ -57,16 +81,21 @@ final class StripeWebElementsMocker
 
     public function mockGoBackPayment(callable $action): void
     {
-        $this->mockPaymentIntentSync(
+        $this->mockExpireSession(Session::STATUS_OPEN);
+        $this->mockSessionSync(
             $action,
+            Session::STATUS_OPEN,
+            Session::PAYMENT_STATUS_UNPAID,
             PaymentIntent::STATUS_REQUIRES_PAYMENT_METHOD,
         );
     }
 
     public function mockSuccessfulPayment(callable $notifyAction, callable $action): void
     {
-        $this->mockPaymentIntentSync(
+        $this->mockSessionSync(
             $notifyAction,
+            Session::STATUS_COMPLETE,
+            Session::PAYMENT_STATUS_PAID,
             PaymentIntent::STATUS_SUCCEEDED,
         );
         $this->mockPaymentIntentSync($action, PaymentIntent::STATUS_SUCCEEDED);
@@ -74,8 +103,10 @@ final class StripeWebElementsMocker
 
     public function mockAuthorizePayment(callable $notifyAction, callable $action): void
     {
-        $this->mockPaymentIntentSync(
+        $this->mockSessionSync(
             $notifyAction,
+            Session::STATUS_COMPLETE,
+            Session::PAYMENT_STATUS_UNPAID,
             PaymentIntent::STATUS_REQUIRES_CAPTURE,
         );
         $this->mockPaymentIntentSync($action, PaymentIntent::STATUS_REQUIRES_CAPTURE);
@@ -83,16 +114,20 @@ final class StripeWebElementsMocker
 
     public function mockSuccessfulPaymentWithoutWebhook(callable $action): void
     {
-        $this->mockPaymentIntentSync(
+        $this->mockSessionSync(
             $action,
+            Session::STATUS_COMPLETE,
+            Session::PAYMENT_STATUS_PAID,
             PaymentIntent::STATUS_SUCCEEDED,
         );
     }
 
     public function mockSuccessfulPaymentWithoutWebhookUsingAuthorize(callable $action): void
     {
-        $this->mockPaymentIntentSync(
+        $this->mockSessionSync(
             $action,
+            Session::STATUS_COMPLETE,
+            Session::PAYMENT_STATUS_UNPAID,
             PaymentIntent::STATUS_REQUIRES_CAPTURE,
         );
     }
@@ -104,5 +139,21 @@ final class StripeWebElementsMocker
         $action();
 
         $this->mockClient->expects([]);
+    }
+
+    public function mockSessionSync(
+        callable $action,
+        string $sessionStatus,
+        string $paymentStatus,
+        string $paymentIntentStatus,
+    ): void {
+        $this->checkoutSessionMocker->mockRetrieveAction($sessionStatus, $paymentStatus);
+        $this->mockPaymentIntentSync($action, $paymentIntentStatus);
+    }
+
+    public function mockExpireSession(string $sessionStatus): void
+    {
+        $this->checkoutSessionMocker->mockAllAction($sessionStatus);
+        $this->checkoutSessionMocker->mockExpireAction();
     }
 }

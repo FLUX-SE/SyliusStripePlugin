@@ -1,0 +1,24 @@
+{
+  "@context": "\/api\/v2\/contexts\/ConstraintViolationList",
+  "@id": "\/api\/v2\/validation_errors\/@string@",
+  "@type": "ConstraintViolationList",
+  "status": 422,
+  "violations": [
+    {
+      "propertyPath": "payload",
+      "message": "The payload must contain a \u0022success_url\u0022 array property to be able to redirect the visitor after the Stripe Checkout Session portal completion.",
+      "code": null
+    },
+    {
+      "propertyPath": "payload",
+      "message": "The payload must contain a \u0022cancel_url\u0022 array property to be able to redirect the visitor after the Stripe Checkout Session portal completion.",
+      "code": null
+    }
+  ],
+  "detail": "payload: The payload must contain a \u0022success_url\u0022 array property to be able to redirect the visitor after the Stripe Checkout Session portal completion.\npayload: The payload must contain a \u0022cancel_url\u0022 array property to be able to redirect the visitor after the Stripe Checkout Session portal completion.",
+  "description": "payload: The payload must contain a \u0022success_url\u0022 array property to be able to redirect the visitor after the Stripe Checkout Session portal completion.\npayload: The payload must contain a \u0022cancel_url\u0022 array property to be able to redirect the visitor after the Stripe Checkout Session portal completion.",
+  "type": "\/validation_errors\/@string@",
+  "title": "An error occurred",
+  "hydra:description": "payload: The payload must contain a \u0022success_url\u0022 array property to be able to redirect the visitor after the Stripe Checkout Session portal completion.\npayload: The payload must contain a \u0022cancel_url\u0022 array property to be able to redirect the visitor after the Stripe Checkout Session portal completion.",
+  "hydra:title": "An error occurred"
+}

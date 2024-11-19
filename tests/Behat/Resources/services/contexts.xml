@@ -37,12 +37,12 @@
                  class="Tests\FluxSE\SyliusStripePlugin\Behat\Context\Setup\ManagingOrdersContext">
             <argument type="service" id="sylius_abstraction.state_machine" />
             <argument type="service" id="sylius.manager.order" />
-            <argument type="service" id="Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\StripeCheckoutMocker" />
+            <argument type="service" id="Tests\FluxSE\SyliusStripePlugin\Mocker\StripeCheckoutMocker" />
         </service>
 
         <service id="tests.flux_se.sylius_stripe_plugin.behat.context.ui.shop.stripe_checkout"
                  class="Tests\FluxSE\SyliusStripePlugin\Behat\Context\Ui\Shop\StripeCheckoutContext">
-            <argument type="service" id="Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\StripeCheckoutMocker"/>
+            <argument type="service" id="Tests\FluxSE\SyliusStripePlugin\Mocker\StripeCheckoutMocker"/>
             <argument type="service" id="sylius.behat.page.shop.checkout.complete"/>
             <argument type="service" id="sylius.behat.page.shop.order.show"/>
             <argument type="service" id="tests.flux_se.sylius_stripe_plugin.behat.page.external.stripe_checkout_session"/>
@@ -50,7 +50,7 @@
 
         <service id="tests.flux_se.sylius_stripe_plugin.behat.context.ui.shop.stripe_web_elements"
                  class="Tests\FluxSE\SyliusStripePlugin\Behat\Context\Ui\Shop\StripeWebElementsContext">
-            <argument type="service" id="Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\StripeWebElementsMocker"/>
+            <argument type="service" id="Tests\FluxSE\SyliusStripePlugin\Mocker\StripeWebElementsMocker"/>
             <argument type="service" id="sylius.behat.page.shop.checkout.complete"/>
             <argument type="service" id="sylius.behat.page.shop.order.show"/>
             <argument type="service" id="tests.flux_se.sylius_stripe_plugin.behat.page.external.stripe_web_elements"/>

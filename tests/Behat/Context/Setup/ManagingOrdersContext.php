@@ -11,8 +11,9 @@ use Stripe\PaymentIntent;
 use Sylius\Abstraction\StateMachine\StateMachineInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\PaymentInterface;
+use Sylius\Component\Payment\Model\PaymentInterface as BasePaymentInterface;
 use Sylius\Component\Payment\PaymentTransitions;
-use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\StripeCheckoutMocker;
+use Tests\FluxSE\SyliusStripePlugin\Mocker\StripeCheckoutMocker;
 
 class ManagingOrdersContext implements Context
 {
@@ -29,7 +30,7 @@ class ManagingOrdersContext implements Context
     public function thisOrderIsAlreadyPaid(OrderInterface $order, string $stripePaymentIntentId): void
     {
         /** @var PaymentInterface $payment */
-        $payment = $order->getPayments()->first();
+        $payment = $order->getLastPayment();
 
         $details = [
             'object' => PaymentIntent::OBJECT_NAME,
@@ -54,7 +55,7 @@ class ManagingOrdersContext implements Context
     public function thisOrderIsAlreadyAuthorized(OrderInterface $order, string $stripePaymentIntentId): void
     {
         /** @var PaymentInterface $payment */
-        $payment = $order->getPayments()->first();
+        $payment = $order->getLastPayment();
 
         $details = [
             'object' => PaymentIntent::OBJECT_NAME,
@@ -79,7 +80,7 @@ class ManagingOrdersContext implements Context
     public function thisOrderIsNotYetPaidStripeCheckoutSession(OrderInterface $order, string $stripeCheckoutSessionId): void
     {
         /** @var PaymentInterface $payment */
-        $payment = $order->getPayments()->first();
+        $payment = $order->getLastPayment();
 
         $details = [
             'object' => Session::OBJECT_NAME,
@@ -98,7 +99,7 @@ class ManagingOrdersContext implements Context
     public function thisOrderIsNotYetPaidStripeJs(OrderInterface $order, string $stripePaymentIntentId): void
     {
         /** @var PaymentInterface $payment */
-        $payment = $order->getPayments()->first();
+        $payment = $order->getLastPayment();
 
         $details = [
             'object' => PaymentIntent::OBJECT_NAME,
@@ -116,7 +117,7 @@ class ManagingOrdersContext implements Context
     public function thisOrderPaymentHasBeenCancelled(OrderInterface $order): void
     {
         /** @var PaymentInterface $payment */
-        $payment = $order->getPayments()->first();
+        $payment = $order->getLastPayment();
 
         $this->stateMachine->apply(
             $payment,
@@ -132,10 +133,7 @@ class ManagingOrdersContext implements Context
      */
     public function iAmPreparedToCancelThisOrder(OrderInterface $order): void
     {
-        /** @var PaymentInterface $payment */
-        $payment = $order->getPayments()->first();
-
-        $details = $payment->getDetails();
+        $details = $this->getLastNewPaymentDetails($order);
         $status = $details['status'] ?? PaymentIntent::STATUS_REQUIRES_PAYMENT_METHOD;
         $captureMethod = $details['capture_method'] ?? PaymentIntent::CAPTURE_METHOD_AUTOMATIC;
 
@@ -143,15 +141,24 @@ class ManagingOrdersContext implements Context
     }
 
     /**
-     * @Given I am prepared to expire the checkout session on this order
+     * @Given /^I am prepared to expire (this order) checkout session$/
      */
-    public function iAmPreparedToExpireTheCheckoutSessionOnThisOrder(): void
+    public function iAmPreparedToExpireThisOrderCheckoutSession(OrderInterface $order): void
     {
-        $this->stripeCheckoutSessionMocker->mockExpirePayment();
+        $details = $this->getLastNewPaymentDetails($order);
+
+        if ([] === $details) {
+            return;
+        }
+
+        $this->stripeCheckoutSessionMocker->mockExpirePayment(
+            $details['status'],
+            $details['payment_status'],
+        );
     }
 
     /**
-     * @Given I am prepared to cancel the payment intent on this order
+     * @Given I am prepared to cancel the payment intent
      */
     public function iAmPreparedToExpireThePaymentIntentOnThisOrder(): void
     {
@@ -175,12 +182,22 @@ class ManagingOrdersContext implements Context
     public function iAmPreparedToCaptureAuthorizationOfThisOrder(OrderInterface $order): void
     {
         /** @var PaymentInterface $payment */
-        $payment = $order->getPayments()->first();
-
-        $details = $payment->getDetails();
+        $details = $this->getLastNewPaymentDetails($order);
         $status = $details['status'] ?? PaymentIntent::STATUS_REQUIRES_CAPTURE;
         $captureMethod = $details['capture_method'] ?? PaymentIntent::CAPTURE_METHOD_MANUAL;
 
         $this->stripeCheckoutSessionMocker->mockCaptureAuthorization($status, $captureMethod);
+    }
+
+    /**
+     * @param OrderInterface $order
+     * @return array<string, string>
+     */
+    private function getLastNewPaymentDetails(OrderInterface $order): array
+    {
+        /** @var PaymentInterface $payment */
+        $payment = $order->getLastPayment(BasePaymentInterface::STATE_NEW);
+
+        return $payment->getDetails();
     }
 }
