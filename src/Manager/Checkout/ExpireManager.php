@@ -19,6 +19,9 @@ final class ExpireManager implements ExpireManagerInterface
     /** @use StripeClientAwareManagerTrait<SessionService> */
     use StripeClientAwareManagerTrait;
 
+    /**
+     * @param ParamsProviderInterface<Session>|null $paramsProvider
+     */
     public function __construct(
         ClientFactoryInterface $stripeClientFactory,
         private ?ParamsProviderInterface $paramsProvider = null,

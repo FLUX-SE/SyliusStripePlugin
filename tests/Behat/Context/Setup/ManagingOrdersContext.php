@@ -181,7 +181,6 @@ class ManagingOrdersContext implements Context
      */
     public function iAmPreparedToCaptureAuthorizationOfThisOrder(OrderInterface $order): void
     {
-        /** @var PaymentInterface $payment */
         $details = $this->getLastNewPaymentDetails($order);
         $status = $details['status'] ?? PaymentIntent::STATUS_REQUIRES_CAPTURE;
         $captureMethod = $details['capture_method'] ?? PaymentIntent::CAPTURE_METHOD_MANUAL;

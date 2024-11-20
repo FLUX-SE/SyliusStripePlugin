@@ -19,6 +19,9 @@ final class CaptureManager implements CaptureManagerInterface
     /** @use StripeClientAwareManagerTrait<PaymentIntentService> */
     use StripeClientAwareManagerTrait;
 
+    /**
+     * @param ParamsProviderInterface<PaymentIntent>|null $paramsProvider
+     */
     public function __construct(
         ClientFactoryInterface $stripeClientFactory,
         private ?ParamsProviderInterface $paramsProvider = null,

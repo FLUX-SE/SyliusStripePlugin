@@ -12,12 +12,16 @@ use Sylius\Component\Payment\Model\PaymentRequestInterface;
 
 /**
  * @template T as AbstractService
+ * @template O as ApiResource
  */
 trait CreateManagerTrait
 {
     /** @use StripeClientAwareManagerTrait<T> */
     use StripeClientAwareManagerTrait;
 
+    /**
+     * @var ParamsProviderInterface<O> $paramsProvider
+     */
     private readonly ParamsProviderInterface $paramsProvider;
 
     private ?OptsProviderInterface $optsProvider = null;

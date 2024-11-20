@@ -23,7 +23,7 @@ class DetailsProviderTest extends KernelTestCase
         $this->loader = static::getContainer()->get('fidry_alice_data_fixtures.loader.doctrine');
         $this->entityManager = static::getContainer()->get('doctrine.orm.entity_manager');
 
-        $this->compositeParamsProvider = static::getContainer()->get('flux_se.sylius_stripe.provider.checkout.create.checkout_session_params');
+        $this->compositeParamsProvider = static::getContainer()->get('flux_se.sylius_stripe.provider.checkout.create.params');
 
         $this->requestContext = static::getContainer()->get('router.request_context');
 

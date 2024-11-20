@@ -17,6 +17,7 @@ final class CheckoutSessionCreatePayloadRequirementValidator extends ConstraintV
     /**
      * @param string[] $supportedFactoryNames
      * @param string[] $supportedActions
+     * @param PaymentMethodRepositoryInterface<PaymentMethodInterface> $paymentMethodRepository
      */
     public function __construct(
         private PaymentMethodRepositoryInterface $paymentMethodRepository,
@@ -28,10 +29,8 @@ final class CheckoutSessionCreatePayloadRequirementValidator extends ConstraintV
 
     public function validate(mixed $value, Constraint $constraint): void
     {
-        /** @var CheckoutSessionCreatePayloadRequirement $constraint */
         Assert::isInstanceOf($constraint, CheckoutSessionCreatePayloadRequirement::class);
 
-        /** @var AddPaymentRequest $addPaymentRequest */
         $addPaymentRequest = $this->context->getObject();
         Assert::isInstanceOf($addPaymentRequest, AddPaymentRequest::class);
 
@@ -57,6 +56,10 @@ final class CheckoutSessionCreatePayloadRequirementValidator extends ConstraintV
             $this->supportedActions,
             true
         )) {
+            return;
+        }
+
+        if (false === is_array($value)) {
             return;
         }
 
