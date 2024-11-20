@@ -2,31 +2,27 @@
 
 declare(strict_types=1);
 
-namespace FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem;
+namespace FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem\PriceData\ProductData;
 
 use FluxSE\SyliusStripePlugin\Provider\Checkout\Create\OrderItemLineItemProviderInterface;
+use Stripe\StripeObject;
 use Sylius\Component\Core\Model\OrderItemInterface;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 
-final class OrderItemProductDataNameProvider implements OrderItemLineItemProviderInterface
+/**
+ * @implements OrderItemLineItemProviderInterface<StripeObject>
+ */
+final class ProductNameProvider implements OrderItemLineItemProviderInterface
 {
-    public function getDetails(
-        PaymentRequestInterface $paymentRequest,
+    public function provideFromOrderItem(
         OrderItemInterface $orderItem,
-        array &$details
+        PaymentRequestInterface $paymentRequest,
+        array &$params
     ): void {
-        if (false === isset($details['price_data'])) {
-            $details['price_data'] = [];
-        }
-
-        if (false === isset($details['price_data']['product_data'])) {
-            $details['price_data']['product_data'] = [];
-        }
-
-        $details['price_data']['product_data']['name'] = $this->getItemName($orderItem);
+        $params['name'] = $this->getItemName($orderItem);
     }
 
-    private function getItemName(OrderItemInterface $orderItem): ?string
+    private function getItemName(OrderItemInterface $orderItem): string
     {
         $itemName = $this->buildItemName($orderItem);
 
@@ -50,6 +46,10 @@ final class OrderItemProductDataNameProvider implements OrderItemLineItemProvide
 
         if (false === $product->hasOptions()) {
             return $variantName;
+        }
+
+        if ($productName === $variantName) {
+            return $productName;
         }
 
         return sprintf('%s %s', $productName, $variantName);

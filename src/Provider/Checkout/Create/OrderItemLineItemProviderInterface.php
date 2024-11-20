@@ -6,17 +6,21 @@ namespace FluxSE\SyliusStripePlugin\Provider\Checkout\Create;
 
 use Stripe\ApiResource;
 use Stripe\LineItem;
+use Stripe\StripeObject;
 use Sylius\Component\Core\Model\OrderItemInterface;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 
+/**
+ * @template T as StripeObject
+ */
 interface OrderItemLineItemProviderInterface
 {
     /**
-     * @param array<key-of<LineItem>, mixed> $details
+     * @param array<key-of<T>, mixed> $params
      */
-    public function getDetails(
-        PaymentRequestInterface $paymentRequest,
+    public function provideFromOrderItem(
         OrderItemInterface $orderItem,
-        array &$details
+        PaymentRequestInterface $paymentRequest,
+        array &$params
     ): void;
 }

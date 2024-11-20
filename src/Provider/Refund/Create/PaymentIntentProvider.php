@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace FluxSE\SyliusStripePlugin\Provider\Refund\Create;
 
-use FluxSE\SyliusStripePlugin\Provider\DetailsProviderInterface;
+use FluxSE\SyliusStripePlugin\Provider\InnerParamsProviderInterface;
 use Stripe\Refund;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 
 /**
- * @implements DetailsProviderInterface<Refund>
+ * @implements InnerParamsProviderInterface<Refund>
  */
-final readonly class PaymentIntentProvider implements DetailsProviderInterface
+final readonly class PaymentIntentProvider implements InnerParamsProviderInterface
 {
-    public function getDetails(PaymentRequestInterface $paymentRequest, array &$details): void
+    public function provide(PaymentRequestInterface $paymentRequest, array &$params): void
     {
         $payload = $paymentRequest->getPayload();
         if (false === is_array($payload)) {
@@ -25,6 +25,6 @@ final readonly class PaymentIntentProvider implements DetailsProviderInterface
             return;
         }
 
-        $details['payment_intent'] = $paymentIntent;
+        $params['payment_intent'] = $paymentIntent;
     }
 }

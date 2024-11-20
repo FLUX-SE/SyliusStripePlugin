@@ -9,18 +9,18 @@ use Sylius\Component\Payment\Model\PaymentRequestInterface;
 
 /**
  * @template T as ApiResource
- * @implements DetailsProviderInterface<T>
+ * @implements InnerParamsProviderInterface<T>
  */
-final readonly class PaymentMethodTypesProvider implements DetailsProviderInterface
+final readonly class PaymentMethodTypesProvider implements InnerParamsProviderInterface
 {
-    public function getDetails(PaymentRequestInterface $paymentRequest, array &$details): void
+    public function provide(PaymentRequestInterface $paymentRequest, array &$params): void
     {
-        /** @var string[] $types */
+        /** @var string[] $paymentMethodTypes */
         $paymentMethodTypes = $paymentRequest->getMethod()->getGatewayConfig()?->getConfig()['payment_method_types'] ?? [];
         if ([] === $paymentMethodTypes) {
             return;
         }
 
-        $details['payment_method_types'] = $paymentMethodTypes;
+        $params['payment_method_types'] = $paymentMethodTypes;
     }
 }

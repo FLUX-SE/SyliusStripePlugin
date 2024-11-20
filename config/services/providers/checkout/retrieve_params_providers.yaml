@@ -1,0 +1,34 @@
+parameters:
+    flux_se.sylius_stripe.checkout.retrieve.expand_fields:
+        - 'customer'
+        - 'line_items'
+        - 'payment_intent'
+        - 'payment_intent.latest_charge'
+        - 'payment_intent.payment_method'
+        - 'invoice'
+        - 'invoice.charge'
+        - 'invoice.payment_intent'
+        - 'invoice.default_payment_method'
+        - 'invoice.discounts'
+        - 'setup_intent'
+        - 'setup_intent.payment_method'
+        - 'subscription'
+        - 'subscription.default_payment_method'
+        - 'subscription.latest_invoice'
+        - 'subscription.default_source'
+        - 'subscription.discounts'
+
+services:
+
+    flux_se.sylius_stripe.provider.checkout.retrieve.params:
+        class: FluxSE\SyliusStripePlugin\Provider\CompositeParamsProvider
+        arguments:
+            - !tagged_iterator flux_se.sylius_stripe.provider.checkout.retrieve.inner_params
+
+    flux_se.sylius_stripe.provider.checkout.retrieve.expand:
+        class: FluxSE\SyliusStripePlugin\Provider\ExpandProvider
+        arguments:
+            - '%flux_se.sylius_stripe.checkout.retrieve.expand_fields%'
+        tags:
+            - name: flux_se.sylius_stripe.provider.checkout.retrieve.inner_params
+              priority: -100

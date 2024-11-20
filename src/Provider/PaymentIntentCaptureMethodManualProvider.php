@@ -8,16 +8,16 @@ use Stripe\PaymentIntent;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 
 /**
- * @implements DetailsProviderInterface<PaymentIntent>
+ * @implements InnerParamsProviderInterface<PaymentIntent>
  */
-final class PaymentIntentCaptureMethodManualProvider implements DetailsProviderInterface
+final class PaymentIntentCaptureMethodManualProvider implements InnerParamsProviderInterface
 {
-    public function getDetails(PaymentRequestInterface $paymentRequest, array &$details): void
+    public function provide(PaymentRequestInterface $paymentRequest, array &$params): void
     {
         if (false === ($paymentRequest->getMethod()->getGatewayConfig()?->getConfig()['use_authorize'] ?? false)) {
             return;
         }
 
-        $details['capture_method'] = PaymentIntent::CAPTURE_METHOD_MANUAL;
+        $params['capture_method'] = PaymentIntent::CAPTURE_METHOD_MANUAL;
     }
 }

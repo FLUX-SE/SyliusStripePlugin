@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace FluxSE\SyliusStripePlugin\Provider;
 
 use Stripe\ApiResource;
-use Stripe\Checkout\Session;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 
 /**
  * @template T as ApiResource
- * @implements ParamsProviderInterface<T>
+ * @implements InnerParamsProviderInterface<T>
  */
-final readonly class CompositeParamsProvider implements ParamsProviderInterface
+final readonly class CompositeMetadataParamsProvider implements InnerParamsProviderInterface
 {
     /**
      * @param InnerParamsProviderInterface<T>[] $innerParamsProviders
@@ -22,18 +21,14 @@ final readonly class CompositeParamsProvider implements ParamsProviderInterface
     ) {
     }
 
-    /**
-     * @return array<key-of<Session>, mixed>|null
-     */
-    public function getParams(PaymentRequestInterface $paymentRequest): ?array
+    public function provide(PaymentRequestInterface $paymentRequest, array &$params): void
     {
-        /** @var array<key-of<T>, mixed> $params */
-        $params = [];
-
-        foreach ($this->innerParamsProviders as $innerParamsProvider) {
-            $innerParamsProvider->provide($paymentRequest, $params);
+        if (false === isset($params['metadata'])) {
+            $params['metadata'] = [];
         }
 
-        return $params;
+        foreach ($this->innerParamsProviders as $innerParamsProvider) {
+            $innerParamsProvider->provide($paymentRequest, $params['metadata']);
+        }
     }
 }

@@ -2,16 +2,20 @@
 
 declare(strict_types=1);
 
-namespace FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem;
+namespace FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem\PriceData\ProductData;
 
 use FluxSE\SyliusStripePlugin\Provider\Checkout\Create\OrderItemLineItemProviderInterface;
 use Liip\ImagineBundle\Imagine\Cache\CacheManager;
+use Stripe\StripeObject;
 use Sylius\Component\Core\Model\OrderItemInterface;
 use Sylius\Component\Core\Model\ProductImageInterface;
 use Sylius\Component\Core\Model\ProductInterface;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 
-final class OrderItemProductDataImagesProvider implements OrderItemLineItemProviderInterface
+/**
+ * @implements OrderItemLineItemProviderInterface<StripeObject>
+ */
+final class ProductImagesProvider implements OrderItemLineItemProviderInterface
 {
     public function __construct(
         private CacheManager $imagineCacheManager,
@@ -21,22 +25,17 @@ final class OrderItemProductDataImagesProvider implements OrderItemLineItemProvi
     ) {
     }
 
-    public function getDetails(
-        PaymentRequestInterface $paymentRequest,
+    public function provideFromOrderItem(
         OrderItemInterface $orderItem,
-        array &$details,
+        PaymentRequestInterface $paymentRequest,
+        array &$params,
     ): void {
-        if (false === isset($details['price_data'])) {
-            $details['price_data'] = [];
-        }
-
-        if (false === isset($details['price_data']['product_data'])) {
-            $details['price_data']['product_data'] = [];
-        }
-
-        $details['price_data']['product_data']['images'] = $this->getImageUrls($orderItem);
+        $params['images'] = $this->getImageUrls($orderItem);
     }
 
+    /**
+     * @return string[]
+     */
     private function getImageUrls(OrderItemInterface $orderItem): array
     {
         $product = $orderItem->getProduct();

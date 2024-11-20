@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace FluxSE\SyliusStripePlugin\Provider\Checkout\Create;
 
-use FluxSE\SyliusStripePlugin\Provider\DetailsProviderInterface;
+use FluxSE\SyliusStripePlugin\Provider\InnerParamsProviderInterface;
 use Stripe\Checkout\Session;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 
 /**
- * @implements DetailsProviderInterface<Session>
+ * @implements InnerParamsProviderInterface<Session>
  */
-final class ModePaymentProvider implements DetailsProviderInterface
+final class ModePaymentProvider implements InnerParamsProviderInterface
 {
-    public function getDetails(PaymentRequestInterface $paymentRequest, array &$details): void
+    public function provide(PaymentRequestInterface $paymentRequest, array &$params): void
     {
-        $details['mode'] = Session::MODE_PAYMENT;
+        $params['mode'] = Session::MODE_PAYMENT;
     }
 }

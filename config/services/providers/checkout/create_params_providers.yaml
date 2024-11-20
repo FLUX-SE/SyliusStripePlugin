@@ -1,0 +1,174 @@
+parameters:
+    flux_se.sylius_stripe.checkout.after_urls:
+      !php/const FluxSE\SyliusStripePlugin\Provider\AfterUrlProviderInterface::CANCEL_URL: ~
+      !php/const FluxSE\SyliusStripePlugin\Provider\AfterUrlProviderInterface::SUCCESS_URL: ~
+
+services:
+
+    flux_se.sylius_stripe.provider.checkout.after_url.default:
+        class: FluxSE\SyliusStripePlugin\Provider\DefaultAfterUrlProvider
+        arguments:
+            - '%flux_se.sylius_stripe.checkout.after_urls%'
+
+    flux_se.sylius_stripe.provider.checkout.create.params:
+        class: FluxSE\SyliusStripePlugin\Provider\CompositeParamsProvider
+        arguments:
+            - !tagged_iterator flux_se.sylius_stripe.provider.checkout.create.inner_params
+        
+    flux_se.sylius_stripe.provider.checkout.create.after_url:
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\AfterUrlProvider
+        arguments:
+            - '@flux_se.sylius_stripe.provider.checkout.after_url.default'
+        tags:
+            - name: flux_se.sylius_stripe.provider.checkout.create.inner_params
+              priority: -100
+        
+    flux_se.sylius_stripe.provider.checkout.create.mode.payment:
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\ModePaymentProvider
+        tags:
+            - name: flux_se.sylius_stripe.provider.checkout.create.inner_params
+              priority: -200
+    
+    flux_se.sylius_stripe.provider.checkout.create.customer_email:
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\CustomerEmailProvider
+        tags:
+            - name: flux_se.sylius_stripe.provider.checkout.create.inner_params
+              priority: -300
+
+    flux_se.sylius_stripe.provider.checkout.create.payment_method_types:
+        class: FluxSE\SyliusStripePlugin\Provider\PaymentMethodTypesProvider
+        tags:
+            - name: flux_se.sylius_stripe.provider.checkout.create.inner_params
+              priority: -400
+
+    flux_se.sylius_stripe.provider.checkout.create.payment_intent_data:
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\PaymentIntentDataProvider
+        arguments:
+            - !tagged_iterator flux_se.sylius_stripe.provider.checkout.create.payment_intent_data
+        tags:
+            - name: flux_se.sylius_stripe.provider.checkout.create.inner_params
+              priority: -500
+
+    flux_se.sylius_stripe.provider.checkout.create.payment_intent_data.capture_method.manual:
+        class: FluxSE\SyliusStripePlugin\Provider\PaymentIntentCaptureMethodManualProvider
+        tags:
+            - name: flux_se.sylius_stripe.provider.checkout.create.payment_intent_data
+              priority: -100
+
+    flux_se.sylius_stripe.provider.checkout.create.line_items:
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItemsProvider
+        arguments:
+            - !tagged_iterator flux_se.sylius_stripe.provider.checkout.create.line_item.order_item
+            - !tagged_iterator flux_se.sylius_stripe.provider.checkout.create.line_item.shipment
+        tags:
+            - name: flux_se.sylius_stripe.provider.checkout.create.inner_params
+              priority: -600
+
+    flux_se.sylius_stripe.provider.checkout.create.line_item.order_item:
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem\OrderItemLineItemProvider
+        arguments:
+            - !tagged_iterator flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.inner
+        tags:
+            - name: flux_se.sylius_stripe.provider.checkout.create.line_item.order_item
+              priority: -100
+        
+    flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.quantity:
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem\QuantityProvider
+        tags:
+            - name: flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.inner
+              priority: -100
+            - name: flux_se.sylius_stripe.provider.checkout.create.line_item.shipment.inner
+              priority: -100
+    
+    flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.price_data:
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem\OrderItemPriceDataProvider
+        arguments:
+            - !tagged_iterator flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.price_data
+        tags:
+            - name: flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.inner
+              priority: -200
+
+    flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.price_data.product_data:
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem\PriceData\OrderItemProductDataProvider
+        arguments:
+            - !tagged_iterator flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.price_data.product_data
+        tags:
+            - name: flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.price_data
+              priority: -100
+
+    flux_se.sylius_stripe.provider.checkout.create.line_item.price_data.uni_amount:
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem\PriceData\UnitAmountProvider
+        tags:
+            - name: flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.price_data
+              priority: -200
+            - name: flux_se.sylius_stripe.provider.checkout.create.line_item.shipment.price_data
+              priority: -200
+
+    flux_se.sylius_stripe.provider.checkout.create.line_item.price_data.currency:
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem\PriceData\CurrencyProvider
+        tags:
+            - name: flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.price_data
+              priority: -300
+            - name: flux_se.sylius_stripe.provider.checkout.create.line_item.shipment.price_data
+              priority: -300
+    
+    flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.price_data.product_data.images:
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem\PriceData\ProductData\ProductImagesProvider
+        arguments:
+            - '@liip_imagine.cache.manager'
+            - '%flux_se.sylius_stripe.line_item_image.imagine_filter%'
+            - '%flux_se.sylius_stripe.line_item_image.fallback_image%'
+            - '%flux_se.sylius_stripe.line_item_image.localhost_pattern%'
+        tags:
+            - name: flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.price_data.product_data
+              priority: -100
+
+    flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.price_data.product_data.name:
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem\PriceData\ProductData\ProductNameProvider
+        tags:
+            - name: flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.price_data.product_data
+              priority: -200
+
+    flux_se.sylius_stripe.provider.checkout.create.line_item.shipment:
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem\ShipmentLineItemProvider
+        arguments:
+            - !tagged_iterator flux_se.sylius_stripe.provider.checkout.create.line_item.shipment.inner
+        tags:
+            - name: flux_se.sylius_stripe.provider.checkout.create.line_item.shipment
+              priority: -100
+
+    flux_se.sylius_stripe.provider.checkout.create.line_item.shipment.price_data:
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem\ShipmentPriceDataProvider
+        arguments:
+            - !tagged_iterator flux_se.sylius_stripe.provider.checkout.create.line_item.shipment.price_data
+        tags:
+            -   name: flux_se.sylius_stripe.provider.checkout.create.line_item.shipment.inner
+                priority: -200
+
+    flux_se.sylius_stripe.provider.checkout.create.line_item.shipment.price_data.product_data:
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem\PriceData\ShipmentProductDataProvider
+        arguments:
+            - !tagged_iterator flux_se.sylius_stripe.provider.checkout.create.line_item.shipment.price_data.product_data
+        tags:
+            - name: flux_se.sylius_stripe.provider.checkout.create.line_item.shipment.price_data
+              priority: -100
+
+    flux_se.sylius_stripe.provider.checkout.create.line_item.shipment.price_data.product_data.name:
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem\PriceData\ProductData\ShipmentNameProvider
+        tags:
+            - name: flux_se.sylius_stripe.provider.checkout.create.line_item.shipment.price_data.product_data
+              priority: -100
+
+    flux_se.sylius_stripe.provider.checkout.create.metadata:
+        class: FluxSE\SyliusStripePlugin\Provider\CompositeMetadataParamsProvider
+        arguments:
+            - !tagged_iterator flux_se.sylius_stripe.provider.checkout.create.metadata
+        tags:
+            -   name: flux_se.sylius_stripe.provider.checkout.create.inner_params
+                priority: -700
+
+    flux_se.sylius_stripe.provider.checkout.create.metadata.token_hash:
+        class: FluxSE\SyliusStripePlugin\Provider\TokenHashMetadataProvider
+        tags:
+            -   name: flux_se.sylius_stripe.provider.checkout.create.metadata
+                priority: -100

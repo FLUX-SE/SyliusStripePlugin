@@ -4,19 +4,20 @@ declare(strict_types=1);
 
 namespace FluxSE\SyliusStripePlugin\Provider\Checkout\Create;
 
-use FluxSE\SyliusStripePlugin\Provider\DetailsProviderInterface;
+use FluxSE\SyliusStripePlugin\Provider\InnerParamsProviderInterface;
 use Stripe\Checkout\Session;
+use Stripe\LineItem;
 use Sylius\Component\Core\Model\PaymentInterface;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 
 /**
- * @implements DetailsProviderInterface<Session>
+ * @implements InnerParamsProviderInterface<Session>
  */
-final readonly class LineItemsProvider implements DetailsProviderInterface
+final readonly class LineItemsProvider implements InnerParamsProviderInterface
 {
     /**
-     * @param OrderItemLineItemProviderInterface[] $orderItemLineItemProviders
-     * @param ShipmentLineItemProviderInterface[] $shippingDetailsProviders
+     * @param OrderItemLineItemProviderInterface<LineItem>[] $orderItemLineItemProviders
+     * @param ShipmentLineItemProviderInterface<LineItem>[] $shippingDetailsProviders
      */
     public function __construct(
         private iterable $orderItemLineItemProviders,
@@ -24,7 +25,7 @@ final readonly class LineItemsProvider implements DetailsProviderInterface
     ) {
     }
 
-    public function getDetails(PaymentRequestInterface $paymentRequest, array &$details): void
+    public function provide(PaymentRequestInterface $paymentRequest, array &$params): void
     {
         /** @var PaymentInterface $payment */
         $payment = $paymentRequest->getPayment();
@@ -33,16 +34,17 @@ final readonly class LineItemsProvider implements DetailsProviderInterface
             return;
         }
 
+        /** @var array<array-key, array<key-of<LineItem>, mixed>> $lineItems */
         $lineItems = [];
         foreach ($order->getItems() as $orderItem) {
             foreach ($this->orderItemLineItemProviders as $orderItemLineItemProvider) {
-                $orderItemLineItemProvider->getDetails($paymentRequest, $orderItem, $lineItems);
+                $orderItemLineItemProvider->provideFromOrderItem($orderItem, $paymentRequest, $lineItems);
             }
         }
 
         foreach ($order->getShipments() as $shipment) {
             foreach ($this->shippingDetailsProviders as $shippingDetailsProvider) {
-                $shippingDetailsProvider->getDetails($paymentRequest, $shipment, $lineItems);
+                $shippingDetailsProvider->provideFromShipment($shipment, $paymentRequest, $lineItems);
             }
         }
 
@@ -50,10 +52,10 @@ final readonly class LineItemsProvider implements DetailsProviderInterface
             return;
         }
 
-        if (false === isset($details['line_items'])) {
-            $details['line_items'] = [];
+        if (false === isset($params['line_items'])) {
+            $params['line_items'] = [];
         }
 
-        $details['line_items'] += $lineItems;
+        $params['line_items'] += $lineItems;
     }
 }

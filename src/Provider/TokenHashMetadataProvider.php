@@ -9,16 +9,12 @@ use Sylius\Component\Payment\Model\PaymentRequestInterface;
 
 /**
  * @template T as ApiResource
- * @implements DetailsProviderInterface<T>
+ * @implements InnerParamsProviderInterface<T>
  */
-final readonly class TokenHashMetadataProvider implements DetailsProviderInterface
+final readonly class TokenHashMetadataProvider implements InnerParamsProviderInterface
 {
-    public function getDetails(PaymentRequestInterface $paymentRequest, array &$details): void
+    public function provide(PaymentRequestInterface $paymentRequest, array &$params): void
     {
-        if (false === isset($details['metadata'])) {
-            $details['metadata'] = [];
-        }
-
-        $details['metadata'][MetadataProviderInterface::DEFAULT_TOKEN_HASH_KEY_NAME] = $paymentRequest->getId();
+        $params[MetadataProviderInterface::DEFAULT_TOKEN_HASH_KEY_NAME] = $paymentRequest->getId();
     }
 }

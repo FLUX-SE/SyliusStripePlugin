@@ -4,40 +4,40 @@ declare(strict_types=1);
 
 namespace FluxSE\SyliusStripePlugin\Provider\Checkout\Create;
 
-use FluxSE\SyliusStripePlugin\Provider\DetailsProviderInterface;
+use FluxSE\SyliusStripePlugin\Provider\InnerParamsProviderInterface;
 use Stripe\Checkout\Session;
 use Stripe\PaymentIntent;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 
 /**
- * @implements DetailsProviderInterface<Session>
+ * @implements InnerParamsProviderInterface<Session>
  */
-final class PaymentIntentDataProvider implements DetailsProviderInterface
+final class PaymentIntentDataProvider implements InnerParamsProviderInterface
 {
     /**
-     * @param DetailsProviderInterface<PaymentIntent>[] $detailsProviders
+     * @param InnerParamsProviderInterface<PaymentIntent>[] $detailsProviders
      */
     public function __construct(
         private iterable $detailsProviders,
     ) {
     }
 
-    public function getDetails(PaymentRequestInterface $paymentRequest, array &$details): void
+    public function provide(PaymentRequestInterface $paymentRequest, array &$params): void
     {
         /** @var array<key-of<PaymentIntent>, mixed> $paymentIntentData */
         $paymentIntentData = [];
         foreach ($this->detailsProviders as $detailsProvider) {
-            $detailsProvider->getDetails($paymentRequest, $paymentIntentData);
+            $detailsProvider->provide($paymentRequest, $paymentIntentData);
         }
 
         if ([] === $paymentIntentData) {
             return;
         }
 
-        if (false === isset($details['payment_intent_data'])) {
-            $details['payment_intent_data'] = [];
+        if (false === isset($params['payment_intent_data'])) {
+            $params['payment_intent_data'] = [];
         }
 
-        $details['payment_intent_data'] += $paymentIntentData;
+        $params['payment_intent_data'] += $paymentIntentData;
     }
 }

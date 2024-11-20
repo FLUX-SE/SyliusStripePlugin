@@ -5,46 +5,39 @@ declare(strict_types=1);
 namespace FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem;
 
 use FluxSE\SyliusStripePlugin\Provider\Checkout\Create\OrderItemLineItemProviderInterface;
-use Sylius\Component\Core\Model\OrderInterface;
+use Stripe\LineItem;
 use Sylius\Component\Core\Model\OrderItemInterface;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 
+/**
+ * @implements OrderItemLineItemProviderInterface<LineItem>
+ */
 final class OrderItemLineItemProvider implements OrderItemLineItemProviderInterface
 {
     /**
-     * @param OrderItemLineItemProviderInterface[] $orderItemLineItemProviders
+     * @param OrderItemLineItemProviderInterface<LineItem>[] $orderItemLineItemProviders
      */
     public function __construct(
         private iterable $orderItemLineItemProviders,
     ) {
     }
 
-    public function getDetails(
-        PaymentRequestInterface $paymentRequest,
+    public function provideFromOrderItem(
         OrderItemInterface $orderItem,
-        array &$details
+        PaymentRequestInterface $paymentRequest,
+        array &$params
     ): void {
-        /** @var OrderInterface|null $order */
-        $order = $orderItem->getOrder();
+        /** @var array<key-of<LineItem>, mixed> $lineItem */
+        $lineItem = [];
 
-        if (null === $order) {
+        foreach ($this->orderItemLineItemProviders as $orderItemLineItemProvider) {
+            $orderItemLineItemProvider->provideFromOrderItem($orderItem, $paymentRequest, $lineItem);
+        }
+
+        if ([] === $lineItem) {
             return;
         }
 
-        $priceData = [
-            'unit_amount' => $orderItem->getTotal(),
-            'currency' => $order->getCurrencyCode(),
-        ];
-
-        $lineItem = [
-            'price_data' => $priceData,
-            'quantity' => 1,
-        ];
-
-        foreach ($this->orderItemLineItemProviders as $orderItemLineItemProvider) {
-            $orderItemLineItemProvider->getDetails($paymentRequest, $orderItem, $lineItem);
-        }
-
-        $details[] = $lineItem;
+        $params[] = $lineItem;
     }
 }

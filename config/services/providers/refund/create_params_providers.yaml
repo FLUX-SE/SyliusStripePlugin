@@ -1,0 +1,32 @@
+services:
+
+    flux_se.sylius_stripe.provider.refund.create.params:
+        class: FluxSE\SyliusStripePlugin\Provider\CompositeParamsProvider
+        arguments:
+            - !tagged_iterator flux_se.sylius_stripe.provider.refund.create.inner_params
+
+    flux_se.sylius_stripe.provider.refund.create.amount:
+        class: FluxSE\SyliusStripePlugin\Provider\Refund\Create\AmountProvider
+        tags:
+            - name: flux_se.sylius_stripe.provider.refund.create.inner_params
+              priority: -100
+
+    flux_se.sylius_stripe.provider.refund.create.payment_intent:
+        class: FluxSE\SyliusStripePlugin\Provider\Refund\Create\PaymentIntentProvider
+        tags:
+            - name: flux_se.sylius_stripe.provider.refund.create.inner_params
+              priority: -200
+
+    flux_se.sylius_stripe.provider.refund.create.metadata:
+        class: FluxSE\SyliusStripePlugin\Provider\CompositeMetadataParamsProvider
+        arguments:
+            - !tagged_iterator flux_se.sylius_stripe.provider.refund.create.metadata
+        tags:
+            - name: flux_se.sylius_stripe.provider.refund.create.inner_params
+              priority: -300
+
+    flux_se.sylius_stripe.provider.refund.create.metadata.refund_token_hash:
+        class: FluxSE\SyliusStripePlugin\Provider\Refund\Create\Metadata\RefundTokenHashProvider
+        tags:
+            - name: flux_se.sylius_stripe.provider.refund.create.metadata
+              priority: -100
