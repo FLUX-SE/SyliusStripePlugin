@@ -29,7 +29,7 @@ final class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('imagine_filter')
-                            ->defaultNull()
+                            ->defaultValue('sylius_shop_product_original')
                             ->info('This is the Imagine filter used to get the image displayed on Stripe Checkout Session (default: the filter uses into `@ShopBundle/templates/product/show/page/info/overview/images.html.twig`)')
                         ->end()
                         ->scalarNode('fallback_image')
