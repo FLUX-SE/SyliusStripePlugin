@@ -9,7 +9,7 @@ use Sylius\Component\Core\Model\PaymentInterface;
 use Sylius\Component\Core\Model\PaymentMethodInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\FluxSE\SyliusStripePlugin\Api\JsonApiTestCase;
-use Tests\FluxSE\SyliusStripePlugin\Mocker\StripeCheckoutMocker;
+use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\StripeCheckoutMocker;
 
 final class PaymentRequestsTest extends JsonApiTestCase
 {
