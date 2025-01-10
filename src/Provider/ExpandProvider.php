@@ -6,6 +6,7 @@ namespace FluxSE\SyliusStripePlugin\Provider;
 
 use Stripe\StripeObject;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
+use Webmozart\Assert\Assert;
 
 /**
  * @implements InnerParamsProviderInterface<StripeObject>
@@ -22,13 +23,9 @@ final readonly class ExpandProvider implements InnerParamsProviderInterface
 
     public function provide(PaymentRequestInterface $paymentRequest, array &$params): void
     {
-        if (false === isset($params['expand'])) {
-            $params['expand'] = [];
-        }
+        $params['expand'] = $params['expand'] ?? [];
 
-        if (false === is_array($params['expand'])) {
-            return;
-        }
+        Assert::isArray($params['expand']);
 
         foreach ($this->expandFields as $field) {
             $params['expand'][] = $field;
