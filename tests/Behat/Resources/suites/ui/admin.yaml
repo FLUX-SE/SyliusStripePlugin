@@ -23,8 +23,8 @@ default:
                 - sylius.behat.context.setup.user
                 - sylius.behat.context.setup.zone
 
-                - sylius.behat.context.ui.admin.managing_payment_methods.stripe
                 - sylius.behat.context.ui.admin.notification
+                - tests.flux_se.sylius_stripe_plugin.behat.context.ui.admin.managing_payment_methods.stripe
                 - tests.flux_se.sylius_stripe_plugin.behat.context.ui.admin.managing_payment_methods
 
                 - tests.flux_se.sylius_stripe_plugin.behat.context.ui.admin.managing_payment_methods

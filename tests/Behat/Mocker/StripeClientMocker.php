@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\FluxSE\SyliusStripePlugin\Mocker;
+namespace Tests\FluxSE\SyliusStripePlugin\Behat\Mocker;
 
 use Mockery;
 use Mockery\MockInterface;

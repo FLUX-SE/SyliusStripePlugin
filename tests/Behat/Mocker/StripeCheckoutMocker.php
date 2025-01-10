@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Tests\FluxSE\SyliusStripePlugin\Mocker;
+namespace Tests\FluxSE\SyliusStripePlugin\Behat\Mocker;
 
 use Mockery\MockInterface;
 use Stripe\Checkout\Session;
 use Stripe\HttpClient\ClientInterface;
 use Stripe\PaymentIntent;
-use Tests\FluxSE\SyliusStripePlugin\Mocker\Api\CheckoutSessionMocker;
-use Tests\FluxSE\SyliusStripePlugin\Mocker\Api\PaymentIntentMocker;
-use Tests\FluxSE\SyliusStripePlugin\Mocker\Api\RefundMocker;
+use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api\CheckoutSessionMocker;
+use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api\PaymentIntentMocker;
+use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api\RefundMocker;
 
 final class StripeCheckoutMocker
 {
