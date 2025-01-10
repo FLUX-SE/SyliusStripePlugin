@@ -96,20 +96,16 @@ services:
             - name: flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.price_data
               priority: -100
 
-    flux_se.sylius_stripe.provider.checkout.create.line_item.price_data.uni_amount:
+    flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.price_data.uni_amount:
         class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem\PriceData\UnitAmountProvider
         tags:
             - name: flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.price_data
               priority: -200
-            - name: flux_se.sylius_stripe.provider.checkout.create.line_item.shipment.price_data
-              priority: -200
 
-    flux_se.sylius_stripe.provider.checkout.create.line_item.price_data.currency:
+    flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.price_data.currency:
         class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem\PriceData\CurrencyProvider
         tags:
             - name: flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.price_data
-              priority: -300
-            - name: flux_se.sylius_stripe.provider.checkout.create.line_item.shipment.price_data
               priority: -300
     
     flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.price_data.product_data.images:
@@ -152,6 +148,18 @@ services:
         tags:
             - name: flux_se.sylius_stripe.provider.checkout.create.line_item.shipment.price_data
               priority: -100
+
+    flux_se.sylius_stripe.provider.checkout.create.line_item.shipment.price_data.uni_amount:
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem\PriceData\UnitAmountProvider
+        tags:
+            - name: flux_se.sylius_stripe.provider.checkout.create.line_item.shipment.price_data
+              priority: -200
+
+    flux_se.sylius_stripe.provider.checkout.create.line_item.shipment.price_data.currency:
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem\PriceData\CurrencyProvider
+        tags:
+            - name: flux_se.sylius_stripe.provider.checkout.create.line_item.shipment.price_data
+              priority: -300
 
     flux_se.sylius_stripe.provider.checkout.create.line_item.shipment.price_data.product_data.name:
         class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem\PriceData\ProductData\ShipmentNameProvider
