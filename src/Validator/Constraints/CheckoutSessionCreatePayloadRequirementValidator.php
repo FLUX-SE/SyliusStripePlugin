@@ -20,10 +20,10 @@ final class CheckoutSessionCreatePayloadRequirementValidator extends ConstraintV
      * @param PaymentMethodRepositoryInterface<PaymentMethodInterface> $paymentMethodRepository
      */
     public function __construct(
-        private PaymentMethodRepositoryInterface $paymentMethodRepository,
-        private GatewayFactoryNameProviderInterface $gatewayFactoryNameProvider,
-        private array $supportedFactoryNames,
-        private array $supportedActions,
+        private readonly PaymentMethodRepositoryInterface $paymentMethodRepository,
+        private readonly GatewayFactoryNameProviderInterface $gatewayFactoryNameProvider,
+        private readonly array $supportedFactoryNames,
+        private readonly array $supportedActions,
     ) {
     }
 
@@ -33,6 +33,10 @@ final class CheckoutSessionCreatePayloadRequirementValidator extends ConstraintV
 
         $addPaymentRequest = $this->context->getObject();
         Assert::isInstanceOf($addPaymentRequest, AddPaymentRequest::class);
+
+        if (null !== $value && false === is_array($value)) {
+            throw new \LogicException('The value must be null or an array.');
+        }
 
         /** @var PaymentMethodInterface|null $paymentMethod */
         $paymentMethod = $this->paymentMethodRepository->findOneBy([
@@ -44,24 +48,22 @@ final class CheckoutSessionCreatePayloadRequirementValidator extends ConstraintV
         }
 
         if (false === in_array(
-            $this->gatewayFactoryNameProvider->provide($paymentMethod),
-            $this->supportedFactoryNames,
-            true
-        )) {
+                $this->gatewayFactoryNameProvider->provide($paymentMethod),
+                $this->supportedFactoryNames,
+                true
+            )) {
             return;
         }
 
         if (false === in_array(
-            $addPaymentRequest->action,
-            $this->supportedActions,
-            true
-        )) {
+                $addPaymentRequest->action,
+                $this->supportedActions,
+                true
+            )) {
             return;
         }
 
-        if (false === is_array($value)) {
-            return;
-        }
+        $value = $value ?? [];
 
         if (false === isset($value['success_url'])) {
             $this->context->addViolation($constraint->noSuccessUrlFound);
