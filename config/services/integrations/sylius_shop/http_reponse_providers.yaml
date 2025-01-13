@@ -8,7 +8,7 @@ services:
                 index_by: action
         tags:
             - name: sylius.payment_request.provider.http_response
-              'gateway-factory': 'stripe_checkout'
+              gateway_factory: 'stripe_checkout'
 
 
     flux_se.sylius_stripe.provider.http_response.checkout.capture:
@@ -25,7 +25,7 @@ services:
                 index_by: action
         tags:
             -   name: sylius.payment_request.provider.http_response
-                'gateway-factory': 'stripe_web_elements'
+                gateway_factory: 'stripe_web_elements'
 
     flux_se.sylius_stripe.provider.http_response.web_elements.capture:
         class: FluxSE\SyliusStripePlugin\OrderPay\Provider\WebElements\CaptureHttpResponseProvider
