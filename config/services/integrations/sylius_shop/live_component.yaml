@@ -1,0 +1,10 @@
+services:
+    FluxSE\SyliusStripePlugin\Twig\Component\WebElements\SummaryPaymentComponent:
+        arguments:
+            - "@request_stack"
+            - "@sylius.repository.payment_request"
+            - "@monolog.logger"
+        tags:
+            - name: "twig.component"
+              key: "sylius_shop:order_pay:web_elements:summary"
+              template: "@SyliusShop/cart/index/content/form/sections/general/summary.html.twig"
