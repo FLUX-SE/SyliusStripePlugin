@@ -1,9 +1,13 @@
-{% extends '@SyliusShop/shared/layout/base.html.twig' %}
+{% extends '@SyliusShop/checkout/common/layout.html.twig' %}
 
-{% set prefixes = ['flux_se_sylius_stripe_plugin.order_pay.stripe_web_elements.capture'] %}
+{% set prefixes = ['flux_se_sylius_stripe_plugin.order_pay.stripe_web_elements.capture', 'sylius_shop.checkout'] %}
 
-{% block title %}{{ 'flux_se_sylius_stripe_plugin.gateway_factory.stripe_web_elements'|trans }} | {{ parent() }}{% endblock %}
+{% block title %}
+	{{ 'flux_se_sylius_stripe_plugin.gateway_factory.stripe_web_elements'|trans }}
+	|
+	{{ parent() }}
+{% endblock %}
 
 {% block body %}
-    {% hook 'flux_se_sylius_stripe_plugin.shop.order_pay.web_elements.capture' %}
+	{% hook 'flux_se_sylius_stripe_plugin.shop.order_pay.web_elements.capture.content' %}
 {% endblock %}
