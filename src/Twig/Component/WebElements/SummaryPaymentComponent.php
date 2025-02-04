@@ -42,10 +42,10 @@ class SummaryPaymentComponent
 
     private function getOrderFromPaymentRequest(): OrderInterface
     {
-        $request = $this->requestStack->getCurrentRequest();
-        if ($request === null) {
-            throw new WebElementsSummaryException('No active request found.');
-        }
+        $request = $this->ensureExists(
+                $this->requestStack->getCurrentRequest(),
+                'No active request found.'
+        );
 
         $tokenHash = $this->ensureExists(
             $request->get('hash'),
