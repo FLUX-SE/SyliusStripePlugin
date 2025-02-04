@@ -1,18 +1,42 @@
 sylius_twig_hooks:
     hooks:
-
-        'flux_se_sylius_stripe_plugin.order_pay.stripe_web_elements.capture#javascripts':
+        "flux_se_sylius_stripe_plugin.order_pay.stripe_web_elements.capture#javascripts":
             stripe_lib:
-                template: '@FluxSESyliusStripePlugin/shop/order_pay/web_elements/capture/javascript.html.twig'
+                template: "@FluxSESyliusStripePlugin/shop/order_pay/web_elements/capture/javascript.html.twig"
                 priority: 100
             stripe_appearance:
-                template: '@FluxSESyliusStripePlugin/shop/order_pay/web_elements/capture/javascript_appearance.html.twig'
+                template: "@FluxSESyliusStripePlugin/shop/order_pay/web_elements/capture/javascript_appearance.html.twig"
                 priority: 200
             stripe_payment_intent:
-                template: '@FluxSESyliusStripePlugin/shop/order_pay/web_elements/capture/javascript_common.html.twig'
+                template: "@FluxSESyliusStripePlugin/shop/order_pay/web_elements/capture/javascript_common.html.twig"
                 priority: 0
 
-        'flux_se_sylius_stripe_plugin.shop.order_pay.web_elements.capture':
+        "flux_se_sylius_stripe_plugin.shop.order_pay.web_elements.capture":
             form:
-                template: '@FluxSESyliusStripePlugin/shop/order_pay/web_elements/capture/form.html.twig'
+                template: "@FluxSESyliusStripePlugin/shop/order_pay/web_elements/capture/form.html.twig"
+                priority: 0
+
+        "flux_se_sylius_stripe_plugin.shop.order_pay.web_elements.capture.sidebar":
+            sidebar:
+                component: "sylius_shop:order_pay:web_elements:summary"
+                priority: 100
+
+        "flux_se_sylius_stripe_plugin.shop.order_pay.web_elements.capture.sidebar.summary":
+            items_total:
+                template: "@SyliusShop/cart/index/content/form/sections/general/summary/items_total.html.twig"
+                priority: 500
+            discount:
+                template: "@SyliusShop/cart/index/content/form/sections/general/summary/discount.html.twig"
+                priority: 400
+            estimated_cost:
+                template: "@SyliusShop/cart/index/content/form/sections/general/summary/estimated_cost.html.twig"
+                priority: 300
+            taxes_total:
+                template: "@SyliusShop/cart/index/content/form/sections/general/summary/taxes_total.html.twig"
+                priority: 200
+            order_total:
+                template: "@SyliusShop/cart/index/content/form/sections/general/summary/order_total.html.twig"
+                priority: 100
+            base_currency_order_total:
+                template: "@SyliusShop/cart/index/content/form/sections/general/summary/base_currency_order_total.html.twig"
                 priority: 0

@@ -5,34 +5,32 @@
 {% set action_url = hookable_metadata.context.action_url %}
 
 <div class="container my-auto">
-    <div class="row align-items-center justify-content-center vh-100">
-        <div class="col-12 col-md-6">
-            <h1>{{ 'sylius.ui.total'|trans }}: {{ money.format(model.amount, model.currency) }}</h1>
-        </div>
-        <div class="col-12 col-md-6">
-            <form id="payment-form">
-                <div id="payment-element"></div>
+	<div class="row align-items-center justify-content-center vh-100">
+		<div class="col-12 col-xl-8 mb-4">
+			<form id="payment-form">
+				<div id="payment-element"></div>
 
-                <div class="btn-list mt-3">
-                    <button type="submit" class="btn btn-primary" disabled>
-                        {{ 'flux_se_sylius_stripe_plugin.order_pay.web_elements.pay'|trans }}
-                    </button>
-                    <a class="btn" href="{{ action_url }}">{{ 'sylius.ui.cancel'|trans }}</a>
-                </div>
+				<div class="btn-list mt-3">
+					<button type="submit" class="btn btn-primary" disabled>
+						{{ 'flux_se_sylius_stripe_plugin.order_pay.web_elements.pay'|trans }}
+					</button>
+					<a class="btn" href="{{ action_url }}">{{ 'sylius.ui.cancel'|trans }}</a>
+				</div>
 
-                <div id="error-message" class="d-none alert alert-danger mt-3"></div>
-            </form>
+				<div id="error-message" class="d-none alert alert-danger mt-3"></div>
+			</form>
 
-            {% if app.debug %}
-                <p class="col mt-3 text-muted">
-                    Payment methods are dynamically displayed based on customer location, order amount, and currency.
-                    <a href="https://dashboard.stripe.com{{ model.livemode ? '' : '/test' }}/settings/payment_methods/review?transaction_id={{ model.id }}"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        Preview payment methods by transaction
-                    </a>
-                </p>
-            {% endif %}
-        </div>
-    </div>
+			{% if app.debug %}
+				<p class="col mt-3 text-muted">
+					Payment methods are dynamically displayed based on customer location, order amount, and currency.
+					<a href="https://dashboard.stripe.com{{ model.livemode ? '' : '/test' }}/settings/payment_methods/review?transaction_id={{ model.id }}" target="_blank" rel="noopener noreferrer">
+						Preview payment methods by transaction
+					</a>
+				</p>
+			{% endif %}
+		</div>
+		<div class="col-12 col-xl-4 ps-xl-5 mb-4 sticky-xl-top">
+			{% hook 'sidebar' %}
+		</div>
+	</div>
 </div>
