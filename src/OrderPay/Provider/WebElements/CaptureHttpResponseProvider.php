@@ -33,21 +33,18 @@ final readonly class CaptureHttpResponseProvider implements HttpResponseProvider
     ): Response {
         $data = $paymentRequest->getResponseData();
 
-        /** @var string|null $object */
-        $object = $data['object'] ?? 'null';
-        if (PaymentIntent::OBJECT_NAME !== $object) {
-            throw new \LogicException(sprintf(
-                'No payment intent object found, "%s" object found instead.',
-                $object,
-            ));
+        /** @var string|null $publishableKey */
+        $publishableKey = $data['publishable_key'] ?? 'null';
+        if (null === $publishableKey) {
+            throw new \LogicException('The publishable key must be defined!');
         }
 
         return new Response(
             $this->twig->render(
                 '@FluxSESyliusStripePlugin/shop/order_pay/web_elements/capture.html.twig',
                 [
-                    'publishable_key' => $paymentRequest->getResponseData()['publishable_key'],
-                    'model' => PaymentIntent::constructFrom($data),
+                    'publishable_key' => $publishableKey,
+                    'model' => PaymentIntent::constructFrom($paymentRequest->getPayment()->getDetails()),
                     'action_url' => $this->afterUrlProvider->getUrl($paymentRequest, AfterUrlProviderInterface::ACTION_URL),
                 ],
             ),
