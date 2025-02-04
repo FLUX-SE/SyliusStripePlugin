@@ -40,12 +40,7 @@ class SummaryPaymentComponent
 
     public function mount(): void
     {
-        try {
-            $this->cart = $this->getOrderFromPaymentRequest();
-        } catch (WebElementsSummaryException $e) {
-            $this->logger->error(sprintf('[Payment Summary] Error: %s', $e->getMessage()));
-            throw $e;
-        }
+        $this->cart = $this->getOrderFromPaymentRequest();
     }
 
     private function getOrderFromPaymentRequest(): OrderInterface
@@ -65,10 +60,7 @@ class SummaryPaymentComponent
             sprintf('No payment request found for token hash "%s".', $tokenHash)
         );
 
-        $payment = $this->ensureExists(
-            $paymentRequest->getPayment(),
-            sprintf('No payment found for token hash "%s".', $tokenHash)
-        );
+        $payment = $paymentRequest->getPayment();
 
         $order = $this->ensureExists(
             $payment->getOrder(),
