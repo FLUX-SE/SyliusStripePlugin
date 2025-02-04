@@ -3,7 +3,6 @@ services:
         arguments:
             - "@request_stack"
             - "@sylius.repository.payment_request"
-            - "@monolog.logger"
         tags:
             - name: "twig.component"
               key: "sylius_shop:order_pay:web_elements:content"

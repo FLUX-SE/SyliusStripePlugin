@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace FluxSE\SyliusStripePlugin\Twig\Component\WebElements;
 
 use FluxSE\SyliusStripePlugin\Exception\WebElementsSummaryException;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 use Sylius\Bundle\UiBundle\Twig\Component\ResourceLivePropTrait;
 use Sylius\Bundle\UiBundle\Twig\Component\TemplatePropTrait;
 use Sylius\Component\Core\Model\OrderInterface;
@@ -34,7 +32,6 @@ class SummaryPaymentComponent
     public function __construct(
         private readonly RequestStack $requestStack,
         private readonly PaymentRequestRepositoryInterface $paymentRequestRepository,
-        private readonly LoggerInterface $logger = new NullLogger(),
     ) {
     }
 
