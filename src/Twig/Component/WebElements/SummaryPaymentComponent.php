@@ -28,8 +28,8 @@ class SummaryPaymentComponent
     use TemplatePropTrait;
 
     #[LiveProp(hydrateWith: 'hydrateResource', dehydrateWith: 'dehydrateResource')]
-    #[ExposeInTemplate('cart')]
-    public ?ResourceInterface $cart = null;
+    #[ExposeInTemplate('order')]
+    public ?ResourceInterface $order = null;
 
     public function __construct(
         private readonly RequestStack $requestStack,
@@ -40,7 +40,7 @@ class SummaryPaymentComponent
 
     public function mount(): void
     {
-        $this->cart = $this->getOrderFromPaymentRequest();
+        $this->order = $this->getOrderFromPaymentRequest();
     }
 
     private function getOrderFromPaymentRequest(): OrderInterface

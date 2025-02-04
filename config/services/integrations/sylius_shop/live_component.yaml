@@ -6,5 +6,5 @@ services:
             - "@monolog.logger"
         tags:
             - name: "twig.component"
-              key: "sylius_shop:order_pay:web_elements:summary"
-              template: "@SyliusShop/cart/index/content/form/sections/general/summary.html.twig"
+              key: "sylius_shop:order_pay:web_elements:content"
+              template: "@FluxSESyliusStripePlugin/shop/order_pay/web_elements/capture/content.html.twig"
