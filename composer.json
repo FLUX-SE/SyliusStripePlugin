@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "sylius/core-bundle": "^2.0-dev",
+        "sylius/core-bundle": "^2.0",
         "stripe/stripe-php": "^16.1"
     },
     "require-dev": {
