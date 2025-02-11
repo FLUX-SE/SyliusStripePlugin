@@ -1,4 +1,4 @@
-@managing_orders
+@managing_stripe_web_elements_orders
 Feature: Canceling an authorized order with Stripe JS
     In order to cancel an order already authorized
     As an Administrator
@@ -12,7 +12,7 @@ Feature: Canceling an authorized order with Stripe JS
         And there is a customer "oliver@teamarrow.com" that placed an order "#00000001"
         And the customer bought a single "Green Arrow"
         And the customer chose "Free" shipping method to "United States" with "Stripe" payment
-        And this order is already authorized as "pi_123" Stripe payment intent
+        And this order is already authorized using Stripe web elements
         And I am logged in as an administrator
 
     @ui @api

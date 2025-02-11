@@ -1,4 +1,4 @@
-@managing_orders
+@managing_stripe_checkout_orders
 Feature: Canceling an authorized order with Stripe Checkout
     In order to cancel an order already authorized
     As an Administrator
@@ -12,13 +12,13 @@ Feature: Canceling an authorized order with Stripe Checkout
         And there is a customer "oliver@teamarrow.com" that placed an order "#00000001"
         And the customer bought a single "Green Arrow"
         And the customer chose "Free" shipping method to "United States" with "Stripe" payment
-        And this order is not yet paid as "cs_test_123" Stripe Checkout Session
+        And this order is already authorized using Stripe Checkout
         And I am logged in as an administrator
 
     @ui @api
     Scenario: Cancelling the order with an authorized payment
         Given I am viewing the summary of this order
-        And I am prepared to expire this order checkout session
+        And I am prepared to cancel authorization on this order
         When I cancel this order
         Then I should be notified that it has been successfully updated
         And it should have payment with state cancelled

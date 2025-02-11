@@ -1,4 +1,4 @@
-@managing_orders
+@managing_stripe_checkout_orders
 Feature: Refunding an order with Stripe Checkout Session
     In order to return the money to the Customer
     As an Administrator
@@ -12,7 +12,7 @@ Feature: Refunding an order with Stripe Checkout Session
         And there is a customer "oliver@teamarrow.com" that placed an order "#00000001"
         And the customer bought a single "Green Arrow"
         And the customer chose "Free" shipping method to "United States" with "Stripe" payment
-        And this order is already paid as "pi_123" Stripe payment intent
+        And this order is already paid using Stripe Checkout
         And I am logged in as an administrator
 
     @ui @api

@@ -1,8 +1,8 @@
 @paying_with_stripe_web_elements_during_checkout
-Feature: Paying with Stripe JS during checkout
+Feature: Paying with Stripe Web Elements during checkout
     In order to buy products
     As a Customer
-    I want to be able to pay with "Stripe JS" payment gateway without webhooks
+    I want to be able to pay with "Stripe Web Elements" payment gateway without webhooks
 
     Background:
         Given the store operates on a single channel in "United States"
@@ -17,7 +17,7 @@ Feature: Paying with Stripe JS during checkout
     @ui @api @javascript
     Scenario: Successful payment in Stripe without webhooks using authorize
         When I confirm my order with Stripe payment
-        And The Stripe JS form is displayed and I complete the payment without webhook using authorize
+        And I complete my Stripe payment successfully without webhook using authorize
         Then I should be notified that my payment has been authorized
         And I should see the thank you page
 
@@ -31,8 +31,8 @@ Feature: Paying with Stripe JS during checkout
     Scenario: Retrying the payment with success without webhooks using authorize
         Given I have confirmed my order with Stripe payment
         But I have clicked on "go back" during my Stripe payment
-        When I try to pay again with Stripe payment
-        And The Stripe JS form is displayed and I complete the payment without webhook using authorize
+        When I try to pay again with Stripe payment using authorize
+        And I complete my Stripe payment successfully without webhook using authorize
         Then I should be notified that my payment has been authorized
         And I should see the thank you page
 
@@ -40,6 +40,6 @@ Feature: Paying with Stripe JS during checkout
     Scenario: Retrying the payment and failing without webhooks using authorize
         Given I have confirmed my order with Stripe payment
         But I have clicked on "go back" during my Stripe payment
-        When I try to pay again with Stripe payment
+        When I try to pay again with Stripe payment using authorize
         And I click on "go back" during my Stripe payment
         Then I should be able to pay again

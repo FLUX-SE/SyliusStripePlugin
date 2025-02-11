@@ -1,4 +1,4 @@
-@managing_orders
+@managing_stripe_checkout_orders
 Feature: Capturing the authorization of an order with Stripe Checkout Session
     In order to complete a payment
     As an Administrator
@@ -12,11 +12,11 @@ Feature: Capturing the authorization of an order with Stripe Checkout Session
         And there is a customer "oliver@teamarrow.com" that placed an order "#00000001"
         And the customer bought a single "Green Arrow"
         And the customer chose "Free" shipping method to "United States" with "Stripe" payment
-        And this order is already authorized as "pi_123" Stripe payment intent
+        And this order is already authorized using Stripe Checkout
         And I am logged in as an administrator
 
     @ui @api
-    Scenario: Initializing the Stripe refund
+    Scenario: Capture the Stripe authorized payment
         Given I am viewing the summary of this order
         And I am prepared to capture authorization of this order
         When I mark this order as paid

@@ -1,8 +1,8 @@
 @paying_with_stripe_web_elements_during_checkout
-Feature: Paying with Stripe JS during checkout
+Feature: Paying with Stripe Web Elements during checkout
     In order to buy products
     As a Customer
-    I want to be able to pay with "Stripe Js" payment gateway
+    I want to be able to pay with "Stripe Web Elements" payment gateway
 
     Background:
         Given the store operates on a single channel in "United States"
@@ -17,7 +17,7 @@ Feature: Paying with Stripe JS during checkout
     @ui @api @javascript
     Scenario: Successful payment in Stripe
         When I confirm my order with Stripe payment
-        And The Stripe JS form is displayed and I complete the payment
+        And I complete my Stripe payment successfully
         Then I should see the thank you page
 
     @ui @api @javascript
@@ -31,7 +31,7 @@ Feature: Paying with Stripe JS during checkout
         Given I have confirmed my order with Stripe payment
         But I have clicked on "go back" during my Stripe payment
         When I try to pay again with Stripe payment
-        And The Stripe JS form is displayed and I complete the payment
+        And I complete my Stripe payment successfully
         Then I should see the thank you page
 
     @ui @api @javascript

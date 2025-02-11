@@ -16,30 +16,30 @@ Feature: Paying with Stripe Checkout Session during checkout using authorized
 
     @ui @api @javascript
     Scenario: Successful payment in Stripe using authorize
-        When I confirm my order with Stripe payment
-        And I get redirected to Stripe and complete my payment using authorize
+        When I confirm my order with Stripe payment using authorize
+        And I complete my Stripe payment successfully using authorize
         Then I should be notified that my payment has been authorized
         And I should see the thank you page
 
     @ui @api @javascript
     Scenario: Cancelling the payment using authorize
-        When I confirm my order with Stripe payment
+        When I confirm my order with Stripe payment using authorize
         And I click on "go back" during my Stripe payment
         Then I should be able to pay again
 
     @ui @api @javascript
     Scenario: Retrying the payment with success using authorize
-        Given I have confirmed my order with Stripe payment
+        Given I have confirmed my order with Stripe payment using authorize
         But I have clicked on "go back" during my Stripe payment
-        When I try to pay again with Stripe payment
-        And I get redirected to Stripe and complete my payment using authorize
+        When I try to pay again with Stripe payment using authorize
+        And I complete my Stripe payment successfully using authorize
         Then I should be notified that my payment has been authorized
         And I should see the thank you page
 
     @ui @api @javascript
     Scenario: Retrying the payment and failing using authorize
-        Given I have confirmed my order with Stripe payment
+        Given I have confirmed my order with Stripe payment using authorize
         But I have clicked on "go back" during my Stripe payment
-        When I try to pay again with Stripe payment
+        When I try to pay again with Stripe payment using authorize
         And I click on "go back" during my Stripe payment
         Then I should be able to pay again

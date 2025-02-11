@@ -17,7 +17,7 @@ Feature: Paying with Stripe Checkout Session during checkout without webhook
     @ui @api @javascript
     Scenario: Successful payment in Stripe without webhooks
         When I confirm my order with Stripe payment
-        And I get redirected to Stripe and complete my payment without webhook
+        And I complete my Stripe payment successfully without webhook
         Then I should see the thank you page
 
     @ui @api @javascript
@@ -31,7 +31,7 @@ Feature: Paying with Stripe Checkout Session during checkout without webhook
         Given I have confirmed my order with Stripe payment
         But I have clicked on "go back" during my Stripe payment
         When I try to pay again with Stripe payment
-        And I get redirected to Stripe and complete my payment without webhook
+        And I complete my Stripe payment successfully without webhook
         Then I should see the thank you page
 
     @ui @api @javascript
