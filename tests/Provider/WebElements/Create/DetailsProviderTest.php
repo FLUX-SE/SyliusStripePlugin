@@ -7,6 +7,7 @@ use Doctrine\ORM\EntityManager;
 use Fidry\AliceDataFixtures\Loader\PurgerLoader;
 use FluxSE\SyliusStripePlugin\Provider\ParamsProviderInterface;
 use Stripe\Checkout\Session;
+use Stripe\PaymentIntent;
 use Sylius\Component\Payment\Model\PaymentRequest;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -15,6 +16,8 @@ class DetailsProviderTest extends KernelTestCase
 {
     private PurgerLoader $loader;
     private EntityManager $entityManager;
+
+    /** @var ParamsProviderInterface<PaymentIntent> */
     private ParamsProviderInterface $compositeParamsProvider;
 
     protected function setUp(): void
@@ -50,6 +53,12 @@ class DetailsProviderTest extends KernelTestCase
 
     /**
      * @dataProvider getPaymentRequestAndExpectedDetails
+     *
+     * @param array{
+     *     metadata: array{
+     *         token_hash: string
+     *     }
+     * } $expectedDetails
      */
     public function test_it_get_checkout_session_create_details(
         string $paymentRequestName,
@@ -78,6 +87,9 @@ class DetailsProviderTest extends KernelTestCase
         self::assertEquals($expectedDetails, $params);
     }
 
+    /**
+     * @return iterable<array{string, mixed[]}>
+     */
     public static function getPaymentRequestAndExpectedDetails(): iterable
     {
         $expected = [

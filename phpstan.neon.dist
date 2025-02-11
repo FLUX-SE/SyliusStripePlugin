@@ -5,7 +5,10 @@ parameters:
 
     paths:
         - src
-        - tests/Behat
+        - tests/
+    excludePaths:
+        - tests/Application
+        - tests/Api/JsonApiTestCase.php
 
     ignoreErrors:
         - message: '/Method FluxSE\\SyliusStripePlugin\\Stripe\\HttpClient\\PsrClient::[^\(]+\(\) has parameter \$[^ ]+ with no value type specified in iterable type array\./'
@@ -18,3 +21,12 @@ parameters:
           path: src/Stripe/HttpClient/PsrClient.php
         - message: '/Parameter #2 \$value of method Psr\\Http\\Message\\MessageInterface::withHeader\(\) expects array<string>\|string, string\|null given\./'
           path: src/Stripe/HttpClient/PsrClient.php
+        - message: '/Property [^\s]+ \([^\)]+\) does not accept object\|null\./'
+          paths:
+              - tests/Api/Shop/PaymentRequestsTest.php
+              - tests/Provider/Checkout/Create/DetailsProviderTest.php
+              - tests/Provider/WebElements/Create/DetailsProviderTest.php
+        - message: '/Cannot call method getProjectDir\(\) on Symfony\\Component\\HttpKernel\\KernelInterface\|null\./'
+          paths:
+              - tests/Provider/Checkout/Create/DetailsProviderTest.php
+              - tests/Provider/WebElements/Create/DetailsProviderTest.php

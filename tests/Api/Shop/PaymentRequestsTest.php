@@ -10,16 +10,17 @@ use Sylius\Component\Core\Model\PaymentMethodInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\FluxSE\SyliusStripePlugin\Api\JsonApiTestCase;
 use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\StripeCheckoutMocker;
+use Webmozart\Assert\Assert;
 
 final class PaymentRequestsTest extends JsonApiTestCase
 {
-    private StripeCheckoutMocker $stripeCheckoutSessionMocker;
+    private StripeCheckoutMocker $stripeCheckoutMocker;
 
     protected function setUp(): void
     {
         $this->setUpShopUserContext();
 
-        $this->stripeCheckoutSessionMocker = static::getContainer()->get(StripeCheckoutMocker::class);
+        $this->stripeCheckoutMocker = static::getContainer()->get(StripeCheckoutMocker::class);
 
         parent::setUp();
     }
@@ -35,35 +36,37 @@ final class PaymentRequestsTest extends JsonApiTestCase
     {
         $fixtures = $this->loadFixturesFromFiles($fixturesPaths);
 
-        $this->stripeCheckoutSessionMocker->mockCaptureOrAuthorize(function() use ($fixtures, $method) {
-            /** @var OrderInterface $order */
-            $order = $fixtures['order'];
-            /** @var PaymentMethodInterface $paymentMethod */
-            $paymentMethod = $fixtures[$method];
-            /** @var PaymentInterface $payment */
-            $payment = $fixtures['payment'];
+        $this->stripeCheckoutMocker->mockCaptureOrAuthorize();
+        /** @var OrderInterface $order */
+        $order = $fixtures['order'];
+        /** @var PaymentMethodInterface $paymentMethod */
+        $paymentMethod = $fixtures[$method];
+        /** @var PaymentInterface $payment */
+        $payment = $fixtures['payment'];
 
-            $this->client->request(
-                method: 'POST',
-                uri: sprintf('/api/v2/shop/orders/%s/payment-requests', $order->getTokenValue()),
-                server: $this->headerBuilder()
-                    ->withJsonLdAccept()
-                    ->withJsonLdContentType()
-                    ->withShopUserAuthorization('oliver@doe.com')
-                    ->build(),
-                content: json_encode([
-                    'paymentId' => $payment->getId(),
-                    'paymentMethodCode' => $paymentMethod->getCode(),
-                    'payload' => [
-                        'success_url' => 'https://myshop.tld/target-path',
-                        'cancel_url' => 'https://myshop.tld/after-path',
-                    ],
-                ], \JSON_THROW_ON_ERROR),
-            );
-        });
+        $kernelBrowser = $this->client;
+        Assert::notNull($kernelBrowser);
+
+        $kernelBrowser->request(
+            method: 'POST',
+            uri: sprintf('/api/v2/shop/orders/%s/payment-requests', $order->getTokenValue()),
+            server: $this->headerBuilder()
+                ->withJsonLdAccept()
+                ->withJsonLdContentType()
+                ->withShopUserAuthorization('oliver@doe.com')
+                ->build(),
+            content: json_encode([
+                'paymentId' => $payment->getId(),
+                'paymentMethodCode' => $paymentMethod->getCode(),
+                'payload' => [
+                    'success_url' => 'https://myshop.tld/target-path',
+                    'cancel_url' => 'https://myshop.tld/after-path',
+                ],
+            ], \JSON_THROW_ON_ERROR),
+        );
 
         $this->assertResponse(
-            $this->client->getResponse(),
+            $kernelBrowser->getResponse(),
             $responsePath,
             Response::HTTP_CREATED,
         );
@@ -87,7 +90,10 @@ final class PaymentRequestsTest extends JsonApiTestCase
         /** @var PaymentInterface $payment */
         $payment = $fixtures['payment'];
 
-        $this->client->request(
+        $kernelBrowser = $this->client;
+        Assert::notNull($kernelBrowser);
+
+        $kernelBrowser->request(
             method: 'POST',
             uri: sprintf('/api/v2/shop/orders/%s/payment-requests', $order->getTokenValue()),
             server: $this->headerBuilder()
@@ -102,12 +108,15 @@ final class PaymentRequestsTest extends JsonApiTestCase
         );
 
         $this->assertResponse(
-            $this->client->getResponse(),
+            $kernelBrowser->getResponse(),
             $responsePath,
             Response::HTTP_UNPROCESSABLE_ENTITY,
         );
     }
 
+    /**
+     * @return iterable<array{string, string[], string}>
+     */
     public static function createPaymentRequestProvider(): iterable
     {
         foreach (['payment_method_stripe_checkout', 'payment_method_stripe_checkout_authorize'] as $method) {
@@ -130,6 +139,9 @@ final class PaymentRequestsTest extends JsonApiTestCase
         }
     }
 
+    /**
+     * @return iterable<array{string, string[], string}>
+     */
     public static function createPaymentRequestProviderWithError(): iterable
     {
         foreach (['payment_method_stripe_checkout', 'payment_method_stripe_checkout_authorize'] as $method) {

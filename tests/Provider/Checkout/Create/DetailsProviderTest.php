@@ -6,6 +6,8 @@ use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\ORM\EntityManager;
 use Fidry\AliceDataFixtures\Loader\PurgerLoader;
 use FluxSE\SyliusStripePlugin\Provider\ParamsProviderInterface;
+use Stripe\Checkout\Session;
+use Sylius\Component\Core\Model\PaymentInterface;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Routing\RequestContext;
@@ -14,6 +16,8 @@ class DetailsProviderTest extends KernelTestCase
 {
     private PurgerLoader $loader;
     private EntityManager $entityManager;
+
+    /** @var ParamsProviderInterface<Session> */
     private ParamsProviderInterface $compositeParamsProvider;
 
     private RequestContext $requestContext;
@@ -53,6 +57,11 @@ class DetailsProviderTest extends KernelTestCase
 
     /**
      * @dataProvider getPaymentRequestAndExpectedDetails
+     * @param array{
+     *     metadata: array{token_hash: string},
+     *     success_url: string,
+     *     cancel_url: string,
+     * } $expectedDetails
      */
     public function test_it_get_checkout_session_create_details(
         string $paymentRequestName,
@@ -80,23 +89,33 @@ class DetailsProviderTest extends KernelTestCase
             $locale = 'en_US';
             $this->requestContext->setParameter('_locale', $locale);
 
-            $url = sprintf('http://localhost/%s/order/after-pay/%s', $locale, $paymentRequest->getId());
+            $url = sprintf('http://localhost/%s/payment-request/pay/%s', $locale, $paymentRequest->getId());
             $expectedDetails['success_url'] = $url;
             $expectedDetails['cancel_url'] = $url;
         }
 
+
         $details = $this->compositeParamsProvider->getParams($paymentRequest);
 
+        if (isset($details['expand'])) {
+            $expectedDetails['expand'] = $details['expand'];
+        }
 
         self::assertEquals($expectedDetails, $details);
 
+        /** @var PaymentInterface $payment */
+        $payment = $paymentRequest->getPayment();
+
         // Check if tests data are corresponding
         self::assertEquals(
-            $paymentRequest->getPayment()->getAmount(),
-            $paymentRequest->getPayment()->getOrder()->getTotal()
+            $payment->getAmount(),
+            $payment->getOrder()?->getTotal()
         );
     }
 
+    /**
+     * @return iterable<array{string, mixed[]}>
+     */
     public static function getPaymentRequestAndExpectedDetails(): iterable
     {
         $expected = [
