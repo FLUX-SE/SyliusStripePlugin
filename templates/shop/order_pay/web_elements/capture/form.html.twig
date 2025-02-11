@@ -16,12 +16,3 @@
 
 	<div id="error-message" class="d-none alert alert-danger mt-3"></div>
 </form>
-
-{% if app.debug %}
-	<p class="col mt-3 text-muted">
-		Payment methods are dynamically displayed based on customer location, order amount, and currency.
-		<a href="https://dashboard.stripe.com{{ model.livemode ? '' : '/test' }}/settings/payment_methods/review?transaction_id={{ model.id }}" target="_blank" rel="noopener noreferrer">
-			Preview payment methods by transaction
-		</a>
-	</p>
-{% endif %}
