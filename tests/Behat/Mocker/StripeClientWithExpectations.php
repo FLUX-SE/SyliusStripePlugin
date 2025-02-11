@@ -104,10 +104,14 @@ final class StripeClientWithExpectations implements StripeClientWithExpectations
 
     private function getCacheItem(): CacheItemInterface
     {
-        if (false === $this->cache->hasItem(self::CACHE_KEY)) {
-            $this->cache->getItem(self::CACHE_KEY)->set([]);
+        if ($this->cache->hasItem(self::CACHE_KEY)) {
+            return $this->cache->getItem(self::CACHE_KEY);
         }
 
-        return $this->cache->getItem(self::CACHE_KEY);
+        $cacheItem = $this->cache->getItem(self::CACHE_KEY);
+        $cacheItem->set([]);
+        $this->cache->save($cacheItem);
+
+        return $cacheItem;
     }
 }
