@@ -57,6 +57,8 @@ services:
         tags:
             - name: flux_se.sylius_stripe.command_provider.web_elements
               action: !php/const Sylius\Component\Payment\Model\PaymentRequestInterface::ACTION_CAPTURE
+            - name: flux_se.sylius_stripe.command_provider.web_elements
+              action: !php/const Sylius\Component\Payment\Model\PaymentRequestInterface::ACTION_AUTHORIZE
           
     flux_se.sylius_stripe.command_provider.web_elements.status:
         class: FluxSE\SyliusStripePlugin\CommandProvider\WebElements\StatusPaymentRequestCommandProvider

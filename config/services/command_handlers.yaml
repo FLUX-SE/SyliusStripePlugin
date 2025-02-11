@@ -10,12 +10,35 @@ services:
         tags:
             - name: messenger.message_handler
               bus: sylius.payment_request.command_bus
+              
+    flux_se.sylius_stripe.command_handlers.checkout.capture_end:
+        class: FluxSE\SyliusStripePlugin\CommandHandler\Checkout\CaptureEndPaymentRequestHandler
+        arguments:
+            - '@sylius.provider.payment_request'
+            - '@flux_se.sylius_stripe.manager.checkout.retrieve'
+            - '@flux_se.sylius_stripe.manager.checkout.expire'
+            - '@flux_se.sylius_stripe.processor.payment_transition.checkout'
+            - '@sylius_abstraction.state_machine'
+        tags:
+            - name: messenger.message_handler
+              bus: sylius.payment_request.command_bus
+    
+    flux_se.sylius_stripe.command_handlers.checkout.authorize:
+        class: FluxSE\SyliusStripePlugin\CommandHandler\Checkout\CompleteAuthorizedPaymentRequestHandler
+        arguments:
+            - '@sylius.provider.payment_request'
+            - '@flux_se.sylius_stripe.manager.checkout.retrieve'
+            - '@flux_se.sylius_stripe.manager.checkout.capture_authorized'
+            - '@flux_se.sylius_stripe.processor.payment_transition.checkout'
+            - '@sylius_abstraction.state_machine'
+        tags:
+            - name: messenger.message_handler
+              bus: sylius.payment_request.command_bus
     
     flux_se.sylius_stripe.command_handlers.checkout.status:
         class: FluxSE\SyliusStripePlugin\CommandHandler\StatusPaymentRequestHandler
         arguments:
             - '@sylius.provider.payment_request'
-            - '@flux_se.sylius_stripe.manager.checkout.retrieve'
             - '@flux_se.sylius_stripe.processor.payment_transition.checkout'
             - '@sylius_abstraction.state_machine'
         tags:
@@ -36,12 +59,24 @@ services:
               bus: sylius.payment_request.command_bus
               handles: FluxSE\SyliusStripePlugin\Command\Checkout\NotifyPaymentRequest
     
-    flux_se.sylius_stripe.command_handlers.checkout.cancel:
-        class: FluxSE\SyliusStripePlugin\CommandHandler\Checkout\CancelPaymentRequestHandler
+    flux_se.sylius_stripe.command_handlers.checkout.expire:
+        class: FluxSE\SyliusStripePlugin\CommandHandler\Checkout\ExpirePaymentRequestHandler
         arguments:
             - '@sylius.provider.payment_request'
             - '@flux_se.sylius_stripe.manager.checkout.retrieve'
             - '@flux_se.sylius_stripe.manager.checkout.expire'
+            - '@flux_se.sylius_stripe.processor.payment_transition.checkout'
+            - '@sylius_abstraction.state_machine'
+        tags:
+            - name: messenger.message_handler
+              bus: sylius.payment_request.command_bus
+    
+    flux_se.sylius_stripe.command_handlers.checkout.cancel_authorized:
+        class: FluxSE\SyliusStripePlugin\CommandHandler\Checkout\CancelAuthorizedPaymentRequestHandler
+        arguments:
+            - '@sylius.provider.payment_request'
+            - '@flux_se.sylius_stripe.manager.checkout.retrieve'
+            - '@flux_se.sylius_stripe.manager.checkout.cancel_authorized'
             - '@flux_se.sylius_stripe.processor.payment_transition.checkout'
             - '@sylius_abstraction.state_machine'
         tags:
@@ -71,11 +106,34 @@ services:
             - name: messenger.message_handler
               bus: sylius.payment_request.command_bus
     
+    flux_se.sylius_stripe.command_handlers.web_elements.capture_end:
+        class: FluxSE\SyliusStripePlugin\CommandHandler\WebElements\CaptureEndPaymentRequestHandler
+        arguments:
+            - '@sylius.provider.payment_request'
+            - '@flux_se.sylius_stripe.manager.web_elements.retrieve'
+            - '@flux_se.sylius_stripe.manager.web_elements.cancel'
+            - '@flux_se.sylius_stripe.processor.payment_transition.web_elements'
+            - '@sylius_abstraction.state_machine'
+        tags:
+            - name: messenger.message_handler
+              bus: sylius.payment_request.command_bus
+    
+    flux_se.sylius_stripe.command_handlers.web_elements.authorize:
+        class: FluxSE\SyliusStripePlugin\CommandHandler\WebElements\CompleteAuthorizedPaymentRequestHandler
+        arguments:
+            - '@sylius.provider.payment_request'
+            - '@flux_se.sylius_stripe.manager.web_elements.retrieve'
+            - '@flux_se.sylius_stripe.manager.web_elements.capture'
+            - '@flux_se.sylius_stripe.processor.payment_transition.web_elements'
+            - '@sylius_abstraction.state_machine'
+        tags:
+            - name: messenger.message_handler
+              bus: sylius.payment_request.command_bus
+    
     flux_se.sylius_stripe.command_handlers.web_elements.status:
         class: FluxSE\SyliusStripePlugin\CommandHandler\StatusPaymentRequestHandler
         arguments:
             - '@sylius.provider.payment_request'
-            - '@flux_se.sylius_stripe.manager.web_elements.retrieve'
             - '@flux_se.sylius_stripe.processor.payment_transition.web_elements'
             - '@sylius_abstraction.state_machine'
         tags:

@@ -11,10 +11,8 @@ use FluxSE\SyliusStripePlugin\Manager\WebElements\RetrieveManagerInterface;
 use FluxSE\SyliusStripePlugin\Processor\PaymentTransitionProcessorInterface;
 use Sylius\Abstraction\StateMachine\StateMachineInterface;
 use Sylius\Bundle\PaymentBundle\Provider\PaymentRequestProviderInterface;
-use Sylius\Component\Payment\Model\PaymentRequestInterface;
 use Sylius\Component\Payment\PaymentRequestTransitions;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use Webmozart\Assert\Assert;
 
 #[AsMessageHandler]
 final readonly class RefundPaymentRequestHandler
@@ -40,8 +38,9 @@ final readonly class RefundPaymentRequestHandler
         if (null === $id) {
             $this->failWithReason(
                 $paymentRequest,
-                'An id is required to retrieve the related Stripe PaymentIntent.'
+                'An id is required to retrieve the related Stripe PaymentIntent.',
             );
+
             return;
         }
 
@@ -53,7 +52,7 @@ final readonly class RefundPaymentRequestHandler
                     'Payment Intent status is "%s" instead of "%s".',
                     $paymentIntent->status,
                     $paymentIntent::STATUS_SUCCEEDED,
-                )
+                ),
             );
 
             return;
@@ -65,7 +64,7 @@ final readonly class RefundPaymentRequestHandler
                 sprintf(
                     'Payment Intent amount is not greater than 0 (amount: %s)',
                     $paymentIntent->amount,
-                )
+                ),
             );
 
             return;

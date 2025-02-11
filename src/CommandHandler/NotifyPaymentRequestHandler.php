@@ -40,8 +40,9 @@ final readonly class NotifyPaymentRequestHandler
         if (null === $id) {
             $this->failWithReason(
                 $paymentRequest,
-                'The payment request payload "[event][id]" is null.'
+                'The payment request payload "[event][id]" is null.',
             );
+
             return;
         }
 

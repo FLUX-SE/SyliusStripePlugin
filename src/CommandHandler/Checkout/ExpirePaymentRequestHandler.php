@@ -4,34 +4,35 @@ declare(strict_types=1);
 
 namespace FluxSE\SyliusStripePlugin\CommandHandler\Checkout;
 
-use FluxSE\SyliusStripePlugin\Command\Checkout\RefundPaymentRequest;
+use FluxSE\SyliusStripePlugin\Command\Checkout\ExpirePaymentRequest;
 use FluxSE\SyliusStripePlugin\CommandHandler\FailedAwarePaymentRequestHandlerTrait;
+use FluxSE\SyliusStripePlugin\Manager\Checkout\ExpireManagerInterface;
 use FluxSE\SyliusStripePlugin\Manager\Checkout\RetrieveManagerInterface;
-use FluxSE\SyliusStripePlugin\Manager\Refund\CreateManagerInterface;
 use FluxSE\SyliusStripePlugin\Processor\PaymentTransitionProcessorInterface;
+use Stripe\Checkout\Session;
 use Sylius\Abstraction\StateMachine\StateMachineInterface;
 use Sylius\Bundle\PaymentBundle\Provider\PaymentRequestProviderInterface;
 use Sylius\Component\Payment\PaymentRequestTransitions;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
-final readonly class RefundPaymentRequestHandler
+final readonly class ExpirePaymentRequestHandler
 {
     use FailedAwarePaymentRequestHandlerTrait;
 
     public function __construct(
         private PaymentRequestProviderInterface $paymentRequestProvider,
         private RetrieveManagerInterface $retrieveCheckoutManager,
-        private CreateManagerInterface $createRefundManager,
+        private ExpireManagerInterface $expireCheckoutManager,
         private PaymentTransitionProcessorInterface $paymentTransitionProcessor,
         StateMachineInterface $stateMachine,
     ) {
         $this->stateMachine = $stateMachine;
     }
 
-    public function __invoke(RefundPaymentRequest $refundPaymentRequest): void
+    public function __invoke(ExpirePaymentRequest $expirePaymentRequest): void
     {
-        $paymentRequest = $this->paymentRequestProvider->provide($refundPaymentRequest);
+        $paymentRequest = $this->paymentRequestProvider->provide($expirePaymentRequest);
 
         /** @var string|null $id */
         $id = $paymentRequest->getPayment()->getDetails()['id'] ?? null;
@@ -45,40 +46,16 @@ final readonly class RefundPaymentRequestHandler
         }
 
         $session = $this->retrieveCheckoutManager->retrieve($paymentRequest, $id);
-        if ($session::PAYMENT_STATUS_PAID !== $session->payment_status) {
+        if (Session::STATUS_OPEN !== $session->status) {
             $this->failWithReason(
                 $paymentRequest,
-                sprintf(
-                    'Checkout Session payment status is "%s" instead of "%s".',
-                    $session->payment_status,
-                    $session::PAYMENT_STATUS_PAID,
-                ),
+                sprintf('The session "%s" is not open.', $session->id),
             );
 
             return;
         }
 
-        if (0 >= $session->amount_total) {
-            $this->failWithReason(
-                $paymentRequest,
-                sprintf(
-                    'Checkout Session amount total is not greater than 0 (amount_total: %s)',
-                    $session->amount_total,
-                ),
-            );
-
-            return;
-        }
-
-        $paymentRequest->setPayload([
-            'payment_intent' => $session->payment_intent,
-            'amount' => $refundPaymentRequest->getAmount(),
-        ]);
-
-        $refund = $this->createRefundManager->create($paymentRequest);
-        $session = $this->retrieveCheckoutManager->retrieve($paymentRequest, $id);
-
-        $paymentRequest->setResponseData($refund->toArray());
+        $session = $this->expireCheckoutManager->expire($paymentRequest, $id);
 
         $paymentRequest->getPayment()->setDetails($session->toArray());
 
