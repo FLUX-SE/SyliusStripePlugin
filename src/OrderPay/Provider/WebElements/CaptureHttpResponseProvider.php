@@ -24,7 +24,7 @@ final readonly class CaptureHttpResponseProvider implements HttpResponseProvider
         RequestConfiguration $requestConfiguration,
         PaymentRequestInterface $paymentRequest,
     ): bool {
-        return $paymentRequest->getAction() === PaymentRequestInterface::ACTION_CAPTURE;
+        return $paymentRequest->getState() === PaymentRequestInterface::STATE_PROCESSING;
     }
 
     public function getResponse(

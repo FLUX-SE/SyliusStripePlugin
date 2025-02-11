@@ -3,7 +3,7 @@ services:
     flux_se.sylius_stripe.shop.provider.after_url:
         class: FluxSE\SyliusStripePlugin\Provider\SyliusShopAfterUrlProvider
         arguments:
-            - '@sylius_shop.provider.order_pay.after_pay_url'
+            - '@sylius_shop.provider.order_pay.payment_request_pay_url'
 
     flux_se.sylius_stripe.order_pay.provider.web_elements.after_url:
         parent: flux_se.sylius_stripe.shop.provider.after_url

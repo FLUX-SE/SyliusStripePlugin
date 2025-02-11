@@ -16,6 +16,8 @@ services:
         tags:
             - name: flux_se.sylius_stripe.provider.http_response.checkout
               action: !php/const Sylius\Component\Payment\Model\PaymentRequestInterface::ACTION_CAPTURE
+            - name: flux_se.sylius_stripe.provider.http_response.checkout
+              action: !php/const Sylius\Component\Payment\Model\PaymentRequestInterface::ACTION_AUTHORIZE
 
     flux_se.sylius_stripe.provider.http_response.web_elements:
         class: Sylius\Bundle\PaymentBundle\Provider\ActionsHttpResponseProvider
@@ -35,3 +37,5 @@ services:
         tags:
             -   name: flux_se.sylius_stripe.provider.http_response.web_elements
                 action: !php/const Sylius\Component\Payment\Model\PaymentRequestInterface::ACTION_CAPTURE
+            -   name: flux_se.sylius_stripe.provider.http_response.web_elements
+                action: !php/const Sylius\Component\Payment\Model\PaymentRequestInterface::ACTION_AUTHORIZE
