@@ -19,9 +19,7 @@ trait CreateManagerTrait
     /** @use StripeClientAwareManagerTrait<T> */
     use StripeClientAwareManagerTrait;
 
-    /**
-     * @var ParamsProviderInterface<O> $paramsProvider
-     */
+    /** @var ParamsProviderInterface<O> */
     private readonly ParamsProviderInterface $paramsProvider;
 
     private ?OptsProviderInterface $optsProvider = null;

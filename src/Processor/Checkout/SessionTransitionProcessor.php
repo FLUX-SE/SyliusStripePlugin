@@ -2,19 +2,20 @@
 
 declare(strict_types=1);
 
-namespace FluxSE\SyliusStripePlugin\Processor\WebElements;
+namespace FluxSE\SyliusStripePlugin\Processor\Checkout;
 
 use FluxSE\SyliusStripePlugin\Processor\PaymentTransitionProcessorInterface;
-use FluxSE\SyliusStripePlugin\Provider\Transition\WebElements\PaymentIntentTransitionProviderInterface;
-use Stripe\PaymentIntent;
+use FluxSE\SyliusStripePlugin\Provider\Transition\Checkout\SessionTransitionProviderInterface;
+use Stripe\Checkout\Session;
 use Sylius\Abstraction\StateMachine\StateMachineInterface;
+use Sylius\Component\Payment\Model\PaymentInterface;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 use Sylius\Component\Payment\PaymentTransitions;
 
-final readonly class PaymentIntentTransitionProcessor implements PaymentTransitionProcessorInterface
+final readonly class SessionTransitionProcessor implements PaymentTransitionProcessorInterface
 {
     public function __construct(
-        private PaymentIntentTransitionProviderInterface $paymentIntentTransitionProvider,
+        private SessionTransitionProviderInterface $sessionTransitionProvider,
         private StateMachineInterface $stateMachine,
     ) {
     }
@@ -22,10 +23,9 @@ final readonly class PaymentIntentTransitionProcessor implements PaymentTransiti
     public function process(PaymentRequestInterface $paymentRequest): void
     {
         $payment = $paymentRequest->getPayment();
-        $details = $payment->getDetails();
-        $paymentIntent = PaymentIntent::constructFrom($details);
 
-        $transition = $this->getTransition($paymentIntent);
+        $transition = $this->getTransition($payment);
+
         if (null === $transition) {
             return;
         }
@@ -35,29 +35,32 @@ final readonly class PaymentIntentTransitionProcessor implements PaymentTransiti
         }
     }
 
-    private function getTransition(PaymentIntent $paymentIntent): ?string
+    private function getTransition(PaymentInterface $payment): ?string
     {
-        if ($this->paymentIntentTransitionProvider->isAuthorize($paymentIntent)) {
+        $details = $payment->getDetails();
+        $session = Session::constructFrom($details);
+
+        if ($this->sessionTransitionProvider->isAuthorize($session)) {
             return PaymentTransitions::TRANSITION_AUTHORIZE;
         }
 
-        if ($this->paymentIntentTransitionProvider->isComplete($paymentIntent)) {
+        if ($this->sessionTransitionProvider->isComplete($session)) {
             return PaymentTransitions::TRANSITION_COMPLETE;
         }
 
-        if ($this->paymentIntentTransitionProvider->isFail($paymentIntent)) {
+        if ($this->sessionTransitionProvider->isFail($session)) {
             return PaymentTransitions::TRANSITION_FAIL;
         }
 
-        if ($this->paymentIntentTransitionProvider->isCancel($paymentIntent)) {
+        if ($this->sessionTransitionProvider->isCancel($session)) {
             return PaymentTransitions::TRANSITION_CANCEL;
         }
 
-        if ($this->paymentIntentTransitionProvider->isRefund($paymentIntent)) {
+        if ($this->sessionTransitionProvider->isRefund($session)) {
             return PaymentTransitions::TRANSITION_REFUND;
         }
 
-        if ($this->paymentIntentTransitionProvider->isProcess($paymentIntent)) {
+        if ($this->sessionTransitionProvider->isProcess($session)) {
             return PaymentTransitions::TRANSITION_PROCESS;
         }
 

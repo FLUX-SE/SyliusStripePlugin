@@ -14,13 +14,15 @@ parameters:
 services:
     
     flux_se.sylius_stripe.processor.payment_transition.checkout:
-        class: FluxSE\SyliusStripePlugin\Processor\Checkout\CheckoutSessionTransitionProcessor
+        class: FluxSE\SyliusStripePlugin\Processor\Checkout\SessionTransitionProcessor
         arguments:
+            - '@flux_se.sylius_stripe.processor.transition.checkout.session'
             - '@sylius_abstraction.state_machine'
     
     flux_se.sylius_stripe.processor.payment_transition.web_elements:
         class: FluxSE\SyliusStripePlugin\Processor\WebElements\PaymentIntentTransitionProcessor
         arguments:
+            - '@flux_se.sylius_stripe.processor.transition.web_elements.payment_intent'
             - '@sylius_abstraction.state_machine'
 
     FluxSE\SyliusStripePlugin\Processor\NotifyPayloadProcessor:

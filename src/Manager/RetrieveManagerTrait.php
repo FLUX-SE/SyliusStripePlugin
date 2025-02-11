@@ -19,9 +19,7 @@ trait RetrieveManagerTrait
     /** @use StripeClientAwareManagerTrait<T> */
     use StripeClientAwareManagerTrait;
 
-    /**
-     * @var ParamsProviderInterface<O>|null $paramsProvider
-     */
+    /** @var ParamsProviderInterface<O>|null */
     private ?ParamsProviderInterface $paramsProvider = null;
 
     private ?OptsProviderInterface $optsProvider = null;
