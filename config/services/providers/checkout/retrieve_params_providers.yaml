@@ -1,5 +1,5 @@
 parameters:
-    flux_se.sylius_stripe.checkout.retrieve.expand_fields:
+    flux_se.sylius_stripe.checkout.retrieve.expand_fields: &session_expands
         - 'customer'
         - 'line_items'
         - 'payment_intent'
@@ -17,6 +17,7 @@ parameters:
         - 'subscription.latest_invoice'
         - 'subscription.default_source'
         - 'subscription.discounts'
+    flux_se.sylius_stripe.checkout.create.expand_fields: *session_expands
 
 services:
 

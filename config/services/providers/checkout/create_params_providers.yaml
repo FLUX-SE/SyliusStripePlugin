@@ -14,6 +14,14 @@ services:
         class: FluxSE\SyliusStripePlugin\Provider\CompositeParamsProvider
         arguments:
             - !tagged_iterator flux_se.sylius_stripe.provider.checkout.create.inner_params
+    
+    flux_se.sylius_stripe.provider.checkout.create.expand:
+        class: FluxSE\SyliusStripePlugin\Provider\ExpandProvider
+        arguments:
+            - '%flux_se.sylius_stripe.checkout.create.expand_fields%'
+        tags:
+            - name: flux_se.sylius_stripe.provider.checkout.create.inner_params
+              priority: -100
         
     flux_se.sylius_stripe.provider.checkout.create.after_url:
         class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\AfterUrlProvider
@@ -21,25 +29,25 @@ services:
             - '@flux_se.sylius_stripe.provider.checkout.after_url.default'
         tags:
             - name: flux_se.sylius_stripe.provider.checkout.create.inner_params
-              priority: -100
+              priority: -200
         
     flux_se.sylius_stripe.provider.checkout.create.mode.payment:
         class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\ModePaymentProvider
         tags:
             - name: flux_se.sylius_stripe.provider.checkout.create.inner_params
-              priority: -200
+              priority: -300
     
     flux_se.sylius_stripe.provider.checkout.create.customer_email:
         class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\CustomerEmailProvider
         tags:
             - name: flux_se.sylius_stripe.provider.checkout.create.inner_params
-              priority: -300
+              priority: -400
 
     flux_se.sylius_stripe.provider.checkout.create.payment_method_types:
         class: FluxSE\SyliusStripePlugin\Provider\PaymentMethodTypesProvider
         tags:
             - name: flux_se.sylius_stripe.provider.checkout.create.inner_params
-              priority: -400
+              priority: -500
 
     flux_se.sylius_stripe.provider.checkout.create.payment_intent_data:
         class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\PaymentIntentDataProvider
@@ -47,7 +55,7 @@ services:
             - !tagged_iterator flux_se.sylius_stripe.provider.checkout.create.payment_intent_data
         tags:
             - name: flux_se.sylius_stripe.provider.checkout.create.inner_params
-              priority: -500
+              priority: -600
 
     flux_se.sylius_stripe.provider.checkout.create.payment_intent_data.capture_method.manual:
         class: FluxSE\SyliusStripePlugin\Provider\PaymentIntentCaptureMethodManualProvider
