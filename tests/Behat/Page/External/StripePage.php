@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace Tests\FluxSE\SyliusStripePlugin\Behat\Page\External;
 
 use ArrayAccess;
-use Behat\Mink\Exception\DriverException;
 use Behat\Mink\Session;
-use FluxSE\SyliusStripePlugin\Provider\AfterUrlProviderInterface;
 use FriendsOfBehat\PageObjectExtension\Page\Page;
+use Sylius\Bundle\CoreBundle\OrderPay\Provider\UrlProviderInterface;
+use Sylius\Component\Core\Model\PaymentInterface;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 use Sylius\Component\Payment\Repository\PaymentRequestRepositoryInterface;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelBrowser;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouterInterface;
 use Tests\FluxSE\SyliusStripePlugin\Behat\Page\NotifyPageInterface;
 use Webmozart\Assert\Assert;
 
@@ -27,25 +30,38 @@ final class StripePage extends Page implements StripePageInterface
         private PaymentRequestRepositoryInterface $paymentRequestRepository,
         private HttpKernelBrowser $client,
         private NotifyPageInterface $notifyPage,
-        private AfterUrlProviderInterface $afterUrlProvider,
+        private RouterInterface $router,
+        private UrlProviderInterface $urlProvider,
     ) {
         parent::__construct($session, $minkParameters);
     }
 
-    /**
-     * @throws DriverException
-     */
-    public function captureOrAuthorizeThenGoToAfterUrl(): void
+    public function captureOrAuthorize(): void
     {
         $paymentRequest = $this->findLatestPaymentRequest();
 
         /** @var string|null $url */
-        $url = $paymentRequest->getResponseData()['url'];
+        $url = $paymentRequest->getResponseData()['url'] ?? null;
         if (null === $url) {
-            $url = $this->afterUrlProvider->getUrl($paymentRequest, AfterUrlProviderInterface::ACTION_URL);
+            /** @var PaymentInterface $payment */
+            $payment = $paymentRequest->getPayment();
+            $this->router->getContext()->setParameter('_locale', $payment->getOrder()?->getLocaleCode());
+            $url = $this->urlProvider->getUrl($paymentRequest);
         }
 
-        $this->getDriver()->visit($url);
+        $this->getSession()->visit($url);
+    }
+
+    public function endCaptureOrAuthorize(): void
+    {
+        $paymentRequest = $this->findLatestPaymentRequest();
+
+        /** @var PaymentInterface $payment */
+        $payment = $paymentRequest->getPayment();
+        $this->router->getContext()->setParameter('_locale', $payment->getOrder()?->getLocaleCode());
+        $url = $this->urlProvider->getUrl($paymentRequest, UrlGeneratorInterface::RELATIVE_PATH);
+
+        $this->getSession()->visit($url);
     }
 
     /**
@@ -67,7 +83,7 @@ final class StripePage extends Page implements StripePageInterface
         ];
     }
 
-    public function notify(string $content): void
+    public function notify(string $payload): Response
     {
         $paymentRequest = $this->findLatestPaymentRequest();
 
@@ -78,7 +94,6 @@ final class StripePage extends Page implements StripePageInterface
             'code' => $code,
         ]);
 
-        $payload = sprintf($content, $paymentRequest->getId());
         $this->client->request(
             'POST',
             $notifyUrl,
@@ -87,18 +102,30 @@ final class StripePage extends Page implements StripePageInterface
             $this->generateSignature($payload),
             $payload,
         );
+
+        return $this->client->getResponse();
     }
 
-    private function findLatestPaymentRequest(string $state = PaymentRequestInterface::STATE_NEW): PaymentRequestInterface
+    public function findLatestPaymentRequest(): PaymentRequestInterface
     {
         $paymentRequests = $this->paymentRequestRepository->findBy(
-            ['state' => $state],
-            ['createdAt' => 'ASC'],
+            [
+                'state' => [
+                    PaymentRequestInterface::STATE_PROCESSING,
+                ],
+                'action' => [
+                        PaymentRequestInterface::ACTION_CAPTURE,
+                        PaymentRequestInterface::ACTION_AUTHORIZE,
+                ],
+            ],
+            [
+                'createdAt' => 'DESC',
+            ],
             1,
         );
 
         $paymentRequest = $paymentRequests[0] ?? null;
-        Assert::notNull($paymentRequest, sprintf('Unable to find the payment request (state: "%s").', $state));
+        Assert::notNull($paymentRequest, 'Unable to find the latest payment request');
 
         return $paymentRequest;
     }

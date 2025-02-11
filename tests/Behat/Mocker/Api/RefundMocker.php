@@ -4,31 +4,35 @@ declare(strict_types=1);
 
 namespace Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api;
 
-use Mockery\MockInterface;
-use Stripe\HttpClient\ClientInterface;
 use Stripe\Refund;
+use Stripe\Stripe;
+use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\StripeClientWithExpectationsInterface;
 
-final class RefundMocker
+class RefundMocker
 {
+    /**
+     * @param StripeClientWithExpectationsInterface<Refund> $stripeClientWithExpectations
+     */
     public function __construct(
-        private MockInterface&ClientInterface $mockClient,
+        private StripeClientWithExpectationsInterface $stripeClientWithExpectations,
     ) {
     }
 
     public function mockCreateAction(): void
     {
-        $this->mockClient
-            ->expects('request')
-            ->withArgs(['post', Refund::classUrl()])
-            ->andReturnUsing(function ($method, $absUrl, $params) {
-                return [
-                    json_encode(array_merge([
-                        'id' => 're_1',
-                        'object' => Refund::OBJECT_NAME,
-                    ], $params), \JSON_THROW_ON_ERROR),
-                    200,
-                    [],
-                ];
-            });
+        $this->stripeClientWithExpectations->addExpectation(
+            'post',
+            $this->getRefundBaseUrl(),
+            [
+                'id' => 're_1',
+                'object' => Refund::OBJECT_NAME,
+            ],
+            true,
+        );
+    }
+
+    private function getRefundBaseUrl(): string
+    {
+        return Stripe::$apiBase . Refund::classUrl();
     }
 }

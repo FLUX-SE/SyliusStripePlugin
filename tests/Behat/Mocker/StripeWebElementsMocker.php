@@ -4,105 +4,94 @@ declare(strict_types=1);
 
 namespace Tests\FluxSE\SyliusStripePlugin\Behat\Mocker;
 
-use Mockery\MockInterface;
-use Stripe\HttpClient\ClientInterface;
+use Stripe\Event;
 use Stripe\PaymentIntent;
+use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api\EventMocker;
 use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api\PaymentIntentMocker;
 use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api\RefundMocker;
 
 final class StripeWebElementsMocker
 {
     public function __construct(
-        private MockInterface&ClientInterface $mockClient,
         private PaymentIntentMocker $paymentIntentMocker,
         private RefundMocker $refundMocker,
+        private EventMocker $eventMocker,
     ) {
     }
 
-    public function mockCaptureOrAuthorize(callable $action): void
+    public function mockCaptureOrAuthorize(): void
     {
-        $this->mockClient->expects([]);
-
         $this->paymentIntentMocker->mockCreateAction();
-        $this->mockPaymentIntentSync(
-            $action,
-            PaymentIntent::STATUS_REQUIRES_PAYMENT_METHOD,
-        );
     }
 
-    public function mockCancelPayment(string $status, string $captureMethod): void
+    public function mockCancelPayment(string $captureMethod): void
     {
-        $this->mockClient->expects([]);
-
-        $this->paymentIntentMocker->mockUpdateAction($status, $captureMethod);
         $this->paymentIntentMocker->mockCancelAction($captureMethod);
-        $this->paymentIntentMocker->mockRetrieveAction(PaymentIntent::STATUS_CANCELED);
     }
 
     public function mockRefundPayment(): void
     {
-        $this->mockClient->expects([]);
+        $this->paymentIntentMocker->mockRetrieveAction(
+            PaymentIntent::STATUS_SUCCEEDED,
+            PaymentIntent::CAPTURE_METHOD_AUTOMATIC,
+        );
 
         $this->refundMocker->mockCreateAction();
     }
 
-    public function mockCaptureAuthorization(string $status, string $captureMethod): void
+    public function mockCompleteAuthorized(string $status, string $captureMethod): void
     {
-        $this->mockClient->expects([]);
-
-        $this->paymentIntentMocker->mockUpdateAction($status, $captureMethod);
+        $this->paymentIntentMocker->mockRetrieveAction($status, $captureMethod);
         $this->paymentIntentMocker->mockCaptureAction(PaymentIntent::STATUS_SUCCEEDED);
-        $this->paymentIntentMocker->mockRetrieveAction(PaymentIntent::STATUS_SUCCEEDED);
     }
 
-    public function mockGoBackPayment(callable $action): void
+    public function mockGoBackPayment(): void
     {
-        $this->mockPaymentIntentSync(
-            $action,
+        // CaptureEnd
+        $this->paymentIntentMocker->mockRetrieveAction(
             PaymentIntent::STATUS_REQUIRES_PAYMENT_METHOD,
+            PaymentIntent::CAPTURE_METHOD_AUTOMATIC,
+        );
+
+        // CaptureEnd
+        $this->mockCancelPayment(PaymentIntent::CAPTURE_METHOD_AUTOMATIC);
+
+        // The Cancel workflow event is triggered
+        $this->paymentIntentMocker->mockRetrieveAction(
+            PaymentIntent::STATUS_CANCELED,
+            PaymentIntent::CAPTURE_METHOD_AUTOMATIC,
         );
     }
 
-    public function mockSuccessfulPayment(callable $notifyAction, callable $action): void
+    public function mockSuccessfulPayment(): void
     {
-        $this->mockPaymentIntentSync(
-            $notifyAction,
+        $this->paymentIntentMocker->mockRetrieveAction(
             PaymentIntent::STATUS_SUCCEEDED,
+            PaymentIntent::CAPTURE_METHOD_AUTOMATIC,
         );
-        $this->mockPaymentIntentSync($action, PaymentIntent::STATUS_SUCCEEDED);
     }
 
-    public function mockAuthorizePayment(callable $notifyAction, callable $action): void
+    public function mockAuthorizePayment(): void
     {
-        $this->mockPaymentIntentSync(
-            $notifyAction,
+        $this->paymentIntentMocker->mockRetrieveAction(
             PaymentIntent::STATUS_REQUIRES_CAPTURE,
-        );
-        $this->mockPaymentIntentSync($action, PaymentIntent::STATUS_REQUIRES_CAPTURE);
-    }
-
-    public function mockSuccessfulPaymentWithoutWebhook(callable $action): void
-    {
-        $this->mockPaymentIntentSync(
-            $action,
-            PaymentIntent::STATUS_SUCCEEDED,
+            PaymentIntent::CAPTURE_METHOD_MANUAL,
         );
     }
 
-    public function mockSuccessfulPaymentWithoutWebhookUsingAuthorize(callable $action): void
+    /**
+     * @param array<key-of<Event>, mixed> $data
+     */
+    public function mockWebhookHandling(array $data): void
     {
-        $this->mockPaymentIntentSync(
-            $action,
-            PaymentIntent::STATUS_REQUIRES_CAPTURE,
+        $this->eventMocker->mockRetrieveAction($data);
+        /** @var array{object: array<key-of<PaymentIntent>, string>} $eventData */
+        $eventData = $data['data'];
+        $object = $eventData['object'];
+
+        $this->paymentIntentMocker->mockRetrieveAction(
+            $object['status'],
+            $object['capture_method'],
         );
-    }
-
-    public function mockPaymentIntentSync(callable $action, string $status): void
-    {
-        $this->paymentIntentMocker->mockRetrieveAction($status);
-
-        $action();
-
-        $this->mockClient->expects([]);
     }
 }

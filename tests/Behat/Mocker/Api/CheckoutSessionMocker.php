@@ -4,120 +4,88 @@ declare(strict_types=1);
 
 namespace Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api;
 
-use Mockery\MockInterface;
 use Stripe\Checkout\Session;
-use Stripe\HttpClient\ClientInterface;
 use Stripe\Stripe;
+use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\StripeClientWithExpectationsInterface;
 
-final class CheckoutSessionMocker
+class CheckoutSessionMocker
 {
+    /**
+     * @param StripeClientWithExpectationsInterface<Session> $stripeClientWithExpectations
+     */
     public function __construct(
-        private MockInterface&ClientInterface $mockClient,
+        private StripeClientWithExpectationsInterface $stripeClientWithExpectations,
     ) {
     }
 
     public function mockCreateAction(): void
     {
-        $this->mockClient
-            ->expects('request')
-            ->withSomeOfArgs('post', $this->getCheckoutSessionBaseUrl())
-            ->andReturnUsing(function ($method, $absUrl, $params) {
-                return [
-                    json_encode(array_merge([
-                        'id' => 'cs_test_1',
-                        'object' => Session::OBJECT_NAME,
-                        'payment_intent' => 'pi_test_1',
-                        'url' => 'https://checkout.stripe.com/c/pay/cs_test_1',
-                        'status' => Session::STATUS_OPEN,
-                        'payment_status' => Session::PAYMENT_STATUS_UNPAID,
-                    ], $params), \JSON_THROW_ON_ERROR),
-                    200,
-                    [],
-                ];
-            });
+        $this->stripeClientWithExpectations->addExpectation(
+            'post',
+            $this->getCheckoutSessionBaseUrl(),
+            [
+                'id' => 'cs_test_1',
+                'object' => Session::OBJECT_NAME,
+                'mode' => Session::MODE_PAYMENT,
+                'payment_intent' => 'pi_test_1',
+                'url' => 'https://checkout.stripe.com/c/pay/cs_test_1',
+                'status' => Session::STATUS_OPEN,
+                'payment_status' => Session::PAYMENT_STATUS_UNPAID,
+            ],
+            true,
+        );
     }
 
-    public function mockRetrieveAction(string $status, string $paymentStatus): void
+    /**
+     * @param array<string, mixed> $data
+     */
+    public function mockRetrieveAction(array $data): void
     {
-        $this->mockClient
-            ->expects('request')
-            ->withArgs(function ($method, $url) {
-                if ('get' !== $method) {
-                    return false;
-                }
-                if (false === preg_match('#'. $this->getCheckoutSessionBaseUrl() .'/[^/]+$#', $url)) {
-                    return false;
-                }
-                return true;
-            })
-            ->andReturnUsing(function ($method, $absUrl) use ($status, $paymentStatus) {
-                $id = str_replace($this->getCheckoutSessionBaseUrl() . '/', '', $absUrl);
-
-                return [
-                    json_encode([
-                        'id' => $id,
-                        'object' => Session::OBJECT_NAME,
-                        'status' => $status,
-                        'payment_status' => $paymentStatus,
-                        'payment_intent' => 'pi_test_1',
-                    ], \JSON_THROW_ON_ERROR),
-                    200,
-                    [],
-                ];
-            });
+        $this->stripeClientWithExpectations->addExpectation(
+            'get',
+            $this->getCheckoutSessionBaseUrl() . '/cs_test_1',
+            array_merge($data, [
+                'id' => 'cs_test_1',
+                'object' => Session::OBJECT_NAME,
+                'mode' => Session::MODE_PAYMENT,
+            ]),
+        );
     }
 
     public function mockAllAction(string $status): void
     {
-        $this->mockClient
-            ->expects('request')
-            ->with('get', $this->getCheckoutSessionBaseUrl())
-            ->andReturnUsing(function () use ($status) {
-                return [
-                    json_encode(['data' => [
-                        [
-                            'id' => 'cs_test_1',
-                            'object' => Session::OBJECT_NAME,
-                            'status' => $status,
-                        ],
-                    ]], \JSON_THROW_ON_ERROR),
-                    200,
-                    [],
-                ];
-            });
+        $this->stripeClientWithExpectations->addExpectation(
+            'get',
+            $this->getCheckoutSessionBaseUrl(),
+            [
+                'data' => [
+                    [
+                        'id' => 'cs_test_1',
+                        'object' => Session::OBJECT_NAME,
+                        'status' => $status,
+                        'mode' => Session::MODE_PAYMENT,
+                    ],
+                ],
+            ],
+        );
     }
 
     public function mockExpireAction(): void
     {
-        $this->mockClient
-            ->expects('request')
-            ->withArgs(function ($method, $url) {
-                if ('post' !== $method) {
-                    return false;
-                }
-                if (false === preg_match('#'. $this->getCheckoutSessionBaseUrl() .'/[^/]+/expire$#', $url)) {
-                    return false;
-                }
-                return true;
-            })
-            ->andReturnUsing(function ($method, $absUrl) {
-                $id = str_replace([$this->getCheckoutSessionBaseUrl() . '/', '/expire'], '', $absUrl);
-
-                return [
-                    json_encode([
-                    'id' => $id,
-                    'object' => Session::OBJECT_NAME,
-                    'status' => Session::STATUS_EXPIRED,
-                    'payment_status' => Session::PAYMENT_STATUS_UNPAID,
-                ], \JSON_THROW_ON_ERROR),
-                    200,
-                    [],
-                ];
-            });
+        $this->stripeClientWithExpectations->addExpectation(
+            'post',
+            $this->getCheckoutSessionBaseUrl() . '/cs_test_1/expire',
+            [
+                'id' => 'cs_test_1',
+                'object' => Session::OBJECT_NAME,
+                'status' => Session::STATUS_EXPIRED,
+                'payment_status' => Session::PAYMENT_STATUS_UNPAID,
+            ],
+        );
     }
 
     private function getCheckoutSessionBaseUrl(): string
     {
-        return Stripe::$apiBase.Session::classUrl();
+        return Stripe::$apiBase . Session::classUrl();
     }
 }

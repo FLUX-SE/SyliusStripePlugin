@@ -3,6 +3,8 @@ default:
         ui_paying_with_stripe_checkout_during_checkout:
             contexts:
                 - sylius.behat.context.hook.doctrine_orm
+                - tests.flux_se.sylius_stripe_plugin.behat.context.hook.stripe_client_with_expectations
+
                 - sylius.behat.context.transform.address
                 - sylius.behat.context.transform.customer
                 - sylius.behat.context.transform.lexical

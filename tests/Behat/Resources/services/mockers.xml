@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<container xmlns="http://symfony.com/schema/dic/services" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:framework="http://symfony.com/schema/dic/symfony"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd"
+>
+    <framework:config>
+        <framework:cache>
+            <framework:pool name="cache.test_stripe_expectation_client" adapter="cache.adapter.filesystem"/>
+        </framework:cache>
+    </framework:config>
     <services>
-
-        <service id="Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\StripeClientMocker" />
 
         <service id="tests.flux_se.sylius_stripe.stripe.http_client"
                  decorates="flux_se.sylius_stripe.stripe.http_client"
-                 class="Mockery\MockInterface">
-            <argument type="string">Stripe\HttpClient\ClientInterface</argument>
-            <factory service="Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\StripeClientMocker" />
+                 class="Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\StripeClientWithExpectations"
+        >
+            <argument type="service" id="cache.test_stripe_expectation_client" />
         </service>
 
         <service id="Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api\CheckoutSessionMocker">
@@ -21,18 +28,21 @@
         <service id="Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api\RefundMocker">
             <argument type="service" id="tests.flux_se.sylius_stripe.stripe.http_client" />
         </service>
+        <service id="Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api\EventMocker">
+            <argument type="service" id="tests.flux_se.sylius_stripe.stripe.http_client" />
+        </service>
 
         <service id="Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\StripeCheckoutMocker">
-            <argument type="service" id="tests.flux_se.sylius_stripe.stripe.http_client" />
             <argument type="service" id="Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api\CheckoutSessionMocker" />
             <argument type="service" id="Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api\PaymentIntentMocker" />
             <argument type="service" id="Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api\RefundMocker" />
+            <argument type="service" id="Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api\EventMocker" />
         </service>
 
         <service id="Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\StripeWebElementsMocker">
-            <argument type="service" id="tests.flux_se.sylius_stripe.stripe.http_client" />
             <argument type="service" id="Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api\PaymentIntentMocker" />
             <argument type="service" id="Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api\RefundMocker" />
+            <argument type="service" id="Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api\EventMocker" />
         </service>
     </services>
 </container>

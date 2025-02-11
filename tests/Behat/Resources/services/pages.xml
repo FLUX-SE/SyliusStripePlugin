@@ -20,7 +20,8 @@
             <argument type="service" id="sylius.repository.payment_request" />
             <argument type="service" id="test.client" />
             <argument type="service" id="tests.flux_se.sylius_stripe_plugin.behat.page.notify_page" />
-            <argument type="service" id="flux_se.sylius_stripe.shop.provider.checkout.after_url" />
+            <argument type="service" id="router" />
+            <argument type="service" id="sylius_shop.provider.order_pay.payment_request_pay_url" />
         </service>
 
         <service id="tests.flux_se.sylius_stripe_plugin.behat.page.external.stripe_web_elements"
@@ -29,7 +30,8 @@
             <argument type="service" id="sylius.repository.payment_request" />
             <argument type="service" id="test.client" />
             <argument type="service" id="tests.flux_se.sylius_stripe_plugin.behat.page.notify_page" />
-            <argument type="service" id="flux_se.sylius_stripe.order_pay.provider.web_elements.after_url" />
+            <argument type="service" id="router" />
+            <argument type="service" id="sylius_shop.provider.order_pay.payment_request_pay_url" />
         </service>
 
     </services>
