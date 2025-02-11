@@ -12,7 +12,7 @@ This is where your description should go. Limit it to a paragraph or two. Consid
 
 1. Install the plugin ()
     ```shell
-    composer require flux-se/sylius-stripe-plugin:dev-main
+    composer require flux-se/sylius-stripe-plugin
     ```
 2. Enable this plugin :
     ```php
