@@ -13,7 +13,6 @@ use Sylius\Component\Payment\Model\PaymentRequestInterface;
  */
 final readonly class AmountProvider implements InnerParamsProviderInterface
 {
-
     public function provide(PaymentRequestInterface $paymentRequest, array &$params): void
     {
         $amount = $paymentRequest->getPayment()->getAmount();

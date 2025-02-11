@@ -17,7 +17,7 @@ final class ShipmentNameProvider implements ShipmentLineItemProviderInterface
     public function provideFromShipment(
         ShipmentInterface $shipment,
         PaymentRequestInterface $paymentRequest,
-        array &$params
+        array &$params,
     ): void {
         $shipmentMethod = $shipment->getMethod();
         if (null === $shipmentMethod) {

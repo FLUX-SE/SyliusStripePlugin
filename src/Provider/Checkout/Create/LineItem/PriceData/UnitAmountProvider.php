@@ -8,7 +8,6 @@ use FluxSE\SyliusStripePlugin\Provider\Checkout\Create\OrderItemLineItemProvider
 use FluxSE\SyliusStripePlugin\Provider\Checkout\Create\ShipmentLineItemProviderInterface;
 use Stripe\LineItem;
 use Stripe\StripeObject;
-use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\OrderItemInterface;
 use Sylius\Component\Core\Model\ShipmentInterface;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
@@ -22,7 +21,7 @@ final class UnitAmountProvider implements OrderItemLineItemProviderInterface, Sh
     public function provideFromOrderItem(
         OrderItemInterface $orderItem,
         PaymentRequestInterface $paymentRequest,
-        array &$params
+        array &$params,
     ): void {
         $this->provide($orderItem->getTotal(), $params);
     }
@@ -30,7 +29,7 @@ final class UnitAmountProvider implements OrderItemLineItemProviderInterface, Sh
     public function provideFromShipment(
         ShipmentInterface $shipment,
         PaymentRequestInterface $paymentRequest,
-        array &$params
+        array &$params,
     ): void {
         $this->provide($shipment->getAdjustmentsTotal(), $params);
     }

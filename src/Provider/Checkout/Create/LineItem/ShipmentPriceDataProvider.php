@@ -26,7 +26,7 @@ final class ShipmentPriceDataProvider implements ShipmentLineItemProviderInterfa
     public function provideFromShipment(
         ShipmentInterface $shipment,
         PaymentRequestInterface $paymentRequest,
-        array &$params
+        array &$params,
     ): void {
         /** @var array<key-of<StripeObject>, mixed> $priceData */
         $priceData = [];

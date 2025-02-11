@@ -25,9 +25,8 @@ final class OrderItemProductDataProvider implements OrderItemLineItemProviderInt
     public function provideFromOrderItem(
         OrderItemInterface $orderItem,
         PaymentRequestInterface $paymentRequest,
-        array &$params
+        array &$params,
     ): void {
-
         /** @var array<key-of<StripeObject>, mixed> $productData */
         $productData = [];
 

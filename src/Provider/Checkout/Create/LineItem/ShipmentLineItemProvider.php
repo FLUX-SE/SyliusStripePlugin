@@ -6,7 +6,6 @@ namespace FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem;
 
 use FluxSE\SyliusStripePlugin\Provider\Checkout\Create\ShipmentLineItemProviderInterface;
 use Stripe\LineItem;
-use Sylius\Component\Core\Model\PaymentInterface;
 use Sylius\Component\Core\Model\ShipmentInterface;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 
@@ -26,7 +25,7 @@ final class ShipmentLineItemProvider implements ShipmentLineItemProviderInterfac
     public function provideFromShipment(
         ShipmentInterface $shipment,
         PaymentRequestInterface $paymentRequest,
-        array &$params
+        array &$params,
     ): void {
         /** @var array<key-of<LineItem>, mixed> $lineItem */
         $lineItem = [];

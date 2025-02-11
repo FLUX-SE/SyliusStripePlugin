@@ -25,7 +25,7 @@ final class OrderItemLineItemProvider implements OrderItemLineItemProviderInterf
     public function provideFromOrderItem(
         OrderItemInterface $orderItem,
         PaymentRequestInterface $paymentRequest,
-        array &$params
+        array &$params,
     ): void {
         /** @var array<key-of<LineItem>, mixed> $lineItem */
         $lineItem = [];

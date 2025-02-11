@@ -7,7 +7,6 @@ namespace FluxSE\SyliusStripePlugin\Provider\WebElements\Create;
 use FluxSE\SyliusStripePlugin\Provider\InnerParamsProviderInterface;
 use Stripe\PaymentIntent;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
-use Webmozart\Assert\Assert;
 
 /**
  * @implements InnerParamsProviderInterface<PaymentIntent>

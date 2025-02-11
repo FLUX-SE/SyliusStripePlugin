@@ -17,7 +17,7 @@ final class ProductNameProvider implements OrderItemLineItemProviderInterface
     public function provideFromOrderItem(
         OrderItemInterface $orderItem,
         PaymentRequestInterface $paymentRequest,
-        array &$params
+        array &$params,
     ): void {
         $params['name'] = $this->getItemName($orderItem);
     }

@@ -26,9 +26,8 @@ final readonly class OrderItemPriceDataProvider implements OrderItemLineItemProv
     public function provideFromOrderItem(
         OrderItemInterface $orderItem,
         PaymentRequestInterface $paymentRequest,
-        array &$params
+        array &$params,
     ): void {
-
         /** @var array<key-of<StripeObject>, mixed> $priceData */
         $priceData = [];
 

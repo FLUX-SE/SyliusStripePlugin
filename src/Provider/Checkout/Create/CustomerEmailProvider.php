@@ -22,7 +22,7 @@ final readonly class CustomerEmailProvider implements InnerParamsProviderInterfa
 
         $email = $order?->getCustomer()?->getEmail();
 
-        if(null === $email) {
+        if (null === $email) {
             return;
         }
 
