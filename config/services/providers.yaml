@@ -15,3 +15,27 @@ services:
             - '@flux_se.sylius_stripe.stripe.resolver.event_resolver'
         tags:
             - name: sylius.payment_request.payment_notify_provider
+
+    flux_se.sylius_stripe.processor.transition.checkout.session:
+        class: FluxSE\SyliusStripePlugin\Provider\Transition\Checkout\SessionTransitionProvider
+        arguments:
+            - '@flux_se.sylius_stripe.processor.transition.checkout.mode'
+    FluxSE\SyliusStripePlugin\Provider\Transition\Checkout\SessionTransitionProviderInterface: '@flux_se.sylius_stripe.processor.transition.checkout.session'
+    
+    flux_se.sylius_stripe.processor.transition.checkout.mode:
+        class: FluxSE\SyliusStripePlugin\Provider\Transition\Checkout\CompositeSessionModeTransitionProvider
+        arguments:
+            - !tagged_locator
+                tag: flux_se.sylius_stripe.processor.transition.checkout.mode
+                default_index_method: 'getSupportedMode'
+    FluxSE\SyliusStripePlugin\Provider\Transition\Checkout\SessionModeTransitionProviderInterface: '@flux_se.sylius_stripe.processor.transition.checkout.mode'
+
+    flux_se.sylius_stripe.processor.transition.checkout.mode.payment:
+        class: FluxSE\SyliusStripePlugin\Provider\Transition\Checkout\PaymentModeTransitionProvider
+        tags:
+            - name: flux_se.sylius_stripe.processor.transition.checkout.mode
+              mode: payment
+
+    flux_se.sylius_stripe.processor.transition.web_elements.payment_intent:
+        class: FluxSE\SyliusStripePlugin\Provider\Transition\WebElements\PaymentIntentTransitionProvider
+    FluxSE\SyliusStripePlugin\Provider\Transition\WebElements\PaymentIntentTransitionProvider: '@flux_se.sylius_stripe.processor.transition.web_elements.payment_intent'
