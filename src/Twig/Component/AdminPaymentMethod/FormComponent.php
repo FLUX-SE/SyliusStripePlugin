@@ -12,11 +12,9 @@ use Sylius\Component\Core\Model\PaymentMethodInterface;
 use Sylius\Resource\Doctrine\Persistence\RepositoryInterface;
 use Sylius\Resource\Model\ResourceInterface;
 use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Webmozart\Assert\Assert;
 
-#[AsLiveComponent]
 class FormComponent
 {
     use LiveCollectionTrait;
