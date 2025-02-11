@@ -40,7 +40,7 @@ final class CheckoutSessionCreatePayloadRequirementValidator extends ConstraintV
 
         /** @var PaymentMethodInterface|null $paymentMethod */
         $paymentMethod = $this->paymentMethodRepository->findOneBy([
-            'code' => $addPaymentRequest->paymentMethodCode
+            'code' => $addPaymentRequest->paymentMethodCode,
         ]);
 
         if (null === $paymentMethod) {
@@ -48,18 +48,18 @@ final class CheckoutSessionCreatePayloadRequirementValidator extends ConstraintV
         }
 
         if (false === in_array(
-                $this->gatewayFactoryNameProvider->provide($paymentMethod),
-                $this->supportedFactoryNames,
-                true
-            )) {
+            $this->gatewayFactoryNameProvider->provide($paymentMethod),
+            $this->supportedFactoryNames,
+            true,
+        )) {
             return;
         }
 
         if (false === in_array(
-                $addPaymentRequest->action,
-                $this->supportedActions,
-                true
-            )) {
+            $addPaymentRequest->action,
+            $this->supportedActions,
+            true,
+        )) {
             return;
         }
 

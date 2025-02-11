@@ -16,3 +16,8 @@ sylius_shop:
 
 sylius_api:
     enabled: true
+
+when@test:
+    sylius_payment:
+        encryption:
+            enabled: false

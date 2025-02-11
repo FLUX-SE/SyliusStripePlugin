@@ -9,6 +9,7 @@ use Symfony\Component\Validator\Constraint;
 final class CheckoutSessionCreatePayloadRequirement extends Constraint
 {
     public string $noSuccessUrlFound = 'flux_se_sylius_stripe_plugin.stripe_checkout.success_url.not_found';
+
     public string $noCancelUrlFound = 'flux_se_sylius_stripe_plugin.stripe_checkout.cancel_url.not_found';
 
     public function validatedBy(): string
