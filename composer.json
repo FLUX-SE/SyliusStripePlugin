@@ -69,6 +69,9 @@
             "Tests\\FluxSE\\SyliusStripePlugin\\App\\": "tests/Application/src/"
         }
     },
+    "conflict": {
+        "sylius/sylius": "<=2.0.3"
+    },
     "scripts": {
         "post-install-cmd": [
             "@php bin/create_node_symlink.php"

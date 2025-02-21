@@ -8,7 +8,7 @@ services:
                 index_by: 'action'
         tags:
             - name: sylius.payment_request.command_provider
-              'gateway-factory': 'stripe_checkout'
+              gateway_factory: 'stripe_checkout'
           
     flux_se.sylius_stripe.command_provider.checkout.capture:
         class: FluxSE\SyliusStripePlugin\CommandProvider\Checkout\CapturePaymentRequestCommandProvider
@@ -50,7 +50,7 @@ services:
                 index_by: 'action'
         tags:
             - name: sylius.payment_request.command_provider
-              'gateway-factory': 'stripe_web_elements'
+              gateway_factory: 'stripe_web_elements'
           
     flux_se.sylius_stripe.command_provider.web_elements.capture:
         class: FluxSE\SyliusStripePlugin\CommandProvider\WebElements\CapturePaymentRequestCommandProvider
