@@ -7,6 +7,9 @@ framework:
     http_method_override: true
     session:
         handler_id: ~
+    serializer:
+        mapping:
+            paths: [ '%kernel.project_dir%/config/serialization' ]
 
 when@dev:
     framework:

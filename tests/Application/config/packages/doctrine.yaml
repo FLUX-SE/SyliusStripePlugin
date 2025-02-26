@@ -8,7 +8,6 @@ parameters:
 doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
-
     orm:
         auto_generate_proxy_classes: '%kernel.debug%'
         entity_managers:
@@ -21,3 +20,40 @@ doctrine:
                         dir: '%kernel.project_dir%/src/Entity'
                         prefix: 'App\Entity'
                         alias: App
+
+when@prod: &doctrine_prod
+    doctrine:
+        orm:
+            entity_managers:
+                default:
+                    metadata_cache_driver:
+                        type: service
+                        id: doctrine.system_cache_provider
+                    query_cache_driver:
+                        type: service
+                        id: doctrine.system_cache_provider
+                    result_cache_driver:
+                        type: service
+                        id: doctrine.result_cache_provider
+    services:
+        doctrine.result_cache_provider:
+            class: Doctrine\Common\Cache\Psr6\DoctrineProvider
+            public: false
+            factory: [ 'Doctrine\Common\Cache\Psr6\DoctrineProvider', 'wrap' ]
+            arguments:
+                - '@doctrine.result_cache_pool'
+        doctrine.system_cache_provider:
+            class: Doctrine\Common\Cache\Psr6\DoctrineProvider
+            public: false
+            factory: [ 'Doctrine\Common\Cache\Psr6\DoctrineProvider', 'wrap' ]
+            arguments:
+                - '@doctrine.system_cache_pool'
+    framework:
+        cache:
+            pools:
+                doctrine.result_cache_pool:
+                    adapter: cache.app
+                doctrine.system_cache_pool:
+                    adapter: cache.system
+
+when@test_cached: *doctrine_prod
