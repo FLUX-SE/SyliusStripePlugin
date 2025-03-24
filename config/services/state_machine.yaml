@@ -1,8 +1,3 @@
-parameters:
-    flux_se.sylius_stripe.state_machine.supported_factories:
-        - 'stripe_checkout'
-        - 'stripe_web_elements'
-    
 services:
     
     flux_se.sylius_stripe.state_machine.payment_state:
@@ -14,7 +9,7 @@ services:
             - '@sylius.factory.payment_request'
             - '@sylius.repository.payment_request'
             - '@sylius.announcer.payment_request'
-            - '%flux_se.sylius_stripe.state_machine.supported_factories%'
+            - '%flux_se.sylius_stripe.factories%'
     
     flux_se.sylius_stripe.state_machine.refund:
         public: true
