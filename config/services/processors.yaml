@@ -29,6 +29,7 @@ services:
         decorates: sylius.processor.payment_request.notify_payload
         arguments:
             - '@.inner'
+            - '%flux_se.sylius_stripe.factories%'
     
     flux_se.sylius_stripe.processor.webhook_event.checkout.composite:
         class: FluxSE\SyliusStripePlugin\Processor\CompositeWebhookEventProcessor
