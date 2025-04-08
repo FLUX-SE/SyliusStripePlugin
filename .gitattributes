@@ -11,14 +11,9 @@
 /ecs.php export-ignore
 /etc export-ignore
 /features export-ignore
-/Makefile export-ignore
 /node_modules export-ignore
-/phpspec.yml.dist export-ignore
-/phpstan.neon export-ignore
+/phpstan.neon.dist export-ignore
 /phpunit.xml.dist export-ignore
-/psalm.xml export-ignore
-/spec export-ignore
-/symfony.lock export-ignore
 /tests/Application export-ignore
 /tests/Api export-ignore
 /tests/DataFixtures export-ignore
