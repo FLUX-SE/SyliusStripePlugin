@@ -38,7 +38,7 @@ to the `PaymentRequest` `payload` under the `event` key.
 
 Finally, when the `NotifyPaymentRequest` command is handled, the `NotifyPaymentRequestHandler` will:
 
-1. Retrieve the Stripe `Event` from the Stripe API (to get a fresh one along with the underlying data objet).
+1. Retrieve the Stripe `Event` from the Stripe API (to get a fresh one along with the underlying data object).
 2. Send the Stripe `Event` and the `PaymentRequest` to the `WebhookEventProcessor` service.
    1. This service is simply getting the inner Stripe `Event` data object.
    2. Set this object to the `Payment` `details`. 
