@@ -15,7 +15,7 @@ Here is how the Sylius `PaymentRequest` notify process is working:
 1. Sylius provides a route named `sylius_payment_method_notify` which is used to listen to the Stripe events.
    This route needs a `code` parameter which is the payment method code. (ex:
    https://my-shop.tld/payment-methods/my_shop_stripe_checkout)
-2. This route is handle by a controller `sylius.controller.payment_method_notify`
+2. This route is handled by a controller `sylius.controller.payment_method_notify`
    this controller will:
    1. Try to find a related `Payment`. To do so, each `PaymentMethod` must implement a service with
       `\Sylius\Bundle\PaymentBundle\Provider\NotifyPaymentProviderInterface`.
