@@ -19,4 +19,8 @@
 /psalm.xml export-ignore
 /spec export-ignore
 /symfony.lock export-ignore
-/tests export-ignore
+/tests/Application export-ignore
+/tests/Api export-ignore
+/tests/DataFixtures export-ignore
+/tests/Provider export-ignore
+/tests/Responses export-ignore
