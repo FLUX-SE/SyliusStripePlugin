@@ -143,7 +143,7 @@ Payment method configuration edit form in the Sylius admin.
 > ⚠️ Using the command `stripe trigger checkout.session.completed` will always result in a `500 error`,
 > because the test object will not embed any usable metadata.
 
-## Advance documentation
+## Advanced documentation
 
 - [API (Sylius using APIPlatform)](docs/API.md)
 - [Webhook events](docs/WEBHOOK-EVENTS.md)
