@@ -8,8 +8,7 @@ This plugin will be able to listen to webhook events which are related to a Syli
 If you want to listen to other events, you will have to create your own route and controller.
 However, you will be able to use services provided by this plugin to handle and verify the Stripe events.
 
-## How are webhook events listen using this plugin?
-
+## How are webhook events listened to using this plugin?
 Here is how the Sylius `PaymentRequest` notify process is working:
 
 1. Sylius provides a route named `sylius_payment_method_notify` which is used to listen to the Stripe events.
