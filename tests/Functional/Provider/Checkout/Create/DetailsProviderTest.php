@@ -1,6 +1,8 @@
 <?php
 
-namespace Tests\FluxSE\SyliusStripePlugin\Provider\Checkout\Create;
+declare(strict_types=1);
+
+namespace Tests\FluxSE\SyliusStripePlugin\Functional\Provider\Checkout\Create;
 
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\ORM\EntityManager;
@@ -15,6 +17,7 @@ use Symfony\Component\Routing\RequestContext;
 class DetailsProviderTest extends KernelTestCase
 {
     private PurgerLoader $loader;
+
     private EntityManager $entityManager;
 
     /** @var ParamsProviderInterface<Session> */
@@ -36,11 +39,12 @@ class DetailsProviderTest extends KernelTestCase
 
     /**
      * @param string[] $files
+     *
      * @return object[]
      */
     protected function loadFixtures(array $files): array
     {
-        foreach ($files as $i=>$file) {
+        foreach ($files as $i => $file) {
             $files[$i] = sprintf('%s/../DataFixtures/ORM/%s', static::$kernel->getProjectDir(), $file);
         }
 
@@ -57,6 +61,7 @@ class DetailsProviderTest extends KernelTestCase
 
     /**
      * @dataProvider getPaymentRequestAndExpectedDetails
+     *
      * @param array{
      *     metadata: array{token_hash: string},
      *     success_url: string,
@@ -65,7 +70,7 @@ class DetailsProviderTest extends KernelTestCase
      */
     public function test_it_get_checkout_session_create_details(
         string $paymentRequestName,
-        array $expectedDetails
+        array $expectedDetails,
     ): void {
         $fixtures = $this->loadFixtures([
             'channel.yaml',
@@ -94,7 +99,6 @@ class DetailsProviderTest extends KernelTestCase
             $expectedDetails['cancel_url'] = $url;
         }
 
-
         $details = $this->compositeParamsProvider->getParams($paymentRequest);
 
         if (isset($details['expand'])) {
@@ -109,7 +113,7 @@ class DetailsProviderTest extends KernelTestCase
         // Check if tests data are corresponding
         self::assertEquals(
             $payment->getAmount(),
-            $payment->getOrder()?->getTotal()
+            $payment->getOrder()?->getTotal(),
         );
     }
 
@@ -129,8 +133,8 @@ class DetailsProviderTest extends KernelTestCase
                             'name' => '1x - Mug',
                             'images' => [
                                 'https://placehold.co/300',
-                            ]
-                        ]
+                            ],
+                        ],
                     ],
                     'quantity' => 1,
                 ],
@@ -140,7 +144,7 @@ class DetailsProviderTest extends KernelTestCase
                         'currency' => 'USD',
                         'product_data' => [
                             'name' => 'UPS',
-                        ]
+                        ],
                     ],
                     'quantity' => 1,
                 ],

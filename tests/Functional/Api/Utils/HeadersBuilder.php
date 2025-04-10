@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\FluxSE\SyliusStripePlugin\Api\Utils;
+namespace Tests\FluxSE\SyliusStripePlugin\Functional\Api\Utils;
 
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Sylius\Component\Core\Model\AdminUserInterface;

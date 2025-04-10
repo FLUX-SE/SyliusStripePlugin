@@ -1,20 +1,21 @@
 <?php
 
-namespace Provider\WebElements\Create;
+declare(strict_types=1);
+
+namespace Tests\FluxSE\SyliusStripePlugin\Functional\Provider\WebElements\Create;
 
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\ORM\EntityManager;
 use Fidry\AliceDataFixtures\Loader\PurgerLoader;
 use FluxSE\SyliusStripePlugin\Provider\ParamsProviderInterface;
-use Stripe\Checkout\Session;
 use Stripe\PaymentIntent;
-use Sylius\Component\Payment\Model\PaymentRequest;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class DetailsProviderTest extends KernelTestCase
 {
     private PurgerLoader $loader;
+
     private EntityManager $entityManager;
 
     /** @var ParamsProviderInterface<PaymentIntent> */
@@ -40,11 +41,12 @@ class DetailsProviderTest extends KernelTestCase
 
     /**
      * @param string[] $files
+     *
      * @return object[]
      */
     protected function loadFixtures(array $files): array
     {
-        foreach ($files as $i=>$file) {
+        foreach ($files as $i => $file) {
             $files[$i] = sprintf('%s/../DataFixtures/ORM/%s', static::$kernel->getProjectDir(), $file);
         }
 
@@ -62,7 +64,7 @@ class DetailsProviderTest extends KernelTestCase
      */
     public function test_it_get_checkout_session_create_details(
         string $paymentRequestName,
-        array $expectedDetails
+        array $expectedDetails,
     ): void {
         $fixtures = $this->loadFixtures([
             'channel.yaml',

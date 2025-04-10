@@ -15,7 +15,5 @@
 /phpstan.neon.dist export-ignore
 /phpunit.xml.dist export-ignore
 /tests/Application export-ignore
-/tests/Api export-ignore
-/tests/DataFixtures export-ignore
-/tests/Provider export-ignore
-/tests/Responses export-ignore
+/tests/Functional export-ignore
+/tests/Unit export-ignore

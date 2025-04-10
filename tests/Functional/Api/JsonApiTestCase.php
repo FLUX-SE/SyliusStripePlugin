@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Tests\FluxSE\SyliusStripePlugin\Api;
+namespace Tests\FluxSE\SyliusStripePlugin\Functional\Api;
 
 use ApiTestCase\JsonApiTestCase as BaseJsonApiTestCase;
 use PHPUnit\Framework\Assert;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;
-use Tests\FluxSE\SyliusStripePlugin\Api\Utils\HeadersBuilder;
+use Tests\FluxSE\SyliusStripePlugin\Functional\Api\Utils\HeadersBuilder;
 
 abstract class JsonApiTestCase extends BaseJsonApiTestCase
 {

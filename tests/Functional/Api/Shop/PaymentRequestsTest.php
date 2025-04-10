@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Api\Shop;
+namespace Tests\FluxSE\SyliusStripePlugin\Functional\Api\Shop;
 
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\PaymentInterface;
 use Sylius\Component\Core\Model\PaymentMethodInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Tests\FluxSE\SyliusStripePlugin\Api\JsonApiTestCase;
 use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\StripeCheckoutMocker;
+use Tests\FluxSE\SyliusStripePlugin\Functional\Api\JsonApiTestCase;
 use Webmozart\Assert\Assert;
 
 final class PaymentRequestsTest extends JsonApiTestCase
@@ -134,7 +134,7 @@ final class PaymentRequestsTest extends JsonApiTestCase
                     'shipping_method.yaml',
                     'order_awaiting_payment.yaml',
                 ],
-                'shop/payment_request/post_payment_request_'.$method,
+                'shop/payment_request/post_payment_request_' . $method,
             ];
         }
     }
