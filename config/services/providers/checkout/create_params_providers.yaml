@@ -50,8 +50,9 @@ services:
               priority: -500
 
     flux_se.sylius_stripe.provider.checkout.create.payment_intent_data:
-        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\PaymentIntentDataProvider
+        class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\CheckoutSessionModeDataProvider
         arguments:
+            - !php/const Stripe\Checkout\Session::MODE_PAYMENT
             - !tagged_iterator flux_se.sylius_stripe.provider.checkout.create.payment_intent_data
         tags:
             - name: flux_se.sylius_stripe.provider.checkout.create.inner_params
