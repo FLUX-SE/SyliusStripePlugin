@@ -45,7 +45,7 @@ class DetailsProviderTest extends KernelTestCase
     protected function loadFixtures(array $files): array
     {
         foreach ($files as $i => $file) {
-            $files[$i] = sprintf('%s/../DataFixtures/ORM/%s', static::$kernel->getProjectDir(), $file);
+            $files[$i] = sprintf('%s/../Functional/DataFixtures/ORM/%s', static::$kernel->getProjectDir(), $file);
         }
 
         return $this->loader->load($files);
