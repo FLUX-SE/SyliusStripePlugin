@@ -105,7 +105,7 @@ services:
             - name: flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.price_data
               priority: -100
 
-    flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.price_data.uni_amount:
+    flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.price_data.unit_amount:
         class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\LineItem\PriceData\UnitAmountProvider
         tags:
             - name: flux_se.sylius_stripe.provider.checkout.create.line_item.order_item.price_data
