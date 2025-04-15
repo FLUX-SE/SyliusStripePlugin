@@ -6,9 +6,9 @@ services:
     FluxSE\SyliusStripePlugin\Stripe\HttpClient\PsrClient:
         abstract: true
         arguments:
-            - '@sylius.http_client'
-            - '@sylius.http_client'
-            - '@sylius.http_client'
+            - '@Psr\Http\Client\ClientInterface'
+            - '@Psr\Http\Message\RequestFactoryInterface'
+            - '@Psr\Http\Message\StreamFactoryInterface'
             - '%flux_se.sylius_stripe.stripe.client.chunk_size%'
 
     flux_se.sylius_stripe.stripe.http_client:
