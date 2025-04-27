@@ -34,6 +34,14 @@ Sylius\Component\Core\Model\ProductVariant:
         position: 2
         channelPricings:
             channel_web: '@product_variant_2_channel_web_pricing'
+    product_variant_free:
+        code: 'MUG_FREE'
+        product: '@product'
+        fallbackLocale: en_US
+        currentLocale: en
+        position: 3
+        channelPricings:
+            channel_web: '@product_variant_free_channel_web_pricing'
     
 Sylius\Component\Core\Model\ProductTranslation:
     product_translation_mug_en_US:
@@ -63,6 +71,9 @@ Sylius\Component\Core\Model\ChannelPricing:
     product_variant_2_channel_web_pricing:
         channelCode: 'WEB'
         price: 3000
+    product_variant_free_channel_web_pricing:
+        channelCode: 'WEB'
+        price: 0
 
 Sylius\Component\Product\Model\ProductOption:
     product_option_color:

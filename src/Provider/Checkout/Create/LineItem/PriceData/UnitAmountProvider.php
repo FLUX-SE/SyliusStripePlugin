@@ -39,10 +39,6 @@ final class UnitAmountProvider implements OrderItemLineItemProviderInterface, Sh
      */
     private function provide(int $unitAmount, array &$params): void
     {
-        if (0 === $unitAmount) {
-            return;
-        }
-
         $params['unit_amount'] = $unitAmount;
     }
 }
