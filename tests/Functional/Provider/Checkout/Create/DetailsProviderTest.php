@@ -140,6 +140,19 @@ class DetailsProviderTest extends KernelTestCase
                 ],
                 [
                     'price_data' => [
+                        'unit_amount' => 0,
+                        'currency' => 'USD',
+                        'product_data' => [
+                            'name' => '1x - Mug',
+                            'images' => [
+                                'https://placehold.co/300',
+                            ],
+                        ],
+                    ],
+                    'quantity' => 1,
+                ],
+                [
+                    'price_data' => [
                         'unit_amount' => 500,
                         'currency' => 'USD',
                         'product_data' => [
