@@ -6,12 +6,12 @@
   "violations": [
     {
       "propertyPath": "payload",
-      "message": "The payload must contain a \u0022success_url\u0022 array property to be able to redirect the visitor after the Stripe Checkout Session portal completion.",
+      "message": "The request body must contain a \u0022payload\u0022 attribute (array type), and within it, a \u0022success_url\u0022 attribute (string value) to be able to redirect the visitor after the Stripe Checkout Session portal completion.",
       "code": null
     },
     {
       "propertyPath": "payload",
-      "message": "The payload must contain a \u0022cancel_url\u0022 array property to be able to redirect the visitor after the Stripe Checkout Session portal completion.",
+      "message": "The request body must contain a \u0022payload\u0022 attribute (array type), and within it, a \u0022cancel_url\u0022 attribute (string value) to be able to redirect the visitor after the Stripe Checkout Session portal completion.",
       "code": null
     }
   ],
