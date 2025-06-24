@@ -1,0 +1,18 @@
+services:
+
+    flux_se.sylius_stripe.provider.invoice.all.params:
+        class: FluxSE\SyliusStripePlugin\Provider\CompositeParamsProvider
+        arguments:
+            - !tagged_iterator flux_se.sylius_stripe.provider.invoice.all.inner_params
+
+    flux_se.sylius_stripe.provider.invoice.all.subscription:
+        class: FluxSE\SyliusStripePlugin\Provider\Invoice\All\SubscriptionProvider
+        tags:
+            - name: flux_se.sylius_stripe.provider.invoice.all.inner_params
+              priority: -100
+
+    flux_se.sylius_stripe.provider.invoice.all.limit:
+        class: FluxSE\SyliusStripePlugin\Provider\Invoice\All\LimitProvider
+        tags:
+            - name: flux_se.sylius_stripe.provider.invoice.all.inner_params
+              priority: -200

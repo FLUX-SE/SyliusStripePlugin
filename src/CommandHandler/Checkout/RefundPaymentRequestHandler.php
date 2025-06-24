@@ -9,8 +9,11 @@ use FluxSE\SyliusStripePlugin\CommandHandler\FailedAwarePaymentRequestHandlerTra
 use FluxSE\SyliusStripePlugin\Manager\Checkout\RetrieveManagerInterface;
 use FluxSE\SyliusStripePlugin\Manager\Refund\CreateManagerInterface;
 use FluxSE\SyliusStripePlugin\Processor\PaymentTransitionProcessorInterface;
+use FluxSE\SyliusStripePlugin\Provider\Refund\PaymentIntentToRefundProviderInterface;
+use Stripe\PaymentIntent;
 use Sylius\Abstraction\StateMachine\StateMachineInterface;
 use Sylius\Bundle\PaymentBundle\Provider\PaymentRequestProviderInterface;
+use Sylius\Component\Payment\Model\PaymentRequestInterface;
 use Sylius\Component\Payment\PaymentRequestTransitions;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -22,6 +25,8 @@ final readonly class RefundPaymentRequestHandler
     public function __construct(
         private PaymentRequestProviderInterface $paymentRequestProvider,
         private RetrieveManagerInterface $retrieveCheckoutManager,
+        private PaymentIntentToRefundProviderInterface $refundPaymentProvider,
+        private PaymentIntentToRefundProviderInterface $refundSubscriptionInitProvider,
         private CreateManagerInterface $createRefundManager,
         private PaymentTransitionProcessorInterface $paymentTransitionProcessor,
         StateMachineInterface $stateMachine,
@@ -70,8 +75,21 @@ final readonly class RefundPaymentRequestHandler
             return;
         }
 
+        $paymentIntent = $this->getRelatedPaymentIntent($paymentRequest);
+        if (null === $paymentIntent) {
+            $this->failWithReason(
+                $paymentRequest,
+                sprintf(
+                    'Unable to find the related payment intent for the Checkout Session "%s".',
+                    $id,
+                ),
+            );
+
+            return;
+        }
+
         $paymentRequest->setPayload([
-            'payment_intent' => $session->payment_intent,
+            'payment_intent' => $paymentIntent,
             'amount' => $refundPaymentRequest->getAmount(),
         ]);
 
@@ -89,5 +107,15 @@ final readonly class RefundPaymentRequestHandler
             PaymentRequestTransitions::GRAPH,
             PaymentRequestTransitions::TRANSITION_COMPLETE,
         );
+    }
+
+    private function getRelatedPaymentIntent(PaymentRequestInterface $paymentRequest): null|string|PaymentIntent
+    {
+        $paymentIntent = $this->refundPaymentProvider->provide($paymentRequest);
+        if (null === $paymentIntent) {
+            $paymentIntent = $this->refundSubscriptionInitProvider->provide($paymentRequest);
+        }
+
+        return $paymentIntent;
     }
 }
