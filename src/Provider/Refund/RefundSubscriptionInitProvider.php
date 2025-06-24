@@ -12,6 +12,9 @@ use Sylius\Component\Payment\Model\PaymentRequestInterface;
 
 final class RefundSubscriptionInitProvider implements PaymentIntentToRefundProviderInterface
 {
+    /**
+     * @param AllManagerInterface<Invoice> $allManager
+     */
     public function __construct(
         private AllManagerInterface $allManager,
     ) {
@@ -33,9 +36,6 @@ final class RefundSubscriptionInitProvider implements PaymentIntentToRefundProvi
 
         $invoices = $this->allManager->all($paymentRequest);
 
-        /** @var Invoice|null $invoice */
-        $invoice = $invoices->first();
-
-        return $invoice?->payment_intent;
+        return $invoices->first()?->payment_intent;
     }
 }
