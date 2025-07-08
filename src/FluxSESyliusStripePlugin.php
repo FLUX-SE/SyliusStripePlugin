@@ -13,7 +13,7 @@ final class FluxSESyliusStripePlugin extends Bundle
 {
     use SyliusPluginTrait;
 
-    public function build(ContainerBuilder $container)
+    public function build(ContainerBuilder $container): void
     {
         // Before SyliusUiBundle compiler pass
         $container->addCompilerPass(new LiveTwigComponentCompilerPass(), priority: 501);
