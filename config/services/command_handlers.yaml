@@ -88,6 +88,8 @@ services:
         arguments:
             - '@sylius.provider.payment_request'
             - '@flux_se.sylius_stripe.manager.checkout.retrieve'
+            - '@flux_se.sylius_stripe.provider.refund.checkout_session_payment'
+            - '@flux_se.sylius_stripe.provider.refund.checkout_session_subscription_init'
             - '@flux_se.sylius_stripe.manager.refund.create'
             - '@flux_se.sylius_stripe.processor.payment_transition.checkout'
             - '@sylius_abstraction.state_machine'

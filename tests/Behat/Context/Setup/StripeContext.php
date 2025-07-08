@@ -17,6 +17,7 @@ class StripeContext implements Context
 {
     /**
      * @param PaymentMethodRepositoryInterface<PaymentMethodInterface> $paymentMethodRepository
+     * @param ExampleFactoryInterface<PaymentMethodInterface> $paymentMethodExampleFactory
      */
     public function __construct(
         private SharedStorageInterface $sharedStorage,

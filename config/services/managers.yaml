@@ -76,3 +76,11 @@ services:
             - '@flux_se.sylius_stripe.provider.refund.create.params'
     FluxSE\SyliusStripePlugin\Manager\Refund\CreateManagerInterface:
         alias: flux_se.sylius_stripe.manager.refund.create
+
+    flux_se.sylius_stripe.manager.invoice.all:
+        class: FluxSE\SyliusStripePlugin\Manager\Invoice\AllManager
+        arguments:
+            - '@flux_se.sylius_stripe.stripe.factory.client'
+            - '@flux_se.sylius_stripe.provider.invoice.all.params'
+    FluxSE\SyliusStripePlugin\Manager\Invoice\AllManagerInterface:
+        alias: flux_se.sylius_stripe.manager.invoice.all
