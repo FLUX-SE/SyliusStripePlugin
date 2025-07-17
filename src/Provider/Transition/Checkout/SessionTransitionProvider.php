@@ -28,12 +28,16 @@ final class SessionTransitionProvider implements SessionTransitionProviderInterf
             return false;
         }
 
-        return Session::PAYMENT_STATUS_UNPAID !== $session->payment_status;
+        return $this->sessionModeTransitionProvider->isComplete($session);
     }
 
     public function isFail(Session $session): bool
     {
-        return Session::STATUS_EXPIRED === $session->status;
+        if (Session::STATUS_EXPIRED === $session->status) {
+            return true;
+        }
+
+        return $this->sessionModeTransitionProvider->isFail($session);
     }
 
     public function isProcess(Session $session): bool
@@ -42,7 +46,7 @@ final class SessionTransitionProvider implements SessionTransitionProviderInterf
             return false;
         }
 
-        return Session::PAYMENT_STATUS_UNPAID === $session->payment_status;
+        return $this->sessionModeTransitionProvider->isProcess($session);
     }
 
     public function isCancel(Session $session): bool

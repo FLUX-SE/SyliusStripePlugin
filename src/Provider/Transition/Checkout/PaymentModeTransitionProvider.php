@@ -22,7 +22,7 @@ final class PaymentModeTransitionProvider implements SessionModeTransitionProvid
     {
         $paymentIntent = $this->getPaymentIntent($session);
 
-        return $paymentIntent->status === PaymentIntent::STATUS_SUCCEEDED;
+        return $paymentIntent->status === PaymentIntent::STATUS_SUCCEEDED && Session::PAYMENT_STATUS_UNPAID !== $session->payment_status;
     }
 
     public function isFail(Session $session): bool
@@ -34,7 +34,7 @@ final class PaymentModeTransitionProvider implements SessionModeTransitionProvid
     {
         $paymentIntent = $this->getPaymentIntent($session);
 
-        return $paymentIntent->status === PaymentIntent::STATUS_PROCESSING;
+        return $paymentIntent->status === PaymentIntent::STATUS_PROCESSING && Session::PAYMENT_STATUS_UNPAID === $session->payment_status;
     }
 
     public function isCancel(Session $session): bool
