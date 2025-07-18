@@ -11,7 +11,7 @@ Feature: Paying with Stripe Web Elements during checkout without webhook
         And the store has a product "PHP T-Shirt" priced at "$19.99"
         And the store ships everywhere for Free
         And I am a logged in customer
-        And I had product "PHP T-Shirt" in the cart
+        And I have product "PHP T-Shirt" added to the cart
         And I have proceeded selecting "Stripe" payment method
 
     @ui @api @javascript
@@ -22,8 +22,7 @@ Feature: Paying with Stripe Web Elements during checkout without webhook
 
     @ui @api @javascript
     Scenario: Cancelling the payment without webhooks
-        Given I added product "PHP T-Shirt" to the cart
-        And I have proceeded selecting "Stripe" payment method
+        Given I have proceeded selecting "Stripe" payment method
         When I confirm my order with Stripe payment
         And I click on "go back" during my Stripe payment
         Then I should be able to pay again

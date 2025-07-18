@@ -11,7 +11,7 @@ Feature: Paying with Stripe Web Elements during checkout using authorized
         And the store has a product "PHP T-Shirt" priced at "$19.99"
         And the store ships everywhere for Free
         And I am a logged in customer
-        And I had product "PHP T-Shirt" in the cart
+        And I have product "PHP T-Shirt" added to the cart
         And I have proceeded selecting "Stripe" payment method
 
     @ui @api @javascript
