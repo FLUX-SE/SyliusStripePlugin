@@ -126,13 +126,13 @@ Then start to listen for the Stripe events (minimal ones are used here), forward
     ```shell
     stripe listen \
        --events checkout.session.completed,checkout.session.async_payment_failed,checkout.session.async_payment_succeeded,checkout.session.expired \
-       --forward-to https://localhost/payment/notify/unsafe/my_shop_stripe_checkout
+       --forward-to https://localhost/payment-methods/my_shop_stripe_checkout
     ```
  2. Example with `my_shop_stripe_web_elements` as payment method code:
     ```shell
     stripe listen \
        --events payment_intent.canceled,payment_intent.succeeded \
-       --forward-to https://localhost/payment/notify/unsafe/my_shop_stripe_web_elements
+       --forward-to https://localhost/payment-methods/my_shop_stripe_web_elements
     ```
 
 > 💡 Replace --forward-to argument value with the right one you need.
