@@ -52,7 +52,7 @@ final class FluxSESyliusStripeExtension extends AbstractResourceExtension implem
 
     protected function getMigrationsNamespace(): string
     {
-        return 'DoctrineMigrations';
+        return 'FluxSE\SyliusStripePlugin\Migrations';
     }
 
     protected function getMigrationsDirectory(): string
