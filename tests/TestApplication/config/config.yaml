@@ -1,0 +1,4 @@
+imports:
+    - { resource: "@FluxSESyliusStripePlugin/config/config.yaml" }
+    - { resource: "services_test.yaml" }
+

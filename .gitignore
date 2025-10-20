@@ -2,11 +2,14 @@
 /vendor/
 /node_modules/
 /composer.lock
+/var/
 
 /etc/build/*
 !/etc/build/.gitkeep
 
 /tests/Application/yarn.lock
+/tests/TestApplication/.env.local
+/tests/TestApplication/.env.*.local
 
 /.phpunit.result.cache
 /behat.yml

@@ -28,7 +28,7 @@ default:
                 javascript_chrome:
                     panther:
                         options:
-                            webServerDir: "%paths.base%/tests/Application/public"
+                            webServerDir: "%paths.base%/vendor/sylius/test-application/public"
                         manager_options:
                             connection_timeout_in_ms: 5000
                             request_timeout_in_ms: 120000
@@ -43,9 +43,9 @@ default:
             browser_name: 'behat_browser'
 
         FriendsOfBehat\SymfonyExtension:
-            bootstrap: tests/Application/config/bootstrap.php
+            bootstrap: vendor/sylius/test-application/config/bootstrap.php
             kernel:
-                class: Tests\FluxSE\SyliusStripePlugin\App\Kernel
+                class: Sylius\TestApplication\Kernel
 
         FriendsOfBehat\VariadicExtension: ~
 
