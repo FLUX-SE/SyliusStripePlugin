@@ -31,7 +31,7 @@ final class PaymentModeTransitionProvider implements SessionModeTransitionProvid
 
     public function isFail(Session $session): bool
     {
-        return $this->paymentIntentTransitionProvider->isFail($this->getPaymentIntent($session));
+        return false;
     }
 
     public function isProcess(Session $session): bool
