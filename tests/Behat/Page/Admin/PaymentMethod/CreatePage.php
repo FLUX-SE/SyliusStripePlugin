@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\FluxSE\SyliusStripePlugin\Behat\Page\Admin\PaymentMethod;
 
+use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Page\Admin\PaymentMethod\CreatePage as BaseCreatePage;
+use Sylius\Behat\Service\DriverHelper;
 
 final class CreatePage extends BaseCreatePage implements CreatePageInterface
 {
@@ -14,7 +16,7 @@ final class CreatePage extends BaseCreatePage implements CreatePageInterface
         return array_merge(parent::getDefinedElements(), [
             'add_webhook_secret_key' => '[data-test-add-webhook-secret-key]',
             'webhook_secret_key' => '[data-test-webhook-secret-key]:contains("%name%")',
-            'webhook_secret_key_added' => '[data-test-webhook-secret-key]:last-child input:empty',
+            'webhook_secret_key_added' => '[data-test-webhook-secret-key]:last-child [data-test-webhook-secret-key]',
             'webhook_secret_key_delete' => '[data-test-webhook-secret-key]:contains("%name%") button[data-test-delete-webhook-secret-key]',
             'webhook_secret_key_last' => '[data-test-webhook-secret-key]:last-child',
             'use_authorize_info' => '[data-test-use-authorize-info]',
@@ -37,6 +39,7 @@ final class CreatePage extends BaseCreatePage implements CreatePageInterface
      */
     public function addStripeWebhookSecretKey(string $webhookSecretKey): void
     {
+        $this->waitForElement(5, 'add_webhook_secret_key');
         $this->getElement('add_webhook_secret_key')->click();
 
         $this->waitForElement(5, 'webhook_secret_key_added');
