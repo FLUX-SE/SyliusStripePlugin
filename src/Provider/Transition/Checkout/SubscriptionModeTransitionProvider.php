@@ -26,8 +26,8 @@ final class SubscriptionModeTransitionProvider implements SessionModeTransitionP
     {
         $paymentIntent = $this->getPaymentIntent($session);
 
-        return $this->paymentIntentTransitionProvider->isComplete($paymentIntent)
-            && Session::PAYMENT_STATUS_UNPAID !== $session->payment_status;
+        return $this->paymentIntentTransitionProvider->isComplete($paymentIntent) &&
+            Session::PAYMENT_STATUS_UNPAID !== $session->payment_status;
     }
 
     public function isFail(Session $session): bool
@@ -39,8 +39,8 @@ final class SubscriptionModeTransitionProvider implements SessionModeTransitionP
     {
         $paymentIntent = $this->getPaymentIntent($session);
 
-        return $this->paymentIntentTransitionProvider->isProcess($paymentIntent)
-            && Session::PAYMENT_STATUS_UNPAID === $session->payment_status;
+        return $this->paymentIntentTransitionProvider->isProcess($paymentIntent) &&
+            Session::PAYMENT_STATUS_UNPAID === $session->payment_status;
     }
 
     public function isCancel(Session $session): bool
@@ -52,8 +52,8 @@ final class SubscriptionModeTransitionProvider implements SessionModeTransitionP
     {
         $paymentIntent = $this->getPaymentIntent($session);
 
-        return $this->paymentIntentTransitionProvider->isRefund($paymentIntent)
-            && Session::PAYMENT_STATUS_UNPAID !== $session->payment_status;
+        return $this->paymentIntentTransitionProvider->isRefund($paymentIntent) &&
+            Session::PAYMENT_STATUS_UNPAID !== $session->payment_status;
     }
 
     private function getPaymentIntent(Session $session): PaymentIntent
@@ -97,4 +97,3 @@ final class SubscriptionModeTransitionProvider implements SessionModeTransitionP
         return Session::MODE_SUBSCRIPTION;
     }
 }
-

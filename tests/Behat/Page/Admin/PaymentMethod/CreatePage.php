@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\FluxSE\SyliusStripePlugin\Behat\Page\Admin\PaymentMethod;
 
-use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Page\Admin\PaymentMethod\CreatePage as BaseCreatePage;
-use Sylius\Behat\Service\DriverHelper;
 
 final class CreatePage extends BaseCreatePage implements CreatePageInterface
 {
