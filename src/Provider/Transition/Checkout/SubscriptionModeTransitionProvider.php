@@ -7,9 +7,10 @@ namespace FluxSE\SyliusStripePlugin\Provider\Transition\Checkout;
 use FluxSE\SyliusStripePlugin\Provider\ExpandProvider;
 use FluxSE\SyliusStripePlugin\Provider\Transition\WebElements\PaymentIntentTransitionProviderInterface;
 use Stripe\Checkout\Session;
+use Stripe\Invoice;
 use Stripe\PaymentIntent;
 
-final class PaymentModeTransitionProvider implements SessionModeTransitionProviderInterface
+final class SubscriptionModeTransitionProvider implements SessionModeTransitionProviderInterface
 {
     public function __construct(
         private readonly PaymentIntentTransitionProviderInterface $paymentIntentTransitionProvider,
@@ -69,11 +70,21 @@ final class PaymentModeTransitionProvider implements SessionModeTransitionProvid
             );
         }
 
-        $paymentIntent = $session->payment_intent;
+        // For subscription mode, the payment intent is in the invoice
+        $invoice = $session->invoice;
+        if (false === $invoice instanceof Invoice) {
+            throw new \LogicException(sprintf(
+                'To avoid too many API requests, we need to get access to an Invoice object at this point.
+                Please check that "%s" is expanding the Checkout/Session retrieval request with "invoice".',
+                ExpandProvider::class,
+            ));
+        }
+
+        $paymentIntent = $invoice->payment_intent;
         if (false === $paymentIntent instanceof PaymentIntent) {
             throw new \LogicException(sprintf(
                 'To avoid too many API requests, we need to get access to a PaymentIntent object at this point.
-                Please check that "%s" is expanding the Checkout/Session retrieval request with "payment_intent".',
+                Please check that "%s" is expanding the Checkout/Session retrieval request with "invoice.payment_intent".',
                 ExpandProvider::class,
             ));
         }
@@ -83,6 +94,7 @@ final class PaymentModeTransitionProvider implements SessionModeTransitionProvid
 
     public static function getSupportedMode(): string
     {
-        return Session::MODE_PAYMENT;
+        return Session::MODE_SUBSCRIPTION;
     }
 }
+

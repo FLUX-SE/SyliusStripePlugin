@@ -96,8 +96,7 @@
             "dev-main": "1.0-dev"
         },
         "runtime": {
-            "project_dir": "tests/Application",
-            "dotenv_path": "tests/Application/.env"
+            "project_dir": "tests/Application"
         }
     }
 }
