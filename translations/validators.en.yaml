@@ -8,6 +8,6 @@ flux_se_sylius_stripe_plugin:
             not_blank: Please enter stripe publishable key.
     stripe_checkout:
         success_url:
-            not_found: The payload must contain a "success_url" array property to be able to redirect the visitor after the Stripe Checkout Session portal completion.
+            not_found: The request body must contain a "payload" attribute (array type), and within it, a "success_url" attribute (string value) to be able to redirect the visitor after the Stripe Checkout Session portal completion.
         cancel_url:
-            not_found: The payload must contain a "cancel_url" array property to be able to redirect the visitor after the Stripe Checkout Session portal completion.
+            not_found: The request body must contain a "payload" attribute (array type), and within it, a "cancel_url" attribute (string value) to be able to redirect the visitor after the Stripe Checkout Session portal completion.
