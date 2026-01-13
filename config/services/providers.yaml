@@ -32,9 +32,19 @@ services:
 
     flux_se.sylius_stripe.processor.transition.checkout.mode.payment:
         class: FluxSE\SyliusStripePlugin\Provider\Transition\Checkout\PaymentModeTransitionProvider
+        arguments:
+            - '@flux_se.sylius_stripe.processor.transition.web_elements.payment_intent'
         tags:
             - name: flux_se.sylius_stripe.processor.transition.checkout.mode
               mode: payment
+
+    flux_se.sylius_stripe.processor.transition.checkout.mode.subscription:
+        class: FluxSE\SyliusStripePlugin\Provider\Transition\Checkout\SubscriptionModeTransitionProvider
+        arguments:
+            - '@flux_se.sylius_stripe.processor.transition.web_elements.payment_intent'
+        tags:
+            - name: flux_se.sylius_stripe.processor.transition.checkout.mode
+              mode: subscription
 
     flux_se.sylius_stripe.processor.transition.web_elements.payment_intent:
         class: FluxSE\SyliusStripePlugin\Provider\Transition\WebElements\PaymentIntentTransitionProvider

@@ -137,6 +137,14 @@ class ManagingStripeCheckoutOrdersContext implements ManagingStripeOrdersContext
     {
         /** @var PaymentInterface $payment */
         $payment = $order->getLastPayment(BasePaymentInterface::STATE_NEW);
+        /**
+         * @var array{
+         *     payment_intent: array{
+         *          status: string,
+         *          capture_method: string,
+         *      }
+         * } $details
+         */
         $details = $payment->getDetails();
         $status = $details['payment_intent']['status'];
         $captureMethod = $details['payment_intent']['capture_method'];
@@ -151,6 +159,15 @@ class ManagingStripeCheckoutOrdersContext implements ManagingStripeOrdersContext
     {
         /** @var PaymentInterface $payment */
         $payment = $order->getLastPayment(BasePaymentInterface::STATE_AUTHORIZED);
+
+        /**
+         * @var array{
+         *     payment_intent: array{
+         *          status: string,
+         *          capture_method: string,
+         *      }
+         * } $details
+         */
         $details = $payment->getDetails();
         $status = $details['payment_intent']['status'];
         $captureMethod = $details['payment_intent']['capture_method'];
@@ -165,6 +182,14 @@ class ManagingStripeCheckoutOrdersContext implements ManagingStripeOrdersContext
     {
         /** @var PaymentInterface $payment */
         $payment = $order->getLastPayment(BasePaymentInterface::STATE_AUTHORIZED);
+        /**
+         * @var array{
+         *     payment_intent?: array{
+         *          status: string,
+         *          payment_status: string,
+         *      }
+         * } $details
+         */
         $details = $payment->getDetails();
 
         if ([] === $details) {
@@ -192,6 +217,12 @@ class ManagingStripeCheckoutOrdersContext implements ManagingStripeOrdersContext
     {
         /** @var PaymentInterface $payment */
         $payment = $order->getLastPayment(BasePaymentInterface::STATE_NEW);
+        /**
+         * @var array{
+         *     status?: string,
+         *     payment_status?: string,
+         * } $details
+         */
         $details = $payment->getDetails();
 
         if ([] === $details) {

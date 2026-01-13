@@ -114,6 +114,11 @@ class ManagingStripeWebElementsOrdersContext implements ManagingStripeOrdersCont
     {
         /** @var PaymentInterface $payment */
         $payment = $order->getLastPayment(BasePaymentInterface::STATE_NEW);
+        /**
+         * @var array{
+         *     capture_method: string,
+         * } $details
+         */
         $details = $payment->getDetails();
 
         $this->stripeWebElementsMocker->mockCancelPayment($details['capture_method']);
@@ -126,6 +131,12 @@ class ManagingStripeWebElementsOrdersContext implements ManagingStripeOrdersCont
     {
         /** @var PaymentInterface $payment */
         $payment = $order->getLastPayment(BasePaymentInterface::STATE_AUTHORIZED);
+        /**
+         * @var array{
+         *     status: string,
+         *     capture_method: string,
+         * } $details
+         */
         $details = $payment->getDetails();
 
         $this->stripeWebElementsMocker->mockCompleteAuthorized(
@@ -141,6 +152,11 @@ class ManagingStripeWebElementsOrdersContext implements ManagingStripeOrdersCont
     {
         /** @var PaymentInterface $payment */
         $payment = $order->getLastPayment(BasePaymentInterface::STATE_AUTHORIZED);
+        /**
+         * @var array{
+         *     capture_method?: string,
+         * } $details
+         */
         $details = $payment->getDetails();
 
         if ([] === $details) {
