@@ -15,8 +15,8 @@
       "code": null
     }
   ],
-  "detail": "payload: The payload must contain a \u0022success_url\u0022 array property to be able to redirect the visitor after the Stripe Checkout Session portal completion.\npayload: The payload must contain a \u0022cancel_url\u0022 array property to be able to redirect the visitor after the Stripe Checkout Session portal completion.",
+  "detail": "payload: The request body must contain a \u0022payload\u0022 attribute (array type), and within it, a \u0022success_url\u0022 attribute (string value) to be able to redirect the visitor after the Stripe Checkout Session portal completion.\npayload: The request body must contain a \u0022payload\u0022 attribute (array type), and within it, a \u0022cancel_url\u0022 attribute (string value) to be able to redirect the visitor after the Stripe Checkout Session portal completion.",
   "type": "\/validation_errors\/@string@",
-  "hydra:description": "payload: The payload must contain a \u0022success_url\u0022 array property to be able to redirect the visitor after the Stripe Checkout Session portal completion.\npayload: The payload must contain a \u0022cancel_url\u0022 array property to be able to redirect the visitor after the Stripe Checkout Session portal completion.",
+  "hydra:description": "payload: The request body must contain a \u0022payload\u0022 attribute (array type), and within it, a \u0022success_url\u0022 attribute (string value) to be able to redirect the visitor after the Stripe Checkout Session portal completion.\npayload: The request body must contain a \u0022payload\u0022 attribute (array type), and within it, a \u0022cancel_url\u0022 attribute (string value) to be able to redirect the visitor after the Stripe Checkout Session portal completion.",
   "hydra:title": "An error occurred"
 }
