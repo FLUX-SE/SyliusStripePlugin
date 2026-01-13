@@ -10,10 +10,8 @@
 /docs export-ignore
 /ecs.php export-ignore
 /etc export-ignore
-/features export-ignore
 /node_modules export-ignore
 /phpstan.neon.dist export-ignore
 /phpunit.xml.dist export-ignore
-/tests/Application export-ignore
 /tests/Functional export-ignore
 /tests/Unit export-ignore
