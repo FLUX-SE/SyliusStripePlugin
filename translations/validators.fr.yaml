@@ -8,6 +8,6 @@ flux_se_sylius_stripe_plugin:
             not_blank: Veuillez entrer votre clé publique Stripe.
     stripe_checkout:
         success_url:
-            not_found: Le corps de la requête doit contenir un attribut "payload" (de type tableau), et à l'intérieur de celui-ci, un attribut "success_url" (valeur de type chaîne de caractères) afin de pouvoir rediriger le visiteur après la complétion du portail Stripe Checkout Session.
+            not_found: Le corps de la requête doit contenir un attribut "payload" (type array), et à l'intérieur de celui-ci, un attribut "success_url" (type string) afin de pouvoir rediriger le visiteur après avoir terminé une Stripe Checkout Session.
         cancel_url:
-            not_found: Le corps de la requête doit contenir un attribut "payload" (de type tableau), et à l'intérieur de celui-ci, un attribut "cancel_url" (valeur de type chaîne de caractères) afin de pouvoir rediriger le visiteur après la complétion du portail Stripe Checkout Session.
+            not_found: Le corps de la requête doit contenir un attribut "payload" (type array), et à l'intérieur de celui-ci, un attribut "cancel_url" (type string) afin de pouvoir rediriger le visiteur après avoir terminé une Stripe Checkout Session.
