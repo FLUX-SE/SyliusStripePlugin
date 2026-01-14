@@ -6,7 +6,9 @@ namespace Tests\FluxSE\SyliusStripePlugin\Behat\Context\Setup;
 
 use Doctrine\Persistence\ObjectManager;
 use Stripe\Checkout\Session;
+use Stripe\Invoice;
 use Stripe\PaymentIntent;
+use Stripe\Subscription;
 use Sylius\Abstraction\StateMachine\StateMachineInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\PaymentInterface;
@@ -37,11 +39,50 @@ class ManagingStripeCheckoutOrdersContext implements ManagingStripeOrdersContext
             'status' => Session::STATUS_COMPLETE,
             'payment_status' => Session::PAYMENT_STATUS_PAID,
             'mode' => Session::MODE_PAYMENT,
-            'payment_intent' => [
+            PaymentIntent::OBJECT_NAME => [
                 'id' => 'pi_test_1',
                 'object' => PaymentIntent::OBJECT_NAME,
                 'status' => PaymentIntent::STATUS_SUCCEEDED,
                 'capture_method' => PaymentIntent::CAPTURE_METHOD_AUTOMATIC,
+            ],
+        ];
+        $payment->setDetails($details);
+
+        $this->stateMachine->apply(
+            $payment,
+            PaymentTransitions::GRAPH,
+            PaymentTransitions::TRANSITION_COMPLETE,
+        );
+
+        $this->objectManager->flush();
+    }
+
+    /**
+     * @Given /^(this order) related to a subscription is already paid using Stripe Checkout$/
+     */
+    public function thisOrderRelatedToASubscriptionIsAlreadyPaidUsingStripe(OrderInterface $order): void
+    {
+        /** @var PaymentInterface $payment */
+        $payment = $order->getLastPayment();
+
+        $details = [
+            'object' => Session::OBJECT_NAME,
+            'id' => 'cs_test_1',
+            'status' => Session::STATUS_COMPLETE,
+            'payment_status' => Session::PAYMENT_STATUS_PAID,
+            'mode' => Session::MODE_SUBSCRIPTION,
+            Subscription::OBJECT_NAME => [
+                'id' => 'sub_test_1',
+                'object' => Subscription::OBJECT_NAME,
+                'status' => Subscription::STATUS_ACTIVE,
+            ],
+            Invoice::OBJECT_NAME => [
+                'id' => 'in_test_1',
+                'object' => Invoice::OBJECT_NAME,
+                PaymentIntent::OBJECT_NAME => [
+                    'id' => 'pi_test_1',
+                    'object' => PaymentIntent::OBJECT_NAME,
+                ],
             ],
         ];
         $payment->setDetails($details);
@@ -69,7 +110,7 @@ class ManagingStripeCheckoutOrdersContext implements ManagingStripeOrdersContext
             'status' => Session::STATUS_COMPLETE,
             'payment_status' => Session::PAYMENT_STATUS_UNPAID,
             'mode' => Session::MODE_PAYMENT,
-            'payment_intent' => [
+            PaymentIntent::OBJECT_NAME => [
                 'id' => 'pi_test_1',
                 'object' => PaymentIntent::OBJECT_NAME,
                 'status' => PaymentIntent::STATUS_REQUIRES_CAPTURE,
@@ -101,7 +142,7 @@ class ManagingStripeCheckoutOrdersContext implements ManagingStripeOrdersContext
             'status' => Session::STATUS_OPEN,
             'payment_status' => Session::PAYMENT_STATUS_UNPAID,
             'mode' => Session::MODE_PAYMENT,
-            'payment_intent' => [
+            PaymentIntent::OBJECT_NAME => [
                 'id' => 'pi_test_1',
                 'object' => PaymentIntent::OBJECT_NAME,
                 'status' => PaymentIntent::STATUS_REQUIRES_PAYMENT_METHOD,
@@ -146,8 +187,8 @@ class ManagingStripeCheckoutOrdersContext implements ManagingStripeOrdersContext
          * } $details
          */
         $details = $payment->getDetails();
-        $status = $details['payment_intent']['status'];
-        $captureMethod = $details['payment_intent']['capture_method'];
+        $status = $details[PaymentIntent::OBJECT_NAME]['status'];
+        $captureMethod = $details[PaymentIntent::OBJECT_NAME]['capture_method'];
 
         $this->stripeCheckoutSessionMocker->mockCancelPayment($status, $captureMethod);
     }
@@ -169,8 +210,8 @@ class ManagingStripeCheckoutOrdersContext implements ManagingStripeOrdersContext
          * } $details
          */
         $details = $payment->getDetails();
-        $status = $details['payment_intent']['status'];
-        $captureMethod = $details['payment_intent']['capture_method'];
+        $status = $details[PaymentIntent::OBJECT_NAME]['status'];
+        $captureMethod = $details[PaymentIntent::OBJECT_NAME]['capture_method'];
 
         $this->stripeCheckoutSessionMocker->mockCompleteAuthorized($status, $captureMethod);
     }
@@ -186,7 +227,7 @@ class ManagingStripeCheckoutOrdersContext implements ManagingStripeOrdersContext
          * @var array{
          *     payment_intent?: array{
          *          status: string,
-         *          payment_status: string,
+         *          capture_method: string,
          *      }
          * } $details
          */
@@ -197,17 +238,41 @@ class ManagingStripeCheckoutOrdersContext implements ManagingStripeOrdersContext
         }
 
         $this->stripeCheckoutSessionMocker->mockCancelPayment(
-            $details['payment_intent']['status'],
-            $details['payment_intent']['payment_status'],
+            $details[PaymentIntent::OBJECT_NAME]['status'],
+            $details[PaymentIntent::OBJECT_NAME]['capture_method'],
         );
     }
 
     /**
-     * @Given I am prepared to refund this order
+     * @Given /^I am prepared to refund (this order)$/
      */
-    public function iAmPreparedToRefundThisOrder(): void
+    public function iAmPreparedToRefundThisOrder(OrderInterface $order): void
     {
-        $this->stripeCheckoutSessionMocker->mockRefundPayment();
+        /** @var PaymentInterface $payment */
+        $payment = $order->getLastPayment(BasePaymentInterface::STATE_COMPLETED);
+
+        $amount = $payment->getAmount();
+        if (null === $amount) {
+            return;
+        }
+
+        $this->stripeCheckoutSessionMocker->mockRefundPayment($amount);
+    }
+
+    /**
+     * @Given /^I am prepared to refund (this order) related to a subscription$/
+     */
+    public function iAmPreparedToRefundThisOrderRelatedToASubscription(OrderInterface $order): void
+    {
+        /** @var PaymentInterface $payment */
+        $payment = $order->getLastPayment(BasePaymentInterface::STATE_COMPLETED);
+
+        $amount = $payment->getAmount();
+        if (null === $amount) {
+            return;
+        }
+
+        $this->stripeCheckoutSessionMocker->mockRefundSubscription($amount);
     }
 
     /**

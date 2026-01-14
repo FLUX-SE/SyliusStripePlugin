@@ -30,7 +30,13 @@ final class StripeClientWithExpectationsContext implements Context
     public function hasExpectations(): void
     {
         if ($this->stripeClientWithExpectations->hasExpectations()) {
-            throw new \RuntimeException('StripeClientWithExpectations still has expectations left');
+            throw new \RuntimeException(
+                'StripeClientWithExpectations still has expectations left: '
+                . json_encode(
+                    $this->stripeClientWithExpectations->getExpectations(),
+                    \JSON_THROW_ON_ERROR | \JSON_PRETTY_PRINT | \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES,
+                ),
+            );
         }
     }
 }

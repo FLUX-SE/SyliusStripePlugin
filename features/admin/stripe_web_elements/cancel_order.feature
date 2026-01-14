@@ -26,9 +26,9 @@ Feature: Canceling an order with Stripe JS
 
     @ui
     Scenario: Cancelling the order after the customer canceled the payment
-        Given this order payment has been canceled
+        Given I am prepared to cancel this order
+        And this order payment has been canceled
         And I am viewing the summary of this order
-        And I am prepared to cancel this order
         When I cancel this order
         Then I should be notified that it has been successfully updated
         And it should have payment with state cancelled

@@ -24,8 +24,12 @@ final class RefundPaymentProvider implements PaymentIntentToRefundProviderInterf
             return null;
         }
 
-        /** @var string|null $paymentIntent */
+        /** @var string|array{id?: string}|null $paymentIntent */
         $paymentIntent = $paymentRequest->getPayment()->getDetails()['payment_intent'] ?? null;
+
+        if (is_array($paymentIntent)) {
+            return $paymentIntent['id'] ?? null;
+        }
 
         return $paymentIntent;
     }

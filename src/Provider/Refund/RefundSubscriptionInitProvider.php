@@ -4,22 +4,12 @@ declare(strict_types=1);
 
 namespace FluxSE\SyliusStripePlugin\Provider\Refund;
 
-use FluxSE\SyliusStripePlugin\Manager\AllManagerInterface;
 use Stripe\Checkout\Session;
-use Stripe\Invoice;
 use Stripe\PaymentIntent;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 
 final class RefundSubscriptionInitProvider implements PaymentIntentToRefundProviderInterface
 {
-    /**
-     * @param AllManagerInterface<Invoice> $allManager
-     */
-    public function __construct(
-        private AllManagerInterface $allManager,
-    ) {
-    }
-
     public function provide(PaymentRequestInterface $paymentRequest): null|string|PaymentIntent
     {
         /** @var string|null $object */
@@ -34,8 +24,16 @@ final class RefundSubscriptionInitProvider implements PaymentIntentToRefundProvi
             return null;
         }
 
-        $invoices = $this->allManager->all($paymentRequest);
+        /** @var array{payment_intent?: string}|null $invoice */
+        $invoice = $paymentRequest->getPayment()->getDetails()['invoice'] ?? null;
 
-        return $invoices->first()?->payment_intent;
+        /** @var string|array{id?: string}|null $paymentIntent */
+        $paymentIntent = $invoice['payment_intent'] ?? null;
+
+        if (is_array($paymentIntent)) {
+            return $paymentIntent['id'] ?? null;
+        }
+
+        return $paymentIntent;
     }
 }

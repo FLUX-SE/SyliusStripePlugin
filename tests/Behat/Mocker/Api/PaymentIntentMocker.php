@@ -33,18 +33,20 @@ class PaymentIntentMocker
         );
     }
 
-    public function mockRetrieveAction(string $status, string $captureMethod): void
+    /**
+     * @param array<key-of<PaymentIntent>, mixed> $data
+     */
+    public function mockRetrieveAction(array $data): void
     {
+        $id = $data['id'] ?? 'pi_test_1';
         $this->stripeClientWithExpectations->addExpectation(
             'get',
-            $this->getPaymentIntentBaseUrl() . '/pi_test_1',
-            [
-                'id' => 'pi_test_1',
+            $this->getPaymentIntentBaseUrl() . '/' . $id,
+            array_merge($data, [
+                'id' => $id,
                 'object' => PaymentIntent::OBJECT_NAME,
-                'status' => $status,
-                'capture_method' => $captureMethod,
                 'client_secret' => '1234567890',
-            ],
+            ]),
         );
     }
 

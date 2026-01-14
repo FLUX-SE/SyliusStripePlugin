@@ -18,69 +18,57 @@ class CheckoutSessionMocker
     ) {
     }
 
-    public function mockCreateAction(): void
+    /**
+     * @param array<key-of<Session>, mixed> $data
+     */
+    public function mockCreateAction(array $data = []): void
     {
+        $id = $data['id'] ?? 'cs_test_1';
         $this->stripeClientWithExpectations->addExpectation(
             'post',
             $this->getCheckoutSessionBaseUrl(),
-            [
-                'id' => 'cs_test_1',
+            array_merge($data, [
+                'id' => $id,
                 'object' => Session::OBJECT_NAME,
-                'mode' => Session::MODE_PAYMENT,
-                'payment_intent' => 'pi_test_1',
                 'url' => 'https://checkout.stripe.com/c/pay/cs_test_1',
                 'status' => Session::STATUS_OPEN,
                 'payment_status' => Session::PAYMENT_STATUS_UNPAID,
-            ],
+            ]),
             true,
         );
     }
 
     /**
-     * @param array<string, mixed> $data
+     * @param array<key-of<Session>, mixed> $data
      */
-    public function mockRetrieveAction(array $data): void
+    public function mockRetrieveAction(array $data = []): void
     {
+        $id = $data['id'] ?? 'cs_test_1';
         $this->stripeClientWithExpectations->addExpectation(
             'get',
-            $this->getCheckoutSessionBaseUrl() . '/cs_test_1',
+            $this->getCheckoutSessionBaseUrl() . '/' . $id,
             array_merge($data, [
-                'id' => 'cs_test_1',
+                'id' => $id,
                 'object' => Session::OBJECT_NAME,
-                'mode' => Session::MODE_PAYMENT,
             ]),
         );
     }
 
-    public function mockAllAction(string $status): void
+    /**
+     * @param array<key-of<Session>, mixed> $data
+     */
+    public function mockExpireAction(array $data = []): void
     {
-        $this->stripeClientWithExpectations->addExpectation(
-            'get',
-            $this->getCheckoutSessionBaseUrl(),
-            [
-                'data' => [
-                    [
-                        'id' => 'cs_test_1',
-                        'object' => Session::OBJECT_NAME,
-                        'status' => $status,
-                        'mode' => Session::MODE_PAYMENT,
-                    ],
-                ],
-            ],
-        );
-    }
-
-    public function mockExpireAction(): void
-    {
+        $id = $data['id'] ?? 'cs_test_1';
         $this->stripeClientWithExpectations->addExpectation(
             'post',
-            $this->getCheckoutSessionBaseUrl() . '/cs_test_1/expire',
-            [
-                'id' => 'cs_test_1',
+            $this->getCheckoutSessionBaseUrl() . '/' . $id . '/expire',
+            array_merge_recursive($data, [
+                'id' => $id,
                 'object' => Session::OBJECT_NAME,
                 'status' => Session::STATUS_EXPIRED,
                 'payment_status' => Session::PAYMENT_STATUS_UNPAID,
-            ],
+            ]),
         );
     }
 

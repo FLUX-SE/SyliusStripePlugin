@@ -23,5 +23,5 @@ interface ManagingStripeOrdersContextInterface extends Context
 
     public function iAmPreparedToCancelAuthorizationOnThisOrder(OrderInterface $order): void;
 
-    public function iAmPreparedToRefundThisOrder(): void;
+    public function iAmPreparedToRefundThisOrder(OrderInterface $order): void;
 }

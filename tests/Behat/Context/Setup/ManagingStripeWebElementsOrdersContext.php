@@ -84,6 +84,7 @@ class ManagingStripeWebElementsOrdersContext implements ManagingStripeOrdersCont
             'object' => PaymentIntent::OBJECT_NAME,
             'id' => 'pi_test_1',
             'status' => PaymentIntent::STATUS_REQUIRES_PAYMENT_METHOD,
+            'capture_method' => PaymentIntent::CAPTURE_METHOD_AUTOMATIC,
         ];
         $payment->setDetails($details);
 
@@ -169,10 +170,18 @@ class ManagingStripeWebElementsOrdersContext implements ManagingStripeOrdersCont
     }
 
     /**
-     * @Given I am prepared to refund this order
+     * @Given /^I am prepared to refund (this order)$/
      */
-    public function iAmPreparedToRefundThisOrder(): void
+    public function iAmPreparedToRefundThisOrder(OrderInterface $order): void
     {
-        $this->stripeWebElementsMocker->mockRefundPayment();
+        /** @var PaymentInterface $payment */
+        $payment = $order->getLastPayment(BasePaymentInterface::STATE_COMPLETED);
+
+        $amount = $payment->getAmount();
+        if (null === $amount) {
+            return;
+        }
+
+        $this->stripeWebElementsMocker->mockRefundPayment($amount);
     }
 }

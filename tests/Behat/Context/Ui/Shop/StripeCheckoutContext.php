@@ -55,38 +55,10 @@ class StripeCheckoutContext extends MinkContext implements StripeContextInterfac
      */
     public function iCompleteMyStripePaymentSuccessfully(): void
     {
-        $paymentRequest = $this->stripePage->findLatestPaymentRequest();
-
-        $jsonEvent = [
-            'id' => 'evt_test_1',
-            'object' => Event::OBJECT_NAME,
-            'type' => Event::CHECKOUT_SESSION_COMPLETED,
-            'data' => [
-                'object' => [
-                    'id' => 'cs_test_1',
-                    'object' => Session::OBJECT_NAME,
-                    'payment_intent' => 'pi_test_1',
-                    'mode' => Session::MODE_PAYMENT,
-                    'status' => Session::STATUS_COMPLETE,
-                    'payment_status' => Session::PAYMENT_STATUS_PAID,
-                    'metadata' => [
-                        MetadataProviderInterface::DEFAULT_TOKEN_HASH_KEY_NAME => $paymentRequest->getId(),
-                    ],
-                ],
-            ],
-        ];
-
-        $this->stripeCheckoutSessionMocker->mockWebhookHandling($jsonEvent, [
-            'id' => 'pi_test_1',
-            'object' => PaymentIntent::OBJECT_NAME,
-            'status' => PaymentIntent::STATUS_SUCCEEDED,
-            'capture_method' => PaymentIntent::CAPTURE_METHOD_AUTOMATIC,
-        ]);
-
-        $payload = json_encode($jsonEvent, \JSON_THROW_ON_ERROR);
-
-        $response = $this->stripePage->notify($payload);
-        $this->assertNotifySucceeded($response);
+        $this->setupNotify(
+            PaymentIntent::STATUS_SUCCEEDED,
+            PaymentIntent::CAPTURE_METHOD_AUTOMATIC,
+        );
 
         $this->stripeCheckoutSessionMocker->mockSuccessfulPayment();
 
@@ -108,38 +80,10 @@ class StripeCheckoutContext extends MinkContext implements StripeContextInterfac
      */
     public function iCompleteMyStripePaymentSuccessfullyUsingAuthorize(): void
     {
-        $paymentRequest = $this->stripePage->findLatestPaymentRequest();
-
-        $jsonEvent = [
-            'id' => 'evt_test_1',
-            'type' => Event::CHECKOUT_SESSION_COMPLETED,
-            'object' => 'event',
-            'data' => [
-                'object' => [
-                    'id' => 'cs_test_1',
-                    'object' => Session::OBJECT_NAME,
-                    'payment_intent' => 'pi_test_1',
-                    'mode' => Session::MODE_PAYMENT,
-                    'status' => Session::STATUS_COMPLETE,
-                    'payment_status' => Session::PAYMENT_STATUS_PAID,
-                    'metadata' => [
-                        MetadataProviderInterface::DEFAULT_TOKEN_HASH_KEY_NAME => $paymentRequest->getId(),
-                    ],
-                ],
-            ],
-        ];
-
-        $this->stripeCheckoutSessionMocker->mockWebhookHandling($jsonEvent, [
-            'id' => 'pi_test_1',
-            'object' => PaymentIntent::OBJECT_NAME,
-            'status' => PaymentIntent::STATUS_REQUIRES_CAPTURE,
-            'capture_method' => PaymentIntent::CAPTURE_METHOD_MANUAL,
-        ]);
-
-        $payload = json_encode($jsonEvent, \JSON_THROW_ON_ERROR);
-
-        $response = $this->stripePage->notify($payload);
-        $this->assertNotifySucceeded($response);
+        $this->setupNotify(
+            PaymentIntent::STATUS_REQUIRES_CAPTURE,
+            PaymentIntent::CAPTURE_METHOD_MANUAL,
+        );
 
         $this->stripeCheckoutSessionMocker->mockAuthorizePayment();
 
@@ -201,5 +145,48 @@ class StripeCheckoutContext extends MinkContext implements StripeContextInterfac
             $response->getStatusCode(),
             $response->getContent(),
         ));
+    }
+
+    protected function setupNotify(string $status, string $captureMethod): void
+    {
+        $paymentRequest = $this->stripePage->findLatestPaymentRequest();
+
+        $paymentIntentId = 'pi_test_1';
+        $checkoutSessionData = [
+            'id' => 'cs_test_1',
+            'object' => Session::OBJECT_NAME,
+            PaymentIntent::OBJECT_NAME => $paymentIntentId,
+            'mode' => Session::MODE_PAYMENT,
+            'status' => Session::STATUS_COMPLETE,
+            'payment_status' => Session::PAYMENT_STATUS_PAID,
+            'metadata' => [
+                MetadataProviderInterface::DEFAULT_TOKEN_HASH_KEY_NAME => $paymentRequest->getId(),
+            ],
+        ];
+        $jsonEvent = [
+            'id' => 'evt_test_1',
+            'type' => Event::CHECKOUT_SESSION_COMPLETED,
+            'object' => Event::OBJECT_NAME,
+            'data' => [
+                'object' => $checkoutSessionData,
+            ],
+        ];
+
+        $this->stripeCheckoutSessionMocker->mockWebhookHandling(
+            $jsonEvent,
+            array_merge($checkoutSessionData, [
+                PaymentIntent::OBJECT_NAME => [
+                    'id' => $paymentIntentId,
+                    'object' => PaymentIntent::OBJECT_NAME,
+                    'status' => $status,
+                    'capture_method' => $captureMethod,
+                ],
+            ]),
+        );
+
+        $payload = json_encode($jsonEvent, \JSON_THROW_ON_ERROR);
+
+        $response = $this->stripePage->notify($payload);
+        $this->assertNotifySucceeded($response);
     }
 }
