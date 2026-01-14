@@ -27,10 +27,15 @@ final class StripeWebElementsMocker
 
     public function mockCancelPayment(string $captureMethod): void
     {
+        $status = $captureMethod === PaymentIntent::CAPTURE_METHOD_MANUAL
+            ? PaymentIntent::STATUS_REQUIRES_CAPTURE
+            : PaymentIntent::STATUS_REQUIRES_PAYMENT_METHOD;
+
         $this->paymentIntentMocker->mockRetrieveAction([
-            'status' => PaymentIntent::STATUS_REQUIRES_CAPTURE,
+            'status' => $status,
             'capture_method' => $captureMethod,
         ]);
+
         $this->paymentIntentMocker->mockCancelAction($captureMethod);
     }
 
@@ -65,12 +70,6 @@ final class StripeWebElementsMocker
 
     public function mockGoBackPayment(): void
     {
-        // CaptureEnd
-        $this->paymentIntentMocker->mockRetrieveAction([
-            'status' => PaymentIntent::STATUS_REQUIRES_PAYMENT_METHOD,
-            'capture_method' => PaymentIntent::CAPTURE_METHOD_AUTOMATIC,
-        ]);
-
         // CaptureEnd
         $this->mockCancelPayment(PaymentIntent::CAPTURE_METHOD_AUTOMATIC);
 
