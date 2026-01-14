@@ -67,5 +67,24 @@
             <argument type="service" id="tests.flux_se.sylius_stripe_plugin.behat.page.external.stripe_web_elements"/>
         </service>
 
+        <service id="tests.flux_se.sylius_stripe_plugin.behat.context.api.shop.stripe_checkout"
+                 class="Tests\FluxSE\SyliusStripePlugin\Behat\Context\Api\Shop\StripeCheckoutContext">
+            <argument type="service" id="sylius.behat.shared_storage"/>
+            <argument type="service" id="sylius.behat.context.api.shop.checkout"/>
+            <argument type="service" id="sylius.behat.context.api.shop.payment_request"/>
+            <argument type="service" id="Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\StripeCheckoutMocker"/>
+            <argument type="service" id="tests.flux_se.sylius_stripe_plugin.behat.page.external.stripe_checkout_session"/>
+        </service>
+
+        <service id="tests.flux_se.sylius_stripe_plugin.behat.context.api.shop.stripe_web_elements"
+                 class="Tests\FluxSE\SyliusStripePlugin\Behat\Context\Api\Shop\StripeWebElementsContext">
+            <argument type="service" id="sylius.behat.shared_storage"/>
+            <argument type="service" id="sylius.behat.context.api.shop.checkout"/>
+            <argument type="service" id="sylius.behat.context.api.shop.payment_request"/>
+            <argument type="service" id="Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\StripeWebElementsMocker"/>
+            <argument type="service" id="tests.flux_se.sylius_stripe_plugin.behat.page.external.stripe_web_elements"/>
+            <argument type="service" id="sylius.behat.api_platform_client.shop"/>
+        </service>
+
     </services>
 </container>

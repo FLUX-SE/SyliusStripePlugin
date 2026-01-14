@@ -3,6 +3,8 @@ default:
         api_paying_with_stripe_web_elements_during_checkout:
             contexts:
                 - sylius.behat.context.hook.doctrine_orm
+                - tests.flux_se.sylius_stripe_plugin.behat.context.hook.stripe_client_with_expectations
+
                 - sylius.behat.context.transform.address
                 - sylius.behat.context.transform.customer
                 - sylius.behat.context.transform.lexical
@@ -20,6 +22,7 @@ default:
                 - sylius.behat.context.setup.currency
                 - sylius.behat.context.setup.geographical
                 - sylius.behat.context.setup.locale
+                - sylius.behat.context.setup.cart
                 - sylius.behat.context.setup.order
                 - sylius.behat.context.setup.payment
                 - sylius.behat.context.setup.product
@@ -30,15 +33,11 @@ default:
 
                 - tests.flux_se.sylius_stripe_plugin.behat.context.setup.stripe
 
-                - sylius.behat.context.api.paypal
                 - sylius.behat.context.api.shop.cart
                 - sylius.behat.context.api.shop.checkout
-                - sylius.behat.context.api.shop.checkout.addressing
                 - sylius.behat.context.api.shop.checkout.complete
                 - sylius.behat.context.api.shop.checkout.order_details
-                - sylius.behat.context.api.shop.checkout.payment
                 - sylius.behat.context.api.shop.checkout.shipping
-                - sylius.behat.context.api.shop.checkout.thank_you
 
                 - tests.flux_se.sylius_stripe_plugin.behat.context.api.shop.stripe_web_elements
             filters:

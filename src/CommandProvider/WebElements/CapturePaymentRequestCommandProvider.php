@@ -37,10 +37,17 @@ final class CapturePaymentRequestCommandProvider implements PaymentRequestComman
             return false;
         }
 
-        if (($paymentRequest->getPayment()->getDetails()['capture_method'] ?? '') !== PaymentIntent::CAPTURE_METHOD_MANUAL) {
+        /**
+         * @var array{
+         *     capture_method?: string,
+         *     status?: string,
+         * } $details
+         */
+        $details = $paymentRequest->getPayment()->getDetails();
+        if (($details['capture_method'] ?? '') !== PaymentIntent::CAPTURE_METHOD_MANUAL) {
             return false;
         }
 
-        return ($paymentRequest->getPayment()->getDetails()['status'] ?? '') === PaymentIntent::STATUS_REQUIRES_CAPTURE;
+        return ($details['status'] ?? '') === PaymentIntent::STATUS_REQUIRES_CAPTURE;
     }
 }
