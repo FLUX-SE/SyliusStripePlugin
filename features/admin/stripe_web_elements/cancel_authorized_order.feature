@@ -18,7 +18,7 @@ Feature: Canceling an authorized order with Stripe JS
     @ui @api
     Scenario: Cancelling the order with an authorized payment
         Given I am viewing the summary of this order
-        And I am prepared to cancel this order
+        And I am prepared to cancel authorization on this order
         When I cancel this order
         Then I should be notified that it has been successfully updated
         And it should have payment with state cancelled

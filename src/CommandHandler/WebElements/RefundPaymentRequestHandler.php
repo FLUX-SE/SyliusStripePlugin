@@ -76,6 +76,7 @@ final readonly class RefundPaymentRequestHandler
         ]);
 
         $refund = $this->createRefundManager->create($paymentRequest);
+        $paymentIntent = $this->retrievePaymentIntentManager->retrieve($paymentRequest, $id);
 
         $paymentRequest->setResponseData($refund->toArray());
 

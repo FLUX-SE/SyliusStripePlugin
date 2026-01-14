@@ -28,10 +28,6 @@ final class CancelPaymentRequestCommandProvider implements PaymentRequestCommand
 
     private function isCaptureMethodManualAndRequireCapture(PaymentRequestInterface $paymentRequest): bool
     {
-        if (PaymentRequestInterface::ACTION_AUTHORIZE !== $paymentRequest->getAction()) {
-            return false;
-        }
-
         /**
          * @var array{
          *     payment_intent?: array{
