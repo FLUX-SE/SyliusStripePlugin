@@ -54,31 +54,10 @@ class StripeWebElementsContext extends MinkContext implements StripeContextInter
      */
     public function iCompleteMyStripePaymentSuccessfully(): void
     {
-        $paymentRequest = $this->stripePage->findLatestPaymentRequest();
-
-        $jsonEvent = [
-            'id' => 'evt_test_1',
-            'object' => Event::OBJECT_NAME,
-            'type' => Event::PAYMENT_INTENT_SUCCEEDED,
-            'data' => [
-                'object' => [
-                    'id' => 'pi_test_1',
-                    'object' => PaymentIntent::OBJECT_NAME,
-                    'status' => PaymentIntent::STATUS_SUCCEEDED,
-                    'capture_method' => PaymentIntent::CAPTURE_METHOD_AUTOMATIC,
-                    'metadata' => [
-                        MetadataProviderInterface::DEFAULT_TOKEN_HASH_KEY_NAME => $paymentRequest->getId(),
-                    ],
-                ],
-            ],
-        ];
-
-        $this->stripeWebElementsMocker->mockWebhookHandling($jsonEvent);
-
-        $payload = json_encode($jsonEvent, \JSON_THROW_ON_ERROR);
-
-        $response = $this->stripePage->notify($payload);
-        $this->assertNotifySucceeded($response);
+        $this->setupNotify(
+            PaymentIntent::STATUS_SUCCEEDED,
+            PaymentIntent::CAPTURE_METHOD_AUTOMATIC,
+        );
 
         $this->stripeWebElementsMocker->mockSuccessfulPayment();
 
@@ -100,31 +79,10 @@ class StripeWebElementsContext extends MinkContext implements StripeContextInter
      */
     public function iCompleteMyStripePaymentSuccessfullyUsingAuthorize(): void
     {
-        $paymentRequest = $this->stripePage->findLatestPaymentRequest();
-
-        $jsonEvent = [
-            'id' => 'evt_test_1',
-            'type' => Event::PAYMENT_INTENT_SUCCEEDED,
-            'object' => 'event',
-            'data' => [
-                'object' => [
-                    'id' => 'pi_test_1',
-                    'object' => PaymentIntent::OBJECT_NAME,
-                    'status' => PaymentIntent::STATUS_REQUIRES_CAPTURE,
-                    'capture_method' => PaymentIntent::CAPTURE_METHOD_MANUAL,
-                    'metadata' => [
-                        MetadataProviderInterface::DEFAULT_TOKEN_HASH_KEY_NAME => $paymentRequest->getId(),
-                    ],
-                ],
-            ],
-        ];
-
-        $this->stripeWebElementsMocker->mockWebhookHandling($jsonEvent);
-
-        $payload = json_encode($jsonEvent, \JSON_THROW_ON_ERROR);
-
-        $response = $this->stripePage->notify($payload);
-        $this->assertNotifySucceeded($response);
+        $this->setupNotify(
+            PaymentIntent::STATUS_REQUIRES_CAPTURE,
+            PaymentIntent::CAPTURE_METHOD_MANUAL,
+        );
 
         $this->stripeWebElementsMocker->mockAuthorizePayment();
 
@@ -186,5 +144,35 @@ class StripeWebElementsContext extends MinkContext implements StripeContextInter
             $response->getStatusCode(),
             $response->getContent(),
         ));
+    }
+
+    protected function setupNotify(string $status, string $captureMethod): void
+    {
+        $paymentRequest = $this->stripePage->findLatestPaymentRequest();
+
+        $paymentIntentData = [
+            'id' => 'pi_test_1',
+            'object' => PaymentIntent::OBJECT_NAME,
+            'status' => $status,
+            'capture_method' => $captureMethod,
+            'metadata' => [
+                MetadataProviderInterface::DEFAULT_TOKEN_HASH_KEY_NAME => $paymentRequest->getId(),
+            ],
+        ];
+        $jsonEvent = [
+            'id' => 'evt_test_1',
+            'object' => Event::OBJECT_NAME,
+            'type' => Event::PAYMENT_INTENT_SUCCEEDED,
+            'data' => [
+                'object' => $paymentIntentData,
+            ],
+        ];
+
+        $this->stripeWebElementsMocker->mockWebhookHandling($jsonEvent);
+
+        $payload = json_encode($jsonEvent, \JSON_THROW_ON_ERROR);
+
+        $response = $this->stripePage->notify($payload);
+        $this->assertNotifySucceeded($response);
     }
 }

@@ -1,6 +1,6 @@
 default:
     suites:
-        api_paying_with_stripe_checkout_session_during_checkout:
+        api_paying_with_stripe_checkout_during_checkout:
             contexts:
                 - sylius.behat.context.hook.doctrine_orm
                 - tests.flux_se.sylius_stripe_plugin.behat.context.hook.stripe_client_with_expectations
@@ -41,5 +41,5 @@ default:
 
                 - tests.flux_se.sylius_stripe_plugin.behat.context.api.shop.stripe_checkout
             filters:
-                tags: "@paying_with_stripe_checkout_session_during_checkout&&@api"
+                tags: "@paying_with_stripe_checkout_during_checkout&&@api"
             javascript: false

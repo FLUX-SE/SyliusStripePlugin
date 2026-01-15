@@ -9,6 +9,7 @@ use FluxSE\SyliusStripePlugin\Provider\MetadataProviderInterface;
 use Stripe\Checkout\Session;
 use Stripe\Event;
 use Stripe\PaymentIntent;
+use Sylius\Behat\Client\ApiClientInterface;
 use Sylius\Behat\Context\Api\Shop\CheckoutContext;
 use Sylius\Behat\Context\Api\Shop\PaymentRequestContext;
 use Sylius\Behat\Service\SharedStorageInterface;
@@ -28,6 +29,7 @@ class StripeCheckoutContext extends MinkContext implements StripeContextInterfac
         private readonly PaymentRequestContext $paymentRequestContext,
         private StripeCheckoutMocker $stripeCheckoutSessionMocker,
         private StripePage $stripePage,
+        private ApiClientInterface $client,
     ) {
     }
 
@@ -39,9 +41,9 @@ class StripeCheckoutContext extends MinkContext implements StripeContextInterfac
      */
     public function iConfirmMyOrderWithStripePayment(): void
     {
-        $this->stripeCheckoutSessionMocker->mockCaptureOrAuthorize();
-
         $this->checkoutContext->iConfirmMyOrder();
+
+        $this->iTryToPayAgainWithStripePayment();
     }
 
     /**
@@ -116,7 +118,10 @@ class StripeCheckoutContext extends MinkContext implements StripeContextInterfac
     {
         $this->stripeCheckoutSessionMocker->mockGoBackPayment();
 
-        $this->stripePage->endCaptureOrAuthorize();
+        $uri = $this->sharedStorage->get('payment_request_uri');
+        $uri = preg_replace('#^(.+)/(payment-requests/.+$)#u', '$2', $uri);
+
+        $this->client->buildCustomUpdateRequest($uri)->update();
     }
 
     /**
@@ -128,7 +133,7 @@ class StripeCheckoutContext extends MinkContext implements StripeContextInterfac
         $order = $this->sharedStorage->get('order');
 
         /** @var PaymentMethodInterface|null $paymentMethod */
-        $paymentMethod = $order->getLastPayment()->getMethod();
+        $paymentMethod = $order->getLastPayment()?->getMethod();
         Assert::notNull($paymentMethod);
 
         $this->paymentRequestContext->aPaymentRequestWithActionForPaymentMethodShouldHaveState(

@@ -9,7 +9,6 @@ use FluxSE\SyliusStripePlugin\Provider\MetadataProviderInterface;
 use Stripe\Event;
 use Stripe\PaymentIntent;
 use Sylius\Behat\Client\ApiClientInterface;
-use Sylius\Behat\Client\ResponseCheckerInterface;
 use Sylius\Behat\Context\Api\Shop\CheckoutContext;
 use Sylius\Behat\Context\Api\Shop\PaymentRequestContext;
 use Sylius\Behat\Service\SharedStorageInterface;
@@ -175,7 +174,7 @@ class StripeWebElementsContext extends MinkContext implements StripeContextInter
         $order = $this->sharedStorage->get('order');
 
         /** @var PaymentMethodInterface|null $paymentMethod */
-        $paymentMethod = $order->getLastPayment()->getMethod();
+        $paymentMethod = $order->getLastPayment()?->getMethod();
         Assert::notNull($paymentMethod);
 
         $this->paymentRequestContext->aPaymentRequestWithActionForPaymentMethodShouldHaveState(
