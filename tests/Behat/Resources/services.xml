@@ -6,4 +6,12 @@
         <import resource="services/mockers.xml"/>
         <import resource="services/pages.xml"/>
     </imports>
+    <services>
+        <service
+            id="Tests\FluxSE\SyliusStripePlugin\Behat\Client\ApiPlatformClient"
+            decorates="sylius.behat.api_platform_client.shop"
+        >
+            <argument type="service" id=".inner" />
+        </service>
+    </services>
 </container>

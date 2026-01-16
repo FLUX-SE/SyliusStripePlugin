@@ -51,7 +51,7 @@ final readonly class CaptureEndPaymentRequestHandler
 
         $paymentIntent = $this->retrieveWebElementsManager->retrieve($paymentRequest, $id);
 
-        // If the session is still open, we expire it
+        // If the payment intent is still waiting for user inputs, we cancel it
         if (in_array($paymentIntent->status, [
             PaymentIntent::STATUS_REQUIRES_ACTION,
             PaymentIntent::STATUS_REQUIRES_CONFIRMATION,

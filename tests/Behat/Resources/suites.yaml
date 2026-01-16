@@ -5,5 +5,5 @@ imports:
     - 'suites/ui/stripe_web_elements/shop.yaml'
     - 'suites/ui/stripe_web_elements/admin.yaml'
     - 'suites/api/admin.yaml'
-    #- 'suites/api/stripe_checkout/shop.yaml'
-    #- 'suites/api/stripe_web_elements/shop.yaml'
+    - 'suites/api/stripe_checkout/shop.yaml'
+    - 'suites/api/stripe_web_elements/shop.yaml'
