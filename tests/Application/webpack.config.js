@@ -6,6 +6,10 @@ const Encore = require('@symfony/webpack-encore');
 const SyliusAdmin = require('@sylius-ui/admin');
 const SyliusShop = require('@sylius-ui/shop');
 
+// Check if Sylius Refund Plugin is installed
+const refundPluginPath = path.resolve(__dirname, '../../vendor/sylius/refund-plugin');
+const hasRefundPlugin = fs.existsSync(refundPluginPath);
+
 // Admin config
 const adminConfig = SyliusAdmin.getBaseWebpackConfig(path.resolve(__dirname));
 
@@ -54,6 +58,10 @@ appShopConfig.name = 'app.shop';
 Encore.reset();
 
 // App admin config
+const adminEntrypoint = hasRefundPlugin
+  ? './assets/admin/entrypoint.js'
+  : './assets/admin/entrypoint_without_refund.js';
+
 Encore
   .setOutputPath('public/build/app/admin')
   .setPublicPath('/build/app/admin')
@@ -62,7 +70,7 @@ Encore
     to: 'images/[path][name].[hash:8].[ext]',
     pattern: /\.(png|jpe?g|gif|svg|webp)$/
   })
-  .addEntry('app-admin-entry', './assets/admin/entrypoint.js')
+  .addEntry('app-admin-entry', adminEntrypoint)
   .addAliases({
     '@vendor': path.resolve(__dirname, '../../vendor'),
   })
