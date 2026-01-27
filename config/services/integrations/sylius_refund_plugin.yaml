@@ -10,6 +10,6 @@ services:
             - '@sylius.announcer.payment_request'
             - '%flux_se.sylius_stripe.factories%'
         tags:
-            - name: kernel.event_listener
-              event: Sylius\RefundPlugin\Event\RefundPaymentGenerated
+            - name: messenger.message_handler
+              priority: 10
 

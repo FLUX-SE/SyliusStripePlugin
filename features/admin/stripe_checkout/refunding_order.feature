@@ -1,4 +1,4 @@
-@managing_stripe_checkout_orders
+@managing_stripe_checkout_orders @without_sylius_refund_plugin
 Feature: Refunding an order with Stripe Checkout Session
     In order to return the money to the Customer
     As an Administrator
@@ -14,7 +14,7 @@ Feature: Refunding an order with Stripe Checkout Session
         And the customer chose "Free" shipping method to "United States" with "Stripe" payment
         And I am logged in as an administrator
 
-    @ui @api @without_sylius_refund_plugin
+    @ui @api @javascript
     Scenario: Initializing the Stripe refund for a Stripe Checkout Session mode payment
         Given this order is already paid using Stripe Checkout
         And I am viewing the summary of this order
@@ -24,7 +24,7 @@ Feature: Refunding an order with Stripe Checkout Session
         And it should have payment with state refunded
         And it should have payment state "Refunded"
 
-    @ui @api @without_sylius_refund_plugin
+    @ui @api @javascript
     Scenario: Initializing the Stripe refund for a Stripe Checkout Session mode subscription
         Given this order related to a subscription is already paid using Stripe Checkout
         And I am viewing the summary of this order

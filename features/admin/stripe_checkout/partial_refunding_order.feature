@@ -1,4 +1,4 @@
-@managing_stripe_checkout_orders_refund
+@managing_stripe_checkout_orders_refund @with_sylius_refund_plugin
 Feature: Partially refunding an order with Stripe Checkout Session
     In order to return part of the money to the Customer
     As an Administrator
