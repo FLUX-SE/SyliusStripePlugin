@@ -260,6 +260,14 @@ class ManagingStripeCheckoutOrdersContext implements ManagingStripeOrdersContext
     }
 
     /**
+     * @Given /^I am prepared to partially refund ("[^"]+") from (this order)$/
+     */
+    public function iAmPreparedToPartiallyRefundFromThisOrder(int $amount, OrderInterface $order): void
+    {
+        $this->stripeCheckoutSessionMocker->mockRefundPayment($amount);
+    }
+
+    /**
      * @Given /^I am prepared to refund (this order) related to a subscription$/
      */
     public function iAmPreparedToRefundThisOrderRelatedToASubscription(OrderInterface $order): void

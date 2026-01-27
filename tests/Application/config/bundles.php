@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-return [
+$bundles = [
     Symfony\Bundle\FrameworkBundle\FrameworkBundle::class => ['all' => true],
     Symfony\Bundle\MonologBundle\MonologBundle::class => ['all' => true],
     Symfony\Bundle\SecurityBundle\SecurityBundle::class => ['all' => true],
@@ -45,9 +45,16 @@ return [
     Sylius\Bundle\ShopBundle\SyliusShopBundle::class => ['all' => true],
     Symfony\Bundle\DebugBundle\DebugBundle::class => ['dev' => true, 'test' => true, 'test_cached' => true],
     Symfony\Bundle\WebProfilerBundle\WebProfilerBundle::class => ['dev' => true, 'test' => true, 'test_cached' => true],
-    Fidry\AliceDataFixtures\Bridge\Symfony\FidryAliceDataFixturesBundle::class => ['dev' => true, 'test' => true, 'test_cached' => true],
+    Fidry\AliceDataFixtures\Bridge\Symfony\FidryAliceDataFixturesBundle::class => [
+        'dev' => true,
+        'test' => true,
+        'test_cached' => true
+    ],
     Nelmio\Alice\Bridge\Symfony\NelmioAliceBundle::class => ['dev' => true, 'test' => true, 'test_cached' => true],
-    FriendsOfBehat\SymfonyExtension\Bundle\FriendsOfBehatSymfonyExtensionBundle::class => ['test' => true, 'test_cached' => true],
+    FriendsOfBehat\SymfonyExtension\Bundle\FriendsOfBehatSymfonyExtensionBundle::class => [
+        'test' => true,
+        'test_cached' => true
+    ],
     Sylius\Behat\Application\SyliusTestPlugin\SyliusTestPlugin::class => ['test' => true, 'test_cached' => true],
     ApiPlatform\Symfony\Bundle\ApiPlatformBundle::class => ['all' => true],
     Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle::class => ['all' => true],
@@ -64,3 +71,13 @@ return [
     Symfony\UX\Icons\UXIconsBundle::class => ['all' => true],
     FluxSE\SyliusStripePlugin\FluxSESyliusStripePlugin::class => ['all' => true],
 ];
+
+if (class_exists(Sylius\RefundPlugin\SyliusRefundPlugin::class)) {
+    $bundles[Sylius\RefundPlugin\SyliusRefundPlugin::class] = ['all' => true];
+}
+
+if (class_exists(Knp\Bundle\SnappyBundle\KnpSnappyBundle::class)) {
+    $bundles[Knp\Bundle\SnappyBundle\KnpSnappyBundle::class] = ['all' => true];
+}
+
+return $bundles;

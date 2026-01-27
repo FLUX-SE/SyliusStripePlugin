@@ -17,6 +17,13 @@ final class RefundPaymentRequestCommandProvider implements PaymentRequestCommand
 
     public function provide(PaymentRequestInterface $paymentRequest): object
     {
-        return new RefundPaymentRequest($paymentRequest->getId());
+        $payload = $paymentRequest->getPayload();
+        $amount = null;
+        if (is_array($payload)) {
+            /** @var int|null $amount */
+            $amount = $payload['amount'] ?? null;
+        }
+
+        return new RefundPaymentRequest($paymentRequest->getId(), $amount);
     }
 }

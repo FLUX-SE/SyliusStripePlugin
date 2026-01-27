@@ -184,4 +184,12 @@ class ManagingStripeWebElementsOrdersContext implements ManagingStripeOrdersCont
 
         $this->stripeWebElementsMocker->mockRefundPayment($amount);
     }
+
+    /**
+     * @Given /^I am prepared to partially refund ("[^"]+") from (this order)$/
+     */
+    public function iAmPreparedToPartiallyRefundFromThisOrder(int $amount, OrderInterface $order): void
+    {
+        $this->stripeWebElementsMocker->mockRefundPayment($amount);
+    }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace FluxSE\SyliusStripePlugin;
 
 use FluxSE\SyliusStripePlugin\DependencyInjection\CompilerPass\LiveTwigComponentCompilerPass;
+use FluxSE\SyliusStripePlugin\DependencyInjection\CompilerPass\SyliusRefundSupportedGatewaysCompilerPass;
 use Sylius\Bundle\CoreBundle\Application\SyliusPluginTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
@@ -17,6 +18,9 @@ final class FluxSESyliusStripePlugin extends Bundle
     {
         // Before SyliusUiBundle compiler pass
         $container->addCompilerPass(new LiveTwigComponentCompilerPass(), priority: 501);
+
+        // Add Stripe gateways to SyliusRefundPlugin supported gateways
+        $container->addCompilerPass(new SyliusRefundSupportedGatewaysCompilerPass());
     }
 
     public function getPath(): string
