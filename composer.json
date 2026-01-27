@@ -66,7 +66,8 @@
     "autoload-dev": {
         "psr-4": {
             "Tests\\FluxSE\\SyliusStripePlugin\\": "tests/",
-            "Tests\\FluxSE\\SyliusStripePlugin\\App\\": "tests/Application/src/"
+            "Tests\\FluxSE\\SyliusStripePlugin\\App\\": "tests/Application/src/",
+            "Tests\\Sylius\\RefundPlugin\\": "vendor/sylius/refund-plugin/tests/"
         }
     },
     "conflict": {
