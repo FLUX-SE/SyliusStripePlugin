@@ -30,4 +30,3 @@ final class SyliusRefundSupportedGatewaysCompilerPass implements CompilerPassInt
         $container->setParameter('sylius_refund.supported_gateways', $mergedGateways);
     }
 }
-

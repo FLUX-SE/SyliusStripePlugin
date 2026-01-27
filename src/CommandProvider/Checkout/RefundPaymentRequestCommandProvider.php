@@ -20,7 +20,7 @@ final class RefundPaymentRequestCommandProvider implements PaymentRequestCommand
         $payload = $paymentRequest->getPayload();
         $amount = null;
         if (is_array($payload)) {
-            /** @var null|int $amount */
+            /** @var int|null $amount */
             $amount = $payload['amount'] ?? null;
         }
 

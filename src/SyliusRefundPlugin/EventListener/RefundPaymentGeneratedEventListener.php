@@ -86,4 +86,3 @@ final readonly class RefundPaymentGeneratedEventListener
         return in_array($factoryName, $this->supportedFactories, true);
     }
 }
-
