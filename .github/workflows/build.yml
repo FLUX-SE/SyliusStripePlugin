@@ -244,7 +244,12 @@ jobs:
 
             -
                 name: Run PHPUnit
-                run: vendor/bin/phpunit --colors=always
+                run: vendor/bin/phpunit --colors=always --testsuite=default
+
+            -
+                name: Run PHPUnit (Integration Refund)
+                if: matrix.refund == 'true'
+                run: vendor/bin/phpunit --colors=always --testsuite=integration-refund
 
             -   name: Run non-UI Behat
                 run: |

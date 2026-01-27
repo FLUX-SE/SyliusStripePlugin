@@ -17,6 +17,4 @@ return static function (ContainerConfigurator $container): void {
             'enabled' => false,
         ],
     ]);
-
-    $container->parameters()->set('sylius_refund.supported_gateways', ['offline', 'mollie']);
 };
