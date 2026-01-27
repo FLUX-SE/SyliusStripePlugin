@@ -13,7 +13,9 @@ parameters:
     ignoreErrors:
         # SyliusRefundPlugin when not enabled
         - message: '#.*Sylius\\RefundPlugin\\.*#'
-          path: src/SyliusRefundPlugin/EventListener/RefundPaymentGeneratedEventListener.php
+          paths:
+            - src/SyliusRefundPlugin/EventListener/RefundPaymentGeneratedEventListener.php
+            - tests/Integration/Refund/Unit/EventListener/RefundPaymentGeneratedEventListenerTest.php
         - message: '/Method FluxSE\\SyliusStripePlugin\\Stripe\\HttpClient\\PsrClient::[^\(]+\(\) has parameter \$[^ ]+ with no value type specified in iterable type array\./'
           path: src/Stripe/HttpClient/PsrClient.php
         - message: '/Method FluxSE\\SyliusStripePlugin\\Stripe\\HttpClient\\PsrClient::[^\(]+\(\) return type has no value type specified in iterable type array\./'
