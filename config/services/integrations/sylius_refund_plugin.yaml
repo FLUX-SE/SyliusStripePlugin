@@ -1,0 +1,15 @@
+services:
+
+    flux_se.sylius_stripe_plugin.sylius_refund_plugin.event_listener.refund_payment_generated:
+        class: FluxSE\SyliusStripePlugin\SyliusRefundPlugin\EventListener\RefundPaymentGeneratedEventListener
+        arguments:
+            - '@sylius.repository.payment'
+            - '@sylius.repository.payment_method'
+            - '@sylius.factory.payment_request'
+            - '@sylius.repository.payment_request'
+            - '@sylius.announcer.payment_request'
+            - '%flux_se.sylius_stripe.factories%'
+        tags:
+            - name: kernel.event_listener
+              event: Sylius\RefundPlugin\Event\RefundPaymentGenerated
+

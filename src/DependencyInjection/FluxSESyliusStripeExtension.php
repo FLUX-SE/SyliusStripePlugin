@@ -42,6 +42,9 @@ final class FluxSESyliusStripeExtension extends AbstractResourceExtension implem
             if (array_key_exists('SyliusShopBundle', $bundles)) {
                 $loader->load('services/integrations/sylius_shop.yaml');
             }
+            if (array_key_exists('SyliusRefundPlugin', $bundles)) {
+                $loader->load('services/integrations/sylius_refund_plugin.yaml');
+            }
         }
     }
 

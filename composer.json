@@ -54,7 +54,8 @@
     "suggest": {
         "sylius/shop-bundle": "Use the Sylius default front shop",
         "sylius/admin-bundle": "Use the Sylius default admin",
-        "sylius/api-bundle": "Use the Sylius default API"
+        "sylius/api-bundle": "Use the Sylius default API",
+        "sylius/refund-plugin": "Use the Sylius Refund plugin"
     },
     "autoload": {
         "psr-4": {
