@@ -1,0 +1,18 @@
+parameters:
+    flux_se.sylius_stripe.web_elements.retrieve.expand_fields:
+        - 'latest_charge'
+
+services:
+
+    flux_se.sylius_stripe.provider.web_elements.retrieve.params:
+        class: FluxSE\SyliusStripePlugin\Provider\CompositeParamsProvider
+        arguments:
+            - !tagged_iterator flux_se.sylius_stripe.provider.web_elements.retrieve.inner_params
+
+    flux_se.sylius_stripe.provider.web_elements.retrieve.expand:
+        class: FluxSE\SyliusStripePlugin\Provider\ExpandProvider
+        arguments:
+            - '%flux_se.sylius_stripe.web_elements.retrieve.expand_fields%'
+        tags:
+            - name: flux_se.sylius_stripe.provider.web_elements.retrieve.inner_params
+              priority: -100
