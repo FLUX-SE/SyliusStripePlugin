@@ -12,11 +12,11 @@ use Sylius\Component\Core\Model\PaymentMethodInterface;
 use Sylius\Resource\Doctrine\Persistence\RepositoryInterface;
 use Sylius\Resource\Model\ResourceInterface;
 use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Webmozart\Assert\Assert;
 
 class FormComponent
 {
+    use FactoryNameTrait;
     use LiveCollectionTrait;
     use TemplatePropTrait;
 
@@ -38,9 +38,6 @@ class FormComponent
     ) {
         $this->initialize($paymentMethodRepository, $formFactory, $resourceClass, $formClass);
     }
-
-    #[LiveProp(fieldName: 'factoryName')]
-    public ?string $factoryName = null;
 
     protected function createResource(): ResourceInterface
     {
