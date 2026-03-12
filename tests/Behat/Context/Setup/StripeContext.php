@@ -91,7 +91,7 @@ class StripeContext implements Context
         string $factoryName,
         string $description = '',
         bool $addForCurrentChannel = true,
-        int $position = null,
+        ?int $position = null,
     ): PaymentMethodInterface {
         /** @var PaymentMethodInterface $paymentMethod */
         $paymentMethod = $this->paymentMethodExampleFactory->create([

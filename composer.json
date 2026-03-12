@@ -54,7 +54,8 @@
     "suggest": {
         "sylius/shop-bundle": "Use the Sylius default front shop",
         "sylius/admin-bundle": "Use the Sylius default admin",
-        "sylius/api-bundle": "Use the Sylius default API"
+        "sylius/api-bundle": "Use the Sylius default API",
+        "sylius/refund-plugin": "Use the Sylius Refund plugin"
     },
     "autoload": {
         "psr-4": {
@@ -65,7 +66,8 @@
     "autoload-dev": {
         "psr-4": {
             "Tests\\FluxSE\\SyliusStripePlugin\\": "tests/",
-            "Tests\\FluxSE\\SyliusStripePlugin\\App\\": "tests/Application/src/"
+            "Tests\\FluxSE\\SyliusStripePlugin\\App\\": "tests/Application/src/",
+            "Tests\\Sylius\\RefundPlugin\\": "vendor/sylius/refund-plugin/tests/"
         }
     },
     "conflict": {
