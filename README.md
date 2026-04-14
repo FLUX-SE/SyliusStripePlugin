@@ -1,4 +1,4 @@
-# SyliusStripePlugin
+# StripePlugin
 
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Total Downloads][ico-total-downloads]][link-total-downloads]  
@@ -160,13 +160,15 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
 
-## Credits
+## Authors
 
-- [All Contributors](../../contributors)
+This plugin was originally created by [Harman Professional, Inc.](https://github.com/flux-se)
+
+Kudos to [Prometee](https://github.com/Prometee) and [all contributors](../../contributors) 🙏
 
 ## License
 
-Please see the [License File](LICENSE.md) for more information about licensing.
+This plugin is released under the [MIT License](LICENSE).
 
 [ico-version]: https://img.shields.io/packagist/v/flux-se/sylius-stripe-plugin.svg?style=flat-square
 [ico-total-downloads]: https://img.shields.io/packagist/dt/flux-se/sylius-stripe-plugin.svg?style=flat-square
