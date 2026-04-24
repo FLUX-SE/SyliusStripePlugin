@@ -70,7 +70,9 @@ final class PaymentIntentTransitionProvider implements PaymentIntentTransitionPr
         if (false === $charge instanceof Charge) {
             throw new \LogicException(sprintf(
                 'To avoid too many API requests, we need to get access to the PaymentIntent->latest_charge object at this point.
-                Please check that "%s" is expanding the Checkout/Session retrieval request with "payment_intent.latest_charge".',
+                Please check that "%s" is expanding the Checkout/Session retrieval request with
+                "payment_intent.latest_charge" (mode payment)
+                or "invoice.payment_intent.latest_charge" (mode subscription).',
                 ExpandProvider::class,
             ));
         }

@@ -7,7 +7,9 @@ parameters:
         - 'payment_intent.payment_method'
         - 'invoice'
         - 'invoice.charge'
-        - 'invoice.payment_intent'
+        - 'invoice.payment_intent' # subscription mode
+        - 'invoice.payment_intent.latest_charge' # subscription mode
+        - 'invoice.payment_intent.payment_method' # subscription mode
         - 'invoice.default_payment_method'
         - 'invoice.discounts'
         - 'setup_intent'
