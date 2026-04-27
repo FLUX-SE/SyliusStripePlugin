@@ -15,7 +15,7 @@ Feature: Refunding an order with Stripe JS
         And this order is already paid using Stripe web elements
         And I am logged in as an administrator
 
-    @ui @api
+    @ui @api @without_sylius_refund_plugin
     Scenario: Initializing the Stripe refund
         Given I am viewing the summary of this order
         And I am prepared to refund this order

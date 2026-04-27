@@ -11,20 +11,26 @@ jobs:
     static-checks:
         runs-on: ubuntu-latest
 
-        name: "Static checks (PHP ${{ matrix.php }}, Symfony ${{ matrix.symfony }})"
+        name: "Static checks (PHP ${{ matrix.php }}, Symfony ${{ matrix.symfony }}, Refund ${{ matrix.refund }})"
 
         timeout-minutes: 10
 
         strategy:
             fail-fast: false
             matrix:
-                php: ["8.2", "8.3"]
+                php: ["8.2", "8.3", "8.4"]
                 symfony: ["^6.4", "^7.2"]
                 sylius: ["^2.0"]
+                refund: ["false", "true"]
 
         steps:
             -
                 uses: actions/checkout@v4
+
+            -
+                name: Install Refund Plugin
+                if: matrix.refund == 'true'
+                run: composer require "sylius/refund-plugin" --no-update --no-scripts --no-interaction
 
             -
                 name: Setup PHP
@@ -95,16 +101,17 @@ jobs:
     tests:
         runs-on: ubuntu-latest
 
-        name: "Sylius ${{ matrix.sylius }}, PHP ${{ matrix.php }}, Symfony ${{ matrix.symfony }}, MySQL ${{ matrix.mysql }}"
+        name: "Sylius ${{ matrix.sylius }}, PHP ${{ matrix.php }}, Symfony ${{ matrix.symfony }}, MySQL ${{ matrix.mysql }}, Refund ${{ matrix.refund }}"
 
         strategy:
             fail-fast: false
             matrix:
-                php: ["8.2", "8.3"]
+                php: ["8.2", "8.3", "8.4"]
                 symfony: ["^6.4", "^7.2"]
                 sylius: ["^2.0"]
                 node: ["20.x"]
                 mysql: ["8.0"]
+                refund: ["false", "true"]
 
         env:
             APP_ENV: test
@@ -113,6 +120,11 @@ jobs:
         steps:
             -
                 uses: actions/checkout@v4
+
+            -
+                name: Install Refund Plugin
+                if: matrix.refund == 'true'
+                run: composer require "sylius/refund-plugin" --no-update --no-scripts --no-interaction
 
             -
                 name: Setup PHP
@@ -232,30 +244,38 @@ jobs:
 
             -
                 name: Run PHPUnit
-                run: vendor/bin/phpunit --colors=always
+                run: vendor/bin/phpunit --colors=always --testsuite=default
+
+            -
+                name: Run PHPUnit (Integration Refund)
+                if: matrix.refund == 'true'
+                run: vendor/bin/phpunit --colors=always --testsuite=integration-refund
 
             -   name: Run non-UI Behat
                 run: |
-                    vendor/bin/behat --colors --strict --no-interaction -vvv -f progress --tags="~@todo&&~@cli" --suite-tags="@api,@domain" || \
-                    vendor/bin/behat --colors --strict --no-interaction -vvv -f progress --tags="~@todo&&~@cli" --suite-tags="@api,@domain" --rerun
+                    EXCLUDED_TAGS="${{ matrix.refund == 'true' && '&&~@without_sylius_refund_plugin' || '&&~@with_sylius_refund_plugin' }}"
+                    vendor/bin/behat --colors --strict --no-interaction -vvv -f progress --tags="~@todo&&~@cli${EXCLUDED_TAGS}" --suite-tags="@api,@domain" || \
+                    vendor/bin/behat --colors --strict --no-interaction -vvv -f progress --tags="~@todo&&~@cli${EXCLUDED_TAGS}" --suite-tags="@api,@domain" --rerun
 
             -   name: Run non-JS Behat
                 run: |
-                    vendor/bin/behat --colors --strict --no-interaction -vvv -f progress --tags="~@javascript&&~@mink:chromedriver&&~@todo&&~@cli" --suite-tags="@hybrid,@ui" || \
-                    vendor/bin/behat --colors --strict --no-interaction -vvv -f progress --tags="~@javascript&&~@mink:chromedriver&&~@todo&&~@cli" --suite-tags="@hybrid,@ui" --rerun
+                    EXCLUDED_TAGS="${{ matrix.refund == 'true' && '&&~@without_sylius_refund_plugin' || '&&~@with_sylius_refund_plugin' }}"
+                    vendor/bin/behat --colors --strict --no-interaction -vvv -f progress --tags="~@javascript&&~@mink:chromedriver&&~@todo&&~@cli${EXCLUDED_TAGS}" --suite-tags="@hybrid,@ui" || \
+                    vendor/bin/behat --colors --strict --no-interaction -vvv -f progress --tags="~@javascript&&~@mink:chromedriver&&~@todo&&~@cli${EXCLUDED_TAGS}" --suite-tags="@hybrid,@ui" --rerun
 
             -   name: Run Behat (Panther)
                 run: |
-                    vendor/bin/behat --colors --strict --no-interaction -vvv -f progress --tags="@javascript&&~@todo&&~@cli" --suite-tags="@hybrid,@ui" || \
-                    vendor/bin/behat --colors --strict --no-interaction -vvv -f progress --tags="@javascript&&~@todo&&~@cli" --suite-tags="@hybrid,@ui" --rerun || \
-                    vendor/bin/behat --colors --strict --no-interaction -vvv -f progress --tags="@javascript&&~@todo&&~@cli" --suite-tags="@hybrid,@ui" --rerun
+                    EXCLUDED_TAGS="${{ matrix.refund == 'true' && '&&~@without_sylius_refund_plugin' || '&&~@with_sylius_refund_plugin' }}"
+                    vendor/bin/behat --colors --strict --no-interaction -vvv -f progress --tags="@javascript&&~@todo&&~@cli${EXCLUDED_TAGS}" --suite-tags="@hybrid,@ui" || \
+                    vendor/bin/behat --colors --strict --no-interaction -vvv -f progress --tags="@javascript&&~@todo&&~@cli${EXCLUDED_TAGS}" --suite-tags="@hybrid,@ui" --rerun || \
+                    vendor/bin/behat --colors --strict --no-interaction -vvv -f progress --tags="@javascript&&~@todo&&~@cli${EXCLUDED_TAGS}" --suite-tags="@hybrid,@ui" --rerun
             
             -
                 name: Upload Behat logs
                 uses: actions/upload-artifact@v4
                 if: failure()
                 with:
-                    name: Logs for Sylius ${{ matrix.sylius }}, PHP ${{ matrix.php }}, Symfony ${{ matrix.symfony }}, MySQL ${{ matrix.mysql }}
+                    name: Logs for Sylius ${{ matrix.sylius }}, PHP ${{ matrix.php }}, Symfony ${{ matrix.symfony }}, MySQL ${{ matrix.mysql }}, Refund ${{ matrix.refund }}
                     path: |
                         etc/build/
                         tests/Application/var/log

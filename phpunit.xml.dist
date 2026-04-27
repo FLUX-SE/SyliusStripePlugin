@@ -7,6 +7,10 @@
     <testsuites>
         <testsuite name="default">
             <directory>tests</directory>
+            <exclude>tests/Integration/Refund</exclude>
+        </testsuite>
+        <testsuite name="integration-refund">
+            <directory>tests/Integration/Refund</directory>
         </testsuite>
     </testsuites>
 
