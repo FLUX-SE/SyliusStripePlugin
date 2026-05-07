@@ -1,0 +1,12 @@
+imports:
+    - { resource: "@FluxSESyliusStripePlugin/config/config.yaml" }
+    - { resource: "services_test.php" }
+
+twig:
+    paths:
+        '%kernel.project_dir%/../../../tests/TestApplication/templates': ~
+
+when@test:
+    sylius_payment:
+        encryption:
+            enabled: false

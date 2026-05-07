@@ -34,6 +34,7 @@
         "sylius-labs/coding-standard": "^4.1",
         "sylius-labs/suite-tags-extension": "^0.2.0",
         "sylius/sylius": "^2.0",
+        "sylius/test-application": "^2.0.0@alpha",
         "symfony/browser-kit": "^6.4|^7.1",
         "symfony/debug-bundle": "^6.4|^7.1",
         "symfony/dotenv": "^6.4|^7.1",
@@ -64,29 +65,17 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\FluxSE\\SyliusStripePlugin\\": "tests/",
-            "Tests\\FluxSE\\SyliusStripePlugin\\App\\": "tests/Application/src/"
+            "Tests\\FluxSE\\SyliusStripePlugin\\": "tests/"
         }
     },
     "conflict": {
         "sylius/sylius": "<=2.0.3"
     },
-    "scripts": {
-        "post-install-cmd": [
-            "@php bin/create_node_symlink.php"
-        ],
-        "post-update-cmd": [
-            "@php bin/create_node_symlink.php"
-        ],
-        "post-create-project-cmd": [
-            "@php bin/create_node_symlink.php"
-        ]
-    },
     "config": {
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": false,
             "phpstan/extension-installer": true,
-            "symfony/flex": false,
+            "symfony/flex": true,
             "symfony/runtime": true
         }
     },
@@ -94,8 +83,6 @@
         "branch-alias": {
             "dev-main": "1.0-dev"
         },
-        "runtime": {
-            "project_dir": "tests/Application"
-        }
+        "public-dir": "vendor/sylius/test-application/public"
     }
 }
