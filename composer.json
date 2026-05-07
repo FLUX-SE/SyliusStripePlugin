@@ -12,7 +12,7 @@
     ],
     "require": {
         "sylius/core-bundle": "^2.0",
-        "stripe/stripe-php": "^16.1"
+        "stripe/stripe-php": "^17.0"
     },
     "require-dev": {
         "behat/behat": "^3.7",

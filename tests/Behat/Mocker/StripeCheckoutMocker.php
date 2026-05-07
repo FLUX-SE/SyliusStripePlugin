@@ -99,9 +99,21 @@ class StripeCheckoutMocker
             Invoice::OBJECT_NAME => [
                 'id' => 'in_test_1',
                 'object' => Invoice::OBJECT_NAME,
-                PaymentIntent::OBJECT_NAME => [
-                    'id' => 'pi_test_1',
-                    'object' => PaymentIntent::OBJECT_NAME,
+                'payments' => [
+                    'object' => 'list',
+                    'data' => [[
+                        'id' => 'inpay_test_1',
+                        'object' => 'invoice_payment',
+                        'status' => 'paid',
+                        'payment' => [
+                            'type' => 'payment_intent',
+                            'payment_intent' => [
+                                'id' => 'pi_test_1',
+                                'object' => PaymentIntent::OBJECT_NAME,
+                            ],
+                        ],
+                    ]],
+                    'has_more' => false,
                 ],
             ],
         ]);
@@ -117,14 +129,26 @@ class StripeCheckoutMocker
             Invoice::OBJECT_NAME => [
                 'id' => 'in_test_1',
                 'object' => Invoice::OBJECT_NAME,
-                PaymentIntent::OBJECT_NAME => [
-                    'id' => 'pi_test_1',
-                    'object' => PaymentIntent::OBJECT_NAME,
-                    'latest_charge' => [
-                        'id' => 'ch_test_1',
-                        'object' => Charge::OBJECT_NAME,
-                        'refunded' => true,
-                    ],
+                'payments' => [
+                    'object' => 'list',
+                    'data' => [[
+                        'id' => 'inpay_test_1',
+                        'object' => 'invoice_payment',
+                        'status' => 'paid',
+                        'payment' => [
+                            'type' => 'payment_intent',
+                            'payment_intent' => [
+                                'id' => 'pi_test_1',
+                                'object' => PaymentIntent::OBJECT_NAME,
+                                'latest_charge' => [
+                                    'id' => 'ch_test_1',
+                                    'object' => Charge::OBJECT_NAME,
+                                    'refunded' => true,
+                                ],
+                            ],
+                        ],
+                    ]],
+                    'has_more' => false,
                 ],
             ],
         ]);

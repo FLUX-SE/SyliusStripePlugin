@@ -79,9 +79,21 @@ class ManagingStripeCheckoutOrdersContext implements ManagingStripeOrdersContext
             Invoice::OBJECT_NAME => [
                 'id' => 'in_test_1',
                 'object' => Invoice::OBJECT_NAME,
-                PaymentIntent::OBJECT_NAME => [
-                    'id' => 'pi_test_1',
-                    'object' => PaymentIntent::OBJECT_NAME,
+                'payments' => [
+                    'object' => 'list',
+                    'data' => [[
+                        'id' => 'inpay_test_1',
+                        'object' => 'invoice_payment',
+                        'status' => 'paid',
+                        'payment' => [
+                            'type' => 'payment_intent',
+                            'payment_intent' => [
+                                'id' => 'pi_test_1',
+                                'object' => PaymentIntent::OBJECT_NAME,
+                            ],
+                        ],
+                    ]],
+                    'has_more' => false,
                 ],
             ],
         ];

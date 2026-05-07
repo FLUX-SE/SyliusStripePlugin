@@ -61,7 +61,7 @@ final class StripeClientWithExpectations implements StripeClientWithExpectations
      *
      * @return array{0: string, 1: int, 2: array<string, string>}
      */
-    public function request($method, $absUrl, $headers, $params, $hasFile, $apiMode = 'v1')
+    public function request($method, $absUrl, $headers, $params, $hasFile, $apiMode = 'v1', $maxNetworkRetries = null)
     {
         $cacheItem = $this->getCacheItem();
 

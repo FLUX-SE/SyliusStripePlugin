@@ -24,16 +24,27 @@ final class RefundSubscriptionInitProvider implements PaymentIntentToRefundProvi
             return null;
         }
 
-        /** @var array{payment_intent?: string}|null $invoice */
+        /** @var array{payments?: array{data?: array<int, array{payment?: array{type?: string, payment_intent?: string|array{id?: string}}}>}}|null $invoice */
         $invoice = $paymentRequest->getPayment()->getDetails()['invoice'] ?? null;
-
-        /** @var string|array{id?: string}|null $paymentIntent */
-        $paymentIntent = $invoice['payment_intent'] ?? null;
-
-        if (is_array($paymentIntent)) {
-            return $paymentIntent['id'] ?? null;
+        if (null === $invoice) {
+            return null;
         }
 
-        return $paymentIntent;
+        $invoicePayments = $invoice['payments']['data'] ?? [];
+        foreach ($invoicePayments as $invoicePayment) {
+            $payment = $invoicePayment['payment'] ?? null;
+            if (null === $payment || 'payment_intent' !== ($payment['type'] ?? null)) {
+                continue;
+            }
+
+            $paymentIntent = $payment['payment_intent'] ?? null;
+            if (is_array($paymentIntent)) {
+                return $paymentIntent['id'] ?? null;
+            }
+
+            return $paymentIntent;
+        }
+
+        return null;
     }
 }
