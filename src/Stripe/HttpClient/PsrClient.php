@@ -55,7 +55,7 @@ final class PsrClient implements ClientInterface, StreamingClientInterface
      */
     private function constructRequest(string $method, string $absUrl, array $headers, array $params, bool $hasFile): RequestInterface
     {
-        $params = Util::objectsToIds($params);
+        $params = Util::objectsToIds($params, false);
 
         $request = $this->requestFactory->createRequest(strtoupper($method), $absUrl);
 
