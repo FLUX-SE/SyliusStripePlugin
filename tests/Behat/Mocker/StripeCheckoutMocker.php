@@ -90,32 +90,36 @@ class StripeCheckoutMocker
             'status' => Subscription::STATUS_ACTIVE,
         ];
 
+        $invoiceWithStringPaymentIntent = [
+            'id' => 'in_test_1',
+            'object' => Invoice::OBJECT_NAME,
+            'payments' => [
+                'object' => 'list',
+                'data' => [[
+                    'id' => 'inpay_test_1',
+                    'object' => 'invoice_payment',
+                    'status' => 'paid',
+                    'payment' => [
+                        'type' => 'payment_intent',
+                        'payment_intent' => 'pi_test_1',
+                    ],
+                ]],
+                'has_more' => false,
+            ],
+        ];
+
         $this->checkoutSessionMocker->mockRetrieveAction([
             'mode' => Session::MODE_SUBSCRIPTION,
             'status' => Session::STATUS_COMPLETE,
             'payment_status' => Session::PAYMENT_STATUS_PAID,
             'amount_total' => $amount,
             Subscription::OBJECT_NAME => $subscriptionData,
-            Invoice::OBJECT_NAME => [
-                'id' => 'in_test_1',
-                'object' => Invoice::OBJECT_NAME,
-                'payments' => [
-                    'object' => 'list',
-                    'data' => [[
-                        'id' => 'inpay_test_1',
-                        'object' => 'invoice_payment',
-                        'status' => 'paid',
-                        'payment' => [
-                            'type' => 'payment_intent',
-                            'payment_intent' => [
-                                'id' => 'pi_test_1',
-                                'object' => PaymentIntent::OBJECT_NAME,
-                            ],
-                        ],
-                    ]],
-                    'has_more' => false,
-                ],
-            ],
+            Invoice::OBJECT_NAME => $invoiceWithStringPaymentIntent,
+        ]);
+
+        $this->paymentIntentMocker->mockRetrieveAction([
+            'id' => 'pi_test_1',
+            'status' => PaymentIntent::STATUS_SUCCEEDED,
         ]);
 
         $this->refundMocker->mockCreateAction();
@@ -126,30 +130,16 @@ class StripeCheckoutMocker
             'payment_status' => Session::PAYMENT_STATUS_PAID,
             'amount_total' => $amount,
             Subscription::OBJECT_NAME => $subscriptionData,
-            Invoice::OBJECT_NAME => [
-                'id' => 'in_test_1',
-                'object' => Invoice::OBJECT_NAME,
-                'payments' => [
-                    'object' => 'list',
-                    'data' => [[
-                        'id' => 'inpay_test_1',
-                        'object' => 'invoice_payment',
-                        'status' => 'paid',
-                        'payment' => [
-                            'type' => 'payment_intent',
-                            'payment_intent' => [
-                                'id' => 'pi_test_1',
-                                'object' => PaymentIntent::OBJECT_NAME,
-                                'latest_charge' => [
-                                    'id' => 'ch_test_1',
-                                    'object' => Charge::OBJECT_NAME,
-                                    'refunded' => true,
-                                ],
-                            ],
-                        ],
-                    ]],
-                    'has_more' => false,
-                ],
+            Invoice::OBJECT_NAME => $invoiceWithStringPaymentIntent,
+        ]);
+
+        $this->paymentIntentMocker->mockRetrieveAction([
+            'id' => 'pi_test_1',
+            'status' => PaymentIntent::STATUS_SUCCEEDED,
+            'latest_charge' => [
+                'id' => 'ch_test_1',
+                'object' => Charge::OBJECT_NAME,
+                'refunded' => true,
             ],
         ]);
     }

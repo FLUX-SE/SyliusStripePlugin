@@ -6,10 +6,7 @@ parameters:
         - 'payment_intent.latest_charge'
         - 'payment_intent.payment_method'
         - 'invoice'
-        - 'invoice.payments' # subscription mode
-        - 'invoice.payments.data.payment.payment_intent' # subscription mode
-        - 'invoice.payments.data.payment.payment_intent.latest_charge' # subscription mode
-        - 'invoice.payments.data.payment.payment_intent.payment_method' # subscription mode
+        - 'invoice.payments' # subscription mode (PaymentIntent enrichment via SubscriptionAwareRetrieveManager)
         - 'invoice.default_payment_method'
         - 'invoice.discounts'
         - 'setup_intent'
