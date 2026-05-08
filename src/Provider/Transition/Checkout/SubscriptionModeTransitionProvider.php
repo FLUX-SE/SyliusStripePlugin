@@ -80,16 +80,32 @@ final class SubscriptionModeTransitionProvider implements SessionModeTransitionP
             ));
         }
 
-        $paymentIntent = $invoice->payment_intent;
-        if (false === $paymentIntent instanceof PaymentIntent) {
+        $payments = $invoice->payments;
+        if (null === $payments) {
             throw new \LogicException(sprintf(
-                'To avoid too many API requests, we need to get access to a PaymentIntent object at this point.
-                Please check that "%s" is expanding the Checkout/Session retrieval request with "invoice.payment_intent".',
+                'To avoid too many API requests, we need to get access to the Invoice payments collection at this point.
+                Please check that "%s" is expanding the Checkout/Session retrieval request with "invoice.payments".',
                 ExpandProvider::class,
             ));
         }
 
-        return $paymentIntent;
+        foreach ($payments->data as $invoicePayment) {
+            $payment = $invoicePayment->payment;
+            if ('payment_intent' !== ($payment->type ?? null)) {
+                continue;
+            }
+
+            $paymentIntent = $payment->payment_intent ?? null;
+            if ($paymentIntent instanceof PaymentIntent) {
+                return $paymentIntent;
+            }
+        }
+
+        throw new \LogicException(sprintf(
+            'To avoid too many API requests, we need to get access to a PaymentIntent object at this point.
+            Please check that "%s" is expanding the Checkout/Session retrieval request with "invoice.payments.data.payment.payment_intent".',
+            ExpandProvider::class,
+        ));
     }
 
     public static function getSupportedMode(): string

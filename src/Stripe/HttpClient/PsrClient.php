@@ -25,7 +25,7 @@ final class PsrClient implements ClientInterface, StreamingClientInterface
     ) {
     }
 
-    public function request($method, $absUrl, $headers, $params, $hasFile, $apiMode = 'v1'): array
+    public function request($method, $absUrl, $headers, $params, $hasFile, $apiMode = 'v1', $maxNetworkRetries = null): array
     {
         $request = $this->constructRequest($method, $absUrl, $headers, $params, $hasFile);
 
@@ -34,7 +34,7 @@ final class PsrClient implements ClientInterface, StreamingClientInterface
         return $this->prepareReturnedResponse($response);
     }
 
-    public function requestStream($method, $absUrl, $headers, $params, $hasFile, $readBodyChunkCallable): array
+    public function requestStream($method, $absUrl, $headers, $params, $hasFile, $readBodyChunkCallable, $maxNetworkRetries = null): array
     {
         $request = $this->constructRequest($method, $absUrl, $headers, $params, $hasFile);
 
@@ -55,7 +55,7 @@ final class PsrClient implements ClientInterface, StreamingClientInterface
      */
     private function constructRequest(string $method, string $absUrl, array $headers, array $params, bool $hasFile): RequestInterface
     {
-        $params = Util::objectsToIds($params);
+        $params = Util::objectsToIds($params, false);
 
         $request = $this->requestFactory->createRequest(strtoupper($method), $absUrl);
 
