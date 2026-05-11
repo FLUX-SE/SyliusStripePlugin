@@ -20,9 +20,7 @@ final class StripeGatewayConfigurationTypeTest extends TestCase
         $this->validator = Validation::createValidator();
     }
 
-    /**
-     * @dataProvider acceptedSecretKeyProvider
-     */
+    /** @dataProvider acceptedSecretKeyProvider */
     public function test_secret_key_field_accepts_secret_and_restricted_keys(string $key): void
     {
         $violations = $this->validator->validate($key, $this->secretKeyConstraints());
@@ -30,9 +28,7 @@ final class StripeGatewayConfigurationTypeTest extends TestCase
         self::assertCount(0, $violations, sprintf('Expected "%s" to be accepted.', $key));
     }
 
-    /**
-     * @return iterable<string, array{string}>
-     */
+    /** @return iterable<string, array{string}> */
     public static function acceptedSecretKeyProvider(): iterable
     {
         yield 'secret key in test mode' => ['sk_test_abc123'];
@@ -41,9 +37,7 @@ final class StripeGatewayConfigurationTypeTest extends TestCase
         yield 'restricted key in live mode' => ['rk_live_abc123'];
     }
 
-    /**
-     * @dataProvider rejectedSecretKeyProvider
-     */
+    /** @dataProvider rejectedSecretKeyProvider */
     public function test_secret_key_field_rejects_invalid_keys(string $key): void
     {
         $violations = $this->validator->validate($key, $this->secretKeyConstraints());
@@ -51,9 +45,7 @@ final class StripeGatewayConfigurationTypeTest extends TestCase
         self::assertGreaterThan(0, $violations->count(), sprintf('Expected "%s" to be rejected.', $key));
     }
 
-    /**
-     * @return iterable<string, array{string}>
-     */
+    /** @return iterable<string, array{string}> */
     public static function rejectedSecretKeyProvider(): iterable
     {
         yield 'empty string' => [''];
@@ -64,14 +56,55 @@ final class StripeGatewayConfigurationTypeTest extends TestCase
         yield 'restricted key without environment segment' => ['rk_abc123'];
     }
 
-    /**
-     * @return list<NotBlank|Regex>
-     */
+    /** @dataProvider acceptedPublishableKeyProvider */
+    public function test_publishable_key_field_accepts_publishable_keys(string $key): void
+    {
+        $violations = $this->validator->validate($key, $this->publishableKeyConstraints());
+
+        self::assertCount(0, $violations, sprintf('Expected "%s" to be accepted.', $key));
+    }
+
+    /** @return iterable<string, array{string}> */
+    public static function acceptedPublishableKeyProvider(): iterable
+    {
+        yield 'publishable key in test mode' => ['pk_test_abc123'];
+        yield 'publishable key in live mode' => ['pk_live_abc123'];
+    }
+
+    /** @dataProvider rejectedPublishableKeyProvider */
+    public function test_publishable_key_field_rejects_invalid_keys(string $key): void
+    {
+        $violations = $this->validator->validate($key, $this->publishableKeyConstraints());
+
+        self::assertGreaterThan(0, $violations->count(), sprintf('Expected "%s" to be rejected.', $key));
+    }
+
+    /** @return iterable<string, array{string}> */
+    public static function rejectedPublishableKeyProvider(): iterable
+    {
+        yield 'empty string' => [''];
+        yield 'secret key pasted by mistake' => ['sk_test_abc123'];
+        yield 'restricted key pasted by mistake' => ['rk_test_abc123'];
+        yield 'webhook signing secret pasted by mistake' => ['whsec_abc123'];
+        yield 'random text' => ['random'];
+        yield 'publishable key without environment segment' => ['pk_abc123'];
+    }
+
+    /** @return list<NotBlank|Regex> */
     private function secretKeyConstraints(): array
     {
         return [
             new NotBlank(),
             new Regex(['pattern' => StripeGatewayConfigurationType::SECRET_KEY_PATTERN]),
+        ];
+    }
+
+    /** @return list<NotBlank|Regex> */
+    private function publishableKeyConstraints(): array
+    {
+        return [
+            new NotBlank(),
+            new Regex(['pattern' => StripeGatewayConfigurationType::PUBLISHABLE_KEY_PATTERN]),
         ];
     }
 }

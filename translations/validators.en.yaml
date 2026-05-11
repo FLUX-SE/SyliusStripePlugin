@@ -7,6 +7,7 @@ flux_se_sylius_stripe_plugin:
             invalid_format: 'The Stripe key must start with sk_test_, sk_live_, rk_test_ or rk_live_.'
         publishable_key:
             not_blank: Please enter stripe publishable key.
+            invalid_format: 'The Stripe publishable key must start with pk_test_ or pk_live_.'
     stripe_checkout:
         success_url:
             not_found: The request body must contain a "payload" attribute (array type), and within it, a "success_url" attribute (string value) to be able to redirect the visitor after the Stripe Checkout Session portal completion.
