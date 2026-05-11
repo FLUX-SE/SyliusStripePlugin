@@ -3,9 +3,11 @@ flux_se_sylius_stripe_plugin:
         webhook_secret_keys:
             not_blank: Veuillez saisir la clé secrète du webhook stripe.
         secret_key:
-            not_blank: Veuillez entrer votre clé secrète Stripe.
+            not_blank: Veuillez entrer votre clé secrète ou restreinte Stripe.
+            invalid_format: 'La clé Stripe doit commencer par sk_test_, sk_live_, rk_test_ ou rk_live_.'
         publishable_key:
             not_blank: Veuillez entrer votre clé publique Stripe.
+            invalid_format: 'La clé publique Stripe doit commencer par pk_test_ ou pk_live_.'
     stripe_checkout:
         success_url:
             not_found: Le corps de la requête doit contenir un attribut "payload" (type array), et à l'intérieur de celui-ci, un attribut "success_url" (type string) afin de pouvoir rediriger le visiteur après avoir terminé une Stripe Checkout Session.

@@ -24,7 +24,7 @@ final class CreatePage extends BaseCreatePage implements CreatePageInterface
 
     public function setStripeSecretKey(string $secretKey): void
     {
-        $this->getDocument()->fillField('Secret key', $secretKey);
+        $this->getDocument()->fillField('Secret or restricted key', $secretKey);
     }
 
     public function setStripePublishableKey(string $publishableKey): void
