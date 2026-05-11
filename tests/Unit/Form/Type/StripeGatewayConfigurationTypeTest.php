@@ -1,0 +1,77 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\FluxSE\SyliusStripePlugin\Unit\Form\Type;
+
+use FluxSE\SyliusStripePlugin\Form\Type\StripeGatewayConfigurationType;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
+use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+
+final class StripeGatewayConfigurationTypeTest extends TestCase
+{
+    private ValidatorInterface $validator;
+
+    protected function setUp(): void
+    {
+        $this->validator = Validation::createValidator();
+    }
+
+    /**
+     * @dataProvider acceptedSecretKeyProvider
+     */
+    public function test_secret_key_field_accepts_secret_and_restricted_keys(string $key): void
+    {
+        $violations = $this->validator->validate($key, $this->secretKeyConstraints());
+
+        self::assertCount(0, $violations, sprintf('Expected "%s" to be accepted.', $key));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function acceptedSecretKeyProvider(): iterable
+    {
+        yield 'secret key in test mode' => ['sk_test_abc123'];
+        yield 'secret key in live mode' => ['sk_live_abc123'];
+        yield 'restricted key in test mode' => ['rk_test_abc123'];
+        yield 'restricted key in live mode' => ['rk_live_abc123'];
+    }
+
+    /**
+     * @dataProvider rejectedSecretKeyProvider
+     */
+    public function test_secret_key_field_rejects_invalid_keys(string $key): void
+    {
+        $violations = $this->validator->validate($key, $this->secretKeyConstraints());
+
+        self::assertGreaterThan(0, $violations->count(), sprintf('Expected "%s" to be rejected.', $key));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function rejectedSecretKeyProvider(): iterable
+    {
+        yield 'empty string' => [''];
+        yield 'publishable key pasted by mistake' => ['pk_test_abc123'];
+        yield 'webhook signing secret pasted by mistake' => ['whsec_abc123'];
+        yield 'random text' => ['random'];
+        yield 'secret key without environment segment' => ['sk_abc123'];
+        yield 'restricted key without environment segment' => ['rk_abc123'];
+    }
+
+    /**
+     * @return list<NotBlank|Regex>
+     */
+    private function secretKeyConstraints(): array
+    {
+        return [
+            new NotBlank(),
+            new Regex(['pattern' => StripeGatewayConfigurationType::SECRET_KEY_PATTERN]),
+        ];
+    }
+}

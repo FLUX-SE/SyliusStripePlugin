@@ -9,10 +9,13 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\UX\LiveComponent\Form\Type\LiveCollectionType;
 
 final class StripeGatewayConfigurationType extends AbstractType
 {
+    public const SECRET_KEY_PATTERN = '/^(sk|rk)_(test|live)_/';
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -34,6 +37,15 @@ final class StripeGatewayConfigurationType extends AbstractType
                 'constraints' => [
                     new NotBlank([
                         'message' => 'flux_se_sylius_stripe_plugin.stripe.secret_key.not_blank',
+                        'groups' => [
+                            'sylius',
+                            'stripe_checkout',
+                            'stripe_web_elements',
+                        ],
+                    ]),
+                    new Regex([
+                        'pattern' => self::SECRET_KEY_PATTERN,
+                        'message' => 'flux_se_sylius_stripe_plugin.stripe.secret_key.invalid_format',
                         'groups' => [
                             'sylius',
                             'stripe_checkout',
