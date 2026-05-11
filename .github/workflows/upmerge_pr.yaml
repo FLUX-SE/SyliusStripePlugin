@@ -37,7 +37,7 @@ jobs:
                 name: Create Pull Request
                 uses: peter-evans/create-pull-request@v4
                 with:
-                    token: ${{ secrets.SYLIUS_BOT_PAT }}
+                    token: ${{ secrets.UPMERGE_TOKEN }}
                     title: '[UPMERGE] ${{ matrix.base_branch }} -> ${{ matrix.target_branch }}'
                     body: |
                         This PR has been generated automatically.
