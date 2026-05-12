@@ -8,10 +8,6 @@ use Sylius\Component\Core\Model\AddressInterface;
 
 interface ExpressCheckoutAddressNormalizerInterface
 {
-    public const TYPE_GOOGLE_PAY = 'google_pay';
-
-    public const TYPE_APPLE_PAY = 'apple_pay';
-
     /** @param array<string, mixed> $payload */
     public function normalizeShipping(array $payload): AddressInterface;
 

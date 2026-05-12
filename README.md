@@ -34,7 +34,7 @@ This is where your description should go. Limit it to a paragraph or two. Consid
     # ...
     - { resource: "@FluxSESyliusStripePlugin/config/config.yaml" }
     ```
-4. Import shop routes (required for the Express Checkout cart button)
+4. Import shop routes (required for the Express Checkout cart button — Apple Pay, Google Pay, Link, etc.)
     ```yaml
     # config/routes/flux_se_sylius_stripe.yaml
 
@@ -112,8 +112,11 @@ Then create a new endpoint with those events:
 > For `stripe_web_elements` the same `payment_intent.*` events are already required by
 > the regular flow — no extra subscription is needed when the toggle is on.
 >
-> See [Express Checkout (Google Pay / Apple Pay) on the cart page](docs/EXPRESS-CHECKOUT.md)
-> for the full setup (domain registration, wallet activation, local testing).
+> See [Express Checkout on the cart page](docs/EXPRESS-CHECKOUT.md) for the full setup
+> (domain registration, wallet activation, local testing). Which wallets actually appear
+> on the button (Apple Pay, Google Pay, Link, PayPal, Amazon Pay) is decided by your
+> Stripe Dashboard configuration and the customer's browser — the plugin does not
+> hard-code that list.
 
 The URL to fill is the route named `sylius_payment_method_notify` with the `{code}`
 param equal to the `payment method code`, here is an example :
@@ -182,7 +185,7 @@ Payment method configuration edit form in the Sylius admin.
 
 - [API (Sylius using APIPlatform)](docs/API.md)
 - [Webhook events](docs/WEBHOOK-EVENTS.md)
-- [Express Checkout (Google Pay / Apple Pay) on the cart page](docs/EXPRESS-CHECKOUT.md)
+- [Express Checkout on the cart page](docs/EXPRESS-CHECKOUT.md)
 
 ## Changelog
 

@@ -8,13 +8,13 @@ flux_se_sylius_stripe_plugin:
                 publishable_key: Clé publique
                 secret_key: Clé secrète ou clé d'API restreinte
                 use_authorize: Utiliser "authorize"
-                enable_express_checkout: Activer Express Checkout (Google Pay / Apple Pay)
+                enable_express_checkout: Activer Express Checkout
                 webhook_secret_keys: Clés secrètes du webhook
                 payment_method_types: Types de méthodes de paiement
                 info:
                     secret_key: Collez votre clé secrète Stripe (sk_…) depuis le tableau de bord Stripe, ou une clé d'API restreinte (rk_…) générée par la page de paramètres de l'application Sylius Stripe.
                     use_authorize:  Lorsqu'un paiement est autorisé, la banque garantit le montant et le conserve sur la carte du client jusqu'à sept jours.
-                    enable_express_checkout: Affichez les boutons Apple Pay et Google Pay sur la page du panier en utilisant les clés de cette passerelle. Nécessite l'abonnement aux événements payment_intent.succeeded, payment_intent.canceled et payment_intent.processing dans le webhook de votre tableau de bord Stripe, ainsi qu'un domaine de méthode de paiement enregistré.
+                    enable_express_checkout: Affichez les boutons de portefeuille (Apple Pay, Google Pay, Link, …) sur la page du panier en utilisant les clés de cette passerelle. Les boutons réellement affichés dépendent des portefeuilles activés dans votre tableau de bord Stripe et du navigateur du client. Nécessite l'abonnement aux événements payment_intent.succeeded, payment_intent.canceled et payment_intent.processing dans le webhook de votre tableau de bord Stripe, ainsi qu'un domaine de méthode de paiement enregistré.
                     webhook_secret_key: Créez un nouveau webhook endpoint pour créer une clé secrète de webhook sur le tableau de bord Stripe et écoutez plusieurs événements.
                     payment_method_type: Il n'est normalement pas nécessaire de définir des méthodes de paiement, vous pouvez les gérer dans votre tableau de bord Stripe.
                 action:

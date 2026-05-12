@@ -1,12 +1,22 @@
-# Express Checkout (Google Pay / Apple Pay) on the cart page
+# Express Checkout on the cart page
 
 Stripe's [Express Checkout Element](https://docs.stripe.com/elements/express-checkout-element)
-exposes wallet buttons (Google Pay, Apple Pay, Link) that let a customer pay directly from
-the cart page, skipping the regular multi-step Sylius checkout.
+exposes wallet buttons (Apple Pay, Google Pay, Link, PayPal, Amazon Pay) that let a
+customer pay directly from the cart page, skipping the regular multi-step Sylius checkout.
 
-The current release ships **Google Pay support**. Apple Pay requires a small follow-up
-(domain association file + a normalizer branch — see [Apple Pay follow-up](#apple-pay-follow-up)
-below).
+**The plugin does not hard-code which wallets to show.** The buttons rendered depend on:
+
+- which wallets are enabled in the merchant's **Stripe Dashboard** (Settings → Payment
+  methods),
+- whether the cart-page domain is **registered for that wallet** in Stripe Dashboard
+  (Settings → Payment method domains), and
+- whether the customer's browser / device supports the wallet (Google Pay needs Chrome
+  with a saved card; Apple Pay needs Safari on macOS/iOS; Link recognises a returning
+  customer by email or cookie).
+
+Stripe's Express Checkout Element normalizes the wallet-specific payloads into a single
+shape, so the plugin's backend (`ConfirmAction`, address normalizer) handles every
+supported wallet through the same code path.
 
 ## How it works
 
@@ -80,10 +90,26 @@ Stripe Dashboard → Settings → Payment method domains → **Add a new domain*
 
 For local development with `https://127.0.0.1:8009/` add `127.0.0.1` as the domain too.
 
+When a domain is added through Payment method domains, Stripe automatically handles
+Apple Pay's domain association verification — no `apple-developer-merchantid-domain-association`
+file needs to be hosted manually. The Dashboard UI shows a green check next to each wallet
+once verification succeeds; if it fails, follow the on-screen remediation steps (typically a
+DNS or HTTPS issue).
+
 ### Activate wallets
 
-Stripe Dashboard → Settings → Payment methods → enable **Google Pay** (and **Apple Pay**
-once the follow-up steps are done).
+Stripe Dashboard → Settings → Payment methods → enable each wallet you want to expose:
+
+- **Apple Pay** — supported in Safari on macOS / iOS; requires the domain to be verified
+  via Payment method domains (see above).
+- **Google Pay** — supported in Chrome (and Chromium-based browsers) when the customer
+  has a saved card in their Google account.
+- **Link** — Stripe's cross-merchant wallet, recognises returning customers by email or
+  cookie; no extra setup beyond enabling it in the Dashboard.
+- **PayPal / Amazon Pay** — available in some regions / accounts; same Dashboard toggle.
+
+The plugin defers to `'auto'` for every wallet, so the choice of which buttons appear is
+fully controlled from the Stripe Dashboard.
 
 ### Webhook events
 
@@ -161,22 +187,6 @@ secret keys and keep the process running.
 | `stripe.confirmPayment` throws "no such payment_intent" | The `confirm` endpoint returned an error and the JS did not stop — open the network tab and inspect the response body |
 | Webhook delivers but `Payment` stays `processing` | For a `stripe_checkout` PaymentMethod, check the `payment_intent.*` events are subscribed (see the table above) |
 
-## Apple Pay follow-up
-
-The current release ships with `applePay: 'never'` in the JS module. To enable Apple Pay:
-
-1. Switch the flag to `applePay: 'always'` in
-   `assets/shop/js/express-checkout/cart.js`.
-2. Place the Apple Pay domain association file (downloaded from Stripe Dashboard →
-   Settings → Payment method domains → Apple Pay) under
-   `public/.well-known/apple-developer-merchantid-domain-association`.
-3. Extend `FluxSE\SyliusStripePlugin\Normalizer\ExpressCheckoutAddressNormalizer` with an
-   Apple Pay branch — Apple Pay's `shippingContact` / `billingContact` use a different
-   shape (`addressLines: []`, separate `givenName` / `familyName`) than Google Pay's
-   `shippingAddress.address`.
-4. Add Apple Pay test fixtures to the normalizer test suite (see
-   `tests/Unit/Normalizer/ExpressCheckoutAddressNormalizerTest.php`).
-
 ## Architecture notes
 
 - The Express Checkout pipeline reuses `FluxSE\SyliusStripePlugin\CommandHandler\WebElements\CapturePaymentRequestHandler`
@@ -197,3 +207,6 @@ The current release ships with `applePay: 'never'` in the JS module. To enable A
   Sylius's `summary` at priority 100 and `checkout` button at priority 0).
 - The JS module loads Stripe.js v3 lazily from the CDN (sharing the script tag with the
   existing order-pay flow if both are present).
+- The `expressCheckout` Element is created with an empty `paymentMethods` config —
+  every wallet defaults to `'auto'`, so the visible buttons are driven entirely by the
+  merchant's Stripe Dashboard settings and the customer's browser support.

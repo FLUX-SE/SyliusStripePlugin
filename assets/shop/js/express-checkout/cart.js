@@ -107,9 +107,10 @@
             currency: (configuration.currency || 'usd').toLowerCase(),
         });
 
-        const expressCheckout = elements.create('expressCheckout', {
-            paymentMethods: { googlePay: 'always', applePay: 'never' },
-        });
+        // Defer wallet selection to Stripe (all paymentMethods default to 'auto'):
+        // the buttons rendered depend on the wallets enabled in the merchant's Stripe
+        // Dashboard and on what the customer's browser supports.
+        const expressCheckout = elements.create('expressCheckout', {});
         expressCheckout.mount(mountPoint);
 
         expressCheckout.on('ready', (event) => {

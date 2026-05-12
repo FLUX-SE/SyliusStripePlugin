@@ -16,18 +16,12 @@ final readonly class ExpressCheckoutAddressNormalizer implements ExpressCheckout
 
     public function normalizeShipping(array $payload): AddressInterface
     {
-        $type = $payload['expressPaymentType'] ?? null;
-        if (!is_string($type)) {
-            throw new \InvalidArgumentException('Missing or invalid "expressPaymentType" in payload.');
+        $shippingAddress = $payload['shippingAddress'] ?? null;
+        if (!is_array($shippingAddress)) {
+            throw new \InvalidArgumentException('Missing or invalid "shippingAddress" in payload.');
         }
 
-        return match ($type) {
-            self::TYPE_GOOGLE_PAY => $this->fromGooglePayShippingAddress(
-                is_array($payload['shippingAddress'] ?? null) ? $payload['shippingAddress'] : [],
-            ),
-            self::TYPE_APPLE_PAY => throw new \LogicException('Apple Pay address normalization is not yet implemented.'),
-            default => throw new \InvalidArgumentException(sprintf('Unsupported express payment type "%s".', $type)),
-        };
+        return $this->fromShippingAddress($shippingAddress);
     }
 
     public function normalizeBilling(array $payload, AddressInterface $shippingFallback): AddressInterface
@@ -58,8 +52,14 @@ final readonly class ExpressCheckoutAddressNormalizer implements ExpressCheckout
         return $result;
     }
 
-    /** @param array<string, mixed> $shippingAddress */
-    private function fromGooglePayShippingAddress(array $shippingAddress): AddressInterface
+    /**
+     * Stripe's Express Checkout Element normalizes the wallet-specific shipping payload
+     * (Apple Pay `shippingContact`, Google Pay's `shippingAddress`, Link, etc.) into a
+     * single shape: `{name, address: {line1, line2, city, state, postal_code, country}, phone}`.
+     *
+     * @param array<string, mixed> $shippingAddress
+     */
+    private function fromShippingAddress(array $shippingAddress): AddressInterface
     {
         $address = $this->createAddress();
 
