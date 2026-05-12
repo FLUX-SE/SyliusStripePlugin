@@ -132,6 +132,28 @@
             }
         });
 
+        // Tell the wallet popup what we want from the customer. Without this Stripe
+        // defaults to "no shipping address, no email" and the confirm payload arrives
+        // without the customer email — backend ConfirmAction then returns 422.
+        // A placeholder shipping rate is mandatory; real rates arrive via the
+        // shippingaddresschange event once the wallet shares the address.
+        expressCheckout.on('click', (event) => {
+            event.resolve({
+                emailRequired: true,
+                phoneNumberRequired: false,
+                shippingAddressRequired: Boolean(configuration.shippingRequired),
+                allowedShippingCountries: configuration.allowedCountryCodes || [],
+                business: { name: configuration.merchantName || 'Shop' },
+                shippingRates: configuration.shippingRequired
+                    ? [{
+                        id: 'placeholder',
+                        displayName: 'Calculating shipping…',
+                        amount: 0,
+                    }]
+                    : undefined,
+            });
+        });
+
         expressCheckout.on('shippingaddresschange', async (event) => {
             const result = await postJson(shippingRatesUrl, { address: event.address });
             if (!result || result.error || !Array.isArray(result.shippingRates) || result.shippingRates.length === 0) {

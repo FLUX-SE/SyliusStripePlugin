@@ -68,6 +68,7 @@ final readonly class ConfigurationAction
             'country' => $this->resolveMerchantCountry($channel),
             'shippingRequired' => true,
             'allowedCountryCodes' => $this->extractCountryCodes($channel),
+            'merchantName' => $channel->getName() ?? 'Shop',
         ]);
     }
 
