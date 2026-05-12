@@ -50,6 +50,14 @@ final readonly class ExpressCheckoutAddressNormalizer implements ExpressCheckout
         return $billing;
     }
 
+    public function normalizeAddress(array $address): AddressInterface
+    {
+        $result = $this->createAddress();
+        $this->applyAddressFields($result, $address);
+
+        return $result;
+    }
+
     /** @param array<string, mixed> $shippingAddress */
     private function fromGooglePayShippingAddress(array $shippingAddress): AddressInterface
     {

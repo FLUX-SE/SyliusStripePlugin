@@ -5,3 +5,14 @@ services:
             - '@sylius.context.channel'
             - '@flux_se.sylius_stripe.resolver.express_checkout_payment_method'
         tags: [controller.service_arguments]
+
+    FluxSE\SyliusStripePlugin\Controller\Shop\ExpressCheckout\ShippingRatesAction:
+        arguments:
+            - '@sylius.context.cart'
+            - '@sylius.order_processing.order_processor'
+            - '@sylius.resolver.shipping_methods'
+            - '@sylius.calculator.shipping'
+            - '@sylius.repository.shipping_method'
+            - '@flux_se.sylius_stripe.normalizer.express_checkout_address'
+            - '@doctrine.orm.entity_manager'
+        tags: [controller.service_arguments]

@@ -123,6 +123,23 @@ final class ExpressCheckoutAddressNormalizerTest extends TestCase
         self::assertSame('Cupertino', $billing->getCity());
     }
 
+    public function test_it_normalizes_a_flat_partial_address(): void
+    {
+        $address = $this->normalizer->normalizeAddress([
+            'city' => 'Cupertino',
+            'state' => 'CA',
+            'postal_code' => '95014',
+            'country' => 'US',
+        ]);
+
+        self::assertSame('Cupertino', $address->getCity());
+        self::assertSame('CA', $address->getProvinceName());
+        self::assertSame('95014', $address->getPostcode());
+        self::assertSame('US', $address->getCountryCode());
+        self::assertNull($address->getStreet());
+        self::assertNull($address->getFirstName());
+    }
+
     public function test_it_uses_billing_details_when_address_is_complete(): void
     {
         $shipping = new Address();
