@@ -27,7 +27,7 @@ services:
             - '@sylius_abstraction.state_machine'
             - '@sylius.factory.payment'
             - '@sylius.factory.payment_request'
-            - '@sylius.announcer.payment_request'
+            - '@sylius.payment_request.command_bus'
             - '@sylius.repository.shipping_method'
             - '@flux_se.sylius_stripe.shop.provider.after_url'
             - '@doctrine.orm.entity_manager'

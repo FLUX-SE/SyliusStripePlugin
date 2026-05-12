@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace FluxSE\SyliusStripePlugin\Controller\Shop\ExpressCheckout;
 
 use Doctrine\ORM\EntityManagerInterface;
+use FluxSE\SyliusStripePlugin\Command\WebElements\CapturePaymentRequest;
 use FluxSE\SyliusStripePlugin\Normalizer\ExpressCheckoutAddressNormalizerInterface;
 use FluxSE\SyliusStripePlugin\Provider\AfterUrlProviderInterface;
 use FluxSE\SyliusStripePlugin\Resolver\ExpressCheckoutPaymentMethodResolverInterface;
 use Sylius\Abstraction\StateMachine\StateMachineInterface;
 use Sylius\Bundle\CoreBundle\Resolver\CustomerResolverInterface;
-use Sylius\Bundle\PaymentBundle\Announcer\PaymentRequestAnnouncerInterface;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
 use Sylius\Component\Channel\Context\ChannelNotFoundException;
 use Sylius\Component\Core\Model\ChannelInterface;
@@ -27,6 +27,7 @@ use Sylius\Component\Shipping\Repository\ShippingMethodRepositoryInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 final readonly class ConfirmAction
 {
@@ -52,7 +53,7 @@ final readonly class ConfirmAction
         private StateMachineInterface $stateMachine,
         private FactoryInterface $paymentFactory,
         private FactoryInterface $paymentRequestFactory,
-        private PaymentRequestAnnouncerInterface $paymentRequestAnnouncer,
+        private MessageBusInterface $paymentRequestCommandBus,
         private ShippingMethodRepositoryInterface $shippingMethodRepository,
         private AfterUrlProviderInterface $afterUrlProvider,
         private EntityManagerInterface $entityManager,
@@ -135,7 +136,10 @@ final readonly class ConfirmAction
         $paymentRequest = $this->createCapturePaymentRequest($payment, $paymentMethod);
         $this->entityManager->persist($paymentRequest);
 
-        $this->paymentRequestAnnouncer->dispatchPaymentRequestCommand($paymentRequest);
+        // Always force the Web Elements capture command — Stripe Express Checkout Element
+        // only works with the PaymentIntent stack, even when the resolved PaymentMethod is
+        // configured as stripe_checkout (the publishable/secret keys are per-account).
+        $this->paymentRequestCommandBus->dispatch(new CapturePaymentRequest($paymentRequest->getId()));
         $this->entityManager->flush();
 
         $clientSecret = $this->extractClientSecret($paymentRequest);
