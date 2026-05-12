@@ -110,7 +110,20 @@
         // Defer wallet selection to Stripe (all paymentMethods default to 'auto'):
         // the buttons rendered depend on the wallets enabled in the merchant's Stripe
         // Dashboard and on what the customer's browser supports.
-        const expressCheckout = elements.create('expressCheckout', {});
+        //
+        // Force a single-column layout — the cart right sidebar is narrow and the default
+        // 2-column wrap truncates long localized labels (e.g. Klarna in PL).
+        // `overflow: 'never'` disables the "more options" affordance so every wallet is
+        // rendered as a full-width button instead of being hidden behind a chevron.
+        // See https://docs.stripe.com/elements/express-checkout-element
+        const expressCheckout = elements.create('expressCheckout', {
+            buttonHeight: 48,
+            layout: {
+                maxColumns: 1,
+                maxRows: 0,
+                overflow: 'never',
+            },
+        });
         expressCheckout.mount(mountPoint);
 
         expressCheckout.on('ready', (event) => {
