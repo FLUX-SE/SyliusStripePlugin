@@ -74,7 +74,7 @@ final class ExpressCheckoutAddressNormalizerTest extends TestCase
         $this->normalizer->normalizeShipping([]);
     }
 
-    public function test_it_normalizes_a_flat_partial_address(): void
+    public function test_it_normalizes_a_flat_partial_address_and_keeps_placeholders_for_not_null_fields(): void
     {
         $address = $this->normalizer->normalizeAddress([
             'city' => 'Cupertino',
@@ -87,8 +87,12 @@ final class ExpressCheckoutAddressNormalizerTest extends TestCase
         self::assertSame('CA', $address->getProvinceName());
         self::assertSame('95014', $address->getPostcode());
         self::assertSame('US', $address->getCountryCode());
-        self::assertNull($address->getStreet());
-        self::assertNull($address->getFirstName());
+        // Fields not present in the partial wallet payload keep the placeholder set in
+        // createAddress(), so Doctrine's NOT NULL constraints on first_name/last_name/street
+        // are satisfied when the cart is flushed during shipping-rate preview.
+        self::assertSame('?', $address->getFirstName());
+        self::assertSame('?', $address->getLastName());
+        self::assertSame('?', $address->getStreet());
     }
 
     public function test_it_returns_clone_of_shipping_when_billing_details_missing(): void

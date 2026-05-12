@@ -9,6 +9,8 @@ use Sylius\Component\Resource\Factory\FactoryInterface;
 
 final readonly class ExpressCheckoutAddressNormalizer implements ExpressCheckoutAddressNormalizerInterface
 {
+    private const PLACEHOLDER = '?';
+
     public function __construct(
         private FactoryInterface $addressFactory,
     ) {
@@ -75,18 +77,43 @@ final readonly class ExpressCheckoutAddressNormalizer implements ExpressCheckout
         return $address;
     }
 
-    /** @param array<string, mixed> $fields */
+    /**
+     * Merge — only overwrite fields that are actually present in the payload, so that
+     * placeholders set by {@see createAddress()} survive when the Express Checkout Element
+     * sends a partial address (no `line1`, no `name`) on `shippingaddresschange`.
+     *
+     * @param array<string, mixed> $fields
+     */
     private function applyAddressFields(AddressInterface $address, array $fields): void
     {
         $line1 = $this->stringOrNull($fields['line1'] ?? null);
         $line2 = $this->stringOrNull($fields['line2'] ?? null);
-        $street = trim(($line1 ?? '') . (null !== $line2 ? ' ' . $line2 : ''));
+        if (null !== $line1 || null !== $line2) {
+            $street = trim(($line1 ?? '') . (null !== $line2 ? ' ' . $line2 : ''));
+            if ('' !== $street) {
+                $address->setStreet($street);
+            }
+        }
 
-        $address->setStreet('' !== $street ? $street : null);
-        $address->setCity($this->stringOrNull($fields['city'] ?? null));
-        $address->setPostcode($this->stringOrNull($fields['postal_code'] ?? null));
-        $address->setProvinceName($this->stringOrNull($fields['state'] ?? null));
-        $address->setCountryCode($this->stringOrNull($fields['country'] ?? null));
+        $city = $this->stringOrNull($fields['city'] ?? null);
+        if (null !== $city) {
+            $address->setCity($city);
+        }
+
+        $postcode = $this->stringOrNull($fields['postal_code'] ?? null);
+        if (null !== $postcode) {
+            $address->setPostcode($postcode);
+        }
+
+        $state = $this->stringOrNull($fields['state'] ?? null);
+        if (null !== $state) {
+            $address->setProvinceName($state);
+        }
+
+        $country = $this->stringOrNull($fields['country'] ?? null);
+        if (null !== $country) {
+            $address->setCountryCode($country);
+        }
     }
 
     private function applyFullName(AddressInterface $address, ?string $fullName): void
@@ -113,6 +140,18 @@ final readonly class ExpressCheckoutAddressNormalizer implements ExpressCheckout
         if (!$address instanceof AddressInterface) {
             throw new \UnexpectedValueException(sprintf('Address factory must produce instances of "%s".', AddressInterface::class));
         }
+
+        // Sylius's sylius_address table declares first_name / last_name / street as NOT NULL.
+        // The Express Checkout Element's `shippingaddresschange` event omits the customer
+        // name and line1 (Stripe privacy rule) — without placeholders the order processor
+        // would fail with a Doctrine integrity-constraint violation when the cart is
+        // flushed during shipping-rate preview. `applyFullName` / `applyAddressFields`
+        // overwrite these placeholders as soon as a full payload (confirm event) arrives.
+        $address->setFirstName(self::PLACEHOLDER);
+        $address->setLastName(self::PLACEHOLDER);
+        $address->setStreet(self::PLACEHOLDER);
+        $address->setCity(self::PLACEHOLDER);
+        $address->setPostcode(self::PLACEHOLDER);
 
         return $address;
     }
