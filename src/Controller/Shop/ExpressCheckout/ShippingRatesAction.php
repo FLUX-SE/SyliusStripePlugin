@@ -78,7 +78,14 @@ final readonly class ShippingRatesAction
         $chosenMethod = is_string($shippingRateId) ? $this->resolveChosenMethod($shippingRateId, $supportedMethods) : null;
 
         $shipment->setMethod($chosenMethod ?? $originalMethod ?? $supportedMethods[0] ?? null);
-        $this->orderProcessor->process($cart);
+
+        // Re-process only when the customer actually picked a shipping rate — the address-
+        // preview path (shippingaddresschange without shippingRateId) doesn't need a second
+        // OrderProcessor pass and the extra round-trip pushed us over Stripe's ECE timeout.
+        if (null !== $chosenMethod) {
+            $this->orderProcessor->process($cart);
+        }
+
         $this->entityManager->flush();
 
         return new JsonResponse([
@@ -123,12 +130,19 @@ final readonly class ShippingRatesAction
         return $method;
     }
 
-    /** @return list<array{name: string, amount: int}> */
+    /**
+     * Line items rendered by Stripe's Express Checkout Element next to the wallet
+     * "Pay" button. Shipping must NOT be included — Stripe adds the cost of the
+     * customer-selected `shippingRate` on top of `sum(lineItems)`, so including it
+     * here would count shipping twice and trip the guard
+     * "amount is less than the total amount of the line items provided".
+     *
+     * @return list<array{name: string, amount: int}>
+     */
     private function buildLineItems(OrderInterface $cart): array
     {
         return [
             ['name' => 'Subtotal', 'amount' => $cart->getItemsTotal()],
-            ['name' => 'Shipping', 'amount' => $cart->getShippingTotal()],
             ['name' => 'Tax', 'amount' => $cart->getTaxTotal()],
         ];
     }
