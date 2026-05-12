@@ -16,3 +16,19 @@ services:
             - '@flux_se.sylius_stripe.normalizer.express_checkout_address'
             - '@doctrine.orm.entity_manager'
         tags: [controller.service_arguments]
+
+    FluxSE\SyliusStripePlugin\Controller\Shop\ExpressCheckout\ConfirmAction:
+        arguments:
+            - '@sylius.context.cart'
+            - '@sylius.context.channel'
+            - '@flux_se.sylius_stripe.resolver.express_checkout_payment_method'
+            - '@flux_se.sylius_stripe.normalizer.express_checkout_address'
+            - '@sylius.resolver.customer'
+            - '@sylius_abstraction.state_machine'
+            - '@sylius.factory.payment'
+            - '@sylius.factory.payment_request'
+            - '@sylius.announcer.payment_request'
+            - '@sylius.repository.shipping_method'
+            - '@flux_se.sylius_stripe.shop.provider.after_url'
+            - '@doctrine.orm.entity_manager'
+        tags: [controller.service_arguments]
