@@ -1,0 +1,5 @@
+flux_se_sylius_stripe_express_checkout_configuration:
+    path: /express-checkout/cart/configuration
+    methods: [GET]
+    defaults:
+        _controller: FluxSE\SyliusStripePlugin\Controller\Shop\ExpressCheckout\ConfigurationAction

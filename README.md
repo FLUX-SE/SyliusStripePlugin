@@ -34,6 +34,14 @@ This is where your description should go. Limit it to a paragraph or two. Consid
     # ...
     - { resource: "@FluxSESyliusStripePlugin/config/config.yaml" }
     ```
+4. Import shop routes (required for the Express Checkout cart button)
+    ```yaml
+    # config/routes/flux_se_sylius_stripe.yaml
+
+    flux_se_sylius_stripe_express_checkout_shop:
+        resource: "@FluxSESyliusStripePlugin/config/routes/shop_express_checkout.yaml"
+    ```
+
 ## Configuration
 
  - Go to the admin area.

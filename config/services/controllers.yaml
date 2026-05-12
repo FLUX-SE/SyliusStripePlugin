@@ -1,0 +1,7 @@
+services:
+    FluxSE\SyliusStripePlugin\Controller\Shop\ExpressCheckout\ConfigurationAction:
+        arguments:
+            - '@sylius.context.cart'
+            - '@sylius.context.channel'
+            - '@flux_se.sylius_stripe.resolver.express_checkout_payment_method'
+        tags: [controller.service_arguments]
