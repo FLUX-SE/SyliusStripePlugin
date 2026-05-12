@@ -20,6 +20,7 @@ use Sylius\Component\Core\Model\PaymentMethodInterface;
 use Sylius\Component\Core\Model\ShipmentInterface;
 use Sylius\Component\Order\Context\CartContextInterface;
 use Sylius\Component\Order\Context\CartNotFoundException;
+use Sylius\Component\Payment\Factory\PaymentRequestFactoryInterface;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 use Sylius\Component\Shipping\Model\ShippingMethodInterface;
@@ -42,6 +43,7 @@ final readonly class ConfirmAction
     private const TRANSITION_COMPLETE = 'complete';
 
     /**
+     * @param PaymentRequestFactoryInterface<PaymentRequestInterface> $paymentRequestFactory
      * @param ShippingMethodRepositoryInterface<ShippingMethodInterface> $shippingMethodRepository
      */
     public function __construct(
@@ -52,7 +54,7 @@ final readonly class ConfirmAction
         private CustomerResolverInterface $customerResolver,
         private StateMachineInterface $stateMachine,
         private FactoryInterface $paymentFactory,
-        private FactoryInterface $paymentRequestFactory,
+        private PaymentRequestFactoryInterface $paymentRequestFactory,
         private MessageBusInterface $paymentRequestCommandBus,
         private ShippingMethodRepositoryInterface $shippingMethodRepository,
         private AfterUrlProviderInterface $afterUrlProvider,
@@ -171,10 +173,9 @@ final readonly class ConfirmAction
 
     private function createCapturePaymentRequest(PaymentInterface $payment, PaymentMethodInterface $paymentMethod): PaymentRequestInterface
     {
-        /** @var PaymentRequestInterface $paymentRequest */
-        $paymentRequest = $this->paymentRequestFactory->createNew();
-        $paymentRequest->setPayment($payment);
-        $paymentRequest->setMethod($paymentMethod);
+        // Sylius's PaymentRequestFactory rejects FactoryInterface::createNew() and instead
+        // exposes create($payment, $method) which wires both associations in the constructor.
+        $paymentRequest = $this->paymentRequestFactory->create($payment, $paymentMethod);
         $paymentRequest->setAction(PaymentRequestInterface::ACTION_CAPTURE);
 
         return $paymentRequest;
