@@ -52,4 +52,5 @@ services:
             - '@sylius.repository.shipping_method'
             - '@flux_se.sylius_stripe.shop.express_checkout.capture_payment_request_dispatcher'
             - '@flux_se.sylius_stripe.shop.provider.after_url'
+            - '@request_stack'
     FluxSE\SyliusStripePlugin\ExpressCheckout\OrderCompleterInterface: '@flux_se.sylius_stripe.shop.express_checkout.order_completer'

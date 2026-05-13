@@ -36,6 +36,8 @@ use Sylius\Component\Resource\Factory\FactoryInterface;
 use Sylius\Component\Shipping\Model\ShippingMethodInterface;
 use Sylius\Component\Shipping\Repository\ShippingMethodRepositoryInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 final class OrderCompleterTest extends TestCase
 {
@@ -72,6 +74,11 @@ final class OrderCompleterTest extends TestCase
     /** @var AfterUrlProviderInterface&MockObject */
     private AfterUrlProviderInterface $afterUrlProvider;
 
+    /** @var SessionInterface&MockObject */
+    private SessionInterface $session;
+
+    private RequestStack $requestStack;
+
     private OrderCompleter $orderCompleter;
 
     protected function setUp(): void
@@ -88,6 +95,12 @@ final class OrderCompleterTest extends TestCase
         $this->capturePaymentRequestDispatcher = $this->createMock(CapturePaymentRequestDispatcherInterface::class);
         $this->afterUrlProvider = $this->createMock(AfterUrlProviderInterface::class);
 
+        $this->session = $this->createMock(SessionInterface::class);
+        $this->requestStack = new RequestStack();
+        $request = new Request();
+        $request->setSession($this->session);
+        $this->requestStack->push($request);
+
         $this->orderCompleter = new OrderCompleter(
             $this->cartContext,
             $this->channelContext,
@@ -100,6 +113,7 @@ final class OrderCompleterTest extends TestCase
             $this->shippingMethodRepository,
             $this->capturePaymentRequestDispatcher,
             $this->afterUrlProvider,
+            $this->requestStack,
         );
     }
 
@@ -119,6 +133,11 @@ final class OrderCompleterTest extends TestCase
         $cart->method('getCurrencyCode')->willReturn('USD');
         $cart->method('getTotal')->willReturn(4999);
         $cart->method('getShipments')->willReturn(new ArrayCollection([$shipment]));
+        $cart->method('getId')->willReturn(42);
+        // Guest flow — cart has no customer yet, so OrderCompleter resolves one by email.
+        $cart->method('getCustomer')->willReturn(null);
+
+        $this->session->expects(self::once())->method('set')->with('sylius_order_id', 42);
 
         $this->channelContext->method('getChannel')->willReturn($channel);
         $this->cartContext->method('getCart')->willReturn($cart);
@@ -173,6 +192,49 @@ final class OrderCompleterTest extends TestCase
         self::assertSame(['address', 'select_shipping', 'select_payment', 'complete'], $transitionCalls);
         self::assertSame('pi_123_secret_abc', $confirmation->clientSecret);
         self::assertSame('https://example.com/return', $confirmation->returnUrl);
+    }
+
+    public function test_it_preserves_existing_customer_when_cart_already_has_one(): void
+    {
+        $channel = $this->createMock(ChannelInterface::class);
+        $shippingAddress = $this->createMock(AddressInterface::class);
+        $existingCustomer = $this->createMock(CustomerInterface::class);
+        $shipment = $this->createMock(ShipmentInterface::class);
+        $shippingMethod = $this->createMock(ShippingMethodInterface::class);
+        $paymentMethod = $this->createMock(PaymentMethodInterface::class);
+        $payment = $this->createMock(PaymentInterface::class);
+        $paymentRequest = $this->createMock(PaymentRequestInterface::class);
+
+        $cart = $this->createReadyCart();
+        $cart->method('getChannel')->willReturn($channel);
+        $cart->method('getCurrencyCode')->willReturn('USD');
+        $cart->method('getTotal')->willReturn(4999);
+        $cart->method('getShipments')->willReturn(new ArrayCollection([$shipment]));
+        $cart->method('getId')->willReturn(42);
+        // Logged-in customer already linked to the cart by Sylius's cart context.
+        $cart->method('getCustomer')->willReturn($existingCustomer);
+
+        $this->channelContext->method('getChannel')->willReturn($channel);
+        $this->cartContext->method('getCart')->willReturn($cart);
+        $this->paymentMethodResolver->method('resolveForChannel')->with($channel)->willReturn($paymentMethod);
+
+        $this->payloadReader->method('read')->willReturn(new ExpressCheckoutPayload([
+            'billingDetails' => ['email' => 'gpay-account@example.com'],
+            'shippingAddress' => ['name' => 'Jane Doe'],
+            'shippingRate' => ['id' => 'ups_ground'],
+        ]));
+
+        $this->addressNormalizer->method('normalizeShipping')->willReturn($shippingAddress);
+        $this->shippingMethodRepository->method('findOneBy')->with(['code' => 'ups_ground'])->willReturn($shippingMethod);
+
+        $cart->expects(self::never())->method('setCustomer');
+        $this->customerResolver->expects(self::never())->method('resolve');
+
+        $this->paymentFactory->method('createNew')->willReturn($payment);
+        $this->capturePaymentRequestDispatcher->method('dispatch')->willReturn($paymentRequest);
+        $paymentRequest->method('getResponseData')->willReturn(['client_secret' => 'pi_123_secret_abc']);
+
+        $this->orderCompleter->complete(new Request());
     }
 
     public function test_it_throws_when_channel_is_missing(): void

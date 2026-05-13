@@ -35,6 +35,7 @@ use Sylius\Component\Resource\Factory\FactoryInterface;
 use Sylius\Component\Shipping\Model\ShippingMethodInterface;
 use Sylius\Component\Shipping\Repository\ShippingMethodRepositoryInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 final readonly class OrderCompleter implements OrderCompleterInterface
 {
@@ -51,6 +52,7 @@ final readonly class OrderCompleter implements OrderCompleterInterface
         private ShippingMethodRepositoryInterface $shippingMethodRepository,
         private CapturePaymentRequestDispatcherInterface $capturePaymentRequestDispatcher,
         private AfterUrlProviderInterface $afterUrlProvider,
+        private RequestStack $requestStack,
     ) {
     }
 
@@ -76,7 +78,9 @@ final readonly class OrderCompleter implements OrderCompleterInterface
 
         $shippingMethod = $this->resolveShippingMethod($payload);
 
-        $cart->setCustomer($this->customerResolver->resolve($email));
+        if (null === $cart->getCustomer()) {
+            $cart->setCustomer($this->customerResolver->resolve($email));
+        }
         $cart->setShippingAddress($shippingAddress);
         $cart->setBillingAddress($billingAddress);
 
@@ -95,6 +99,12 @@ final readonly class OrderCompleter implements OrderCompleterInterface
         $this->applyTransition($cart, OrderCheckoutTransitions::TRANSITION_SELECT_PAYMENT);
 
         $this->applyTransition($cart, OrderCheckoutTransitions::TRANSITION_COMPLETE);
+
+        // Sylius's thank-you action reads the placed order from session attribute
+        // `sylius_order_id`; in the regular checkout it is set by OrderPayController::payAction,
+        // which the ECE flow bypasses. Set it here so the customer lands on /thank-you
+        // after stripe.confirmPayment redirects instead of being sent back to the homepage.
+        $this->requestStack->getSession()->set('sylius_order_id', $cart->getId());
 
         $paymentRequest = $this->capturePaymentRequestDispatcher->dispatch($payment, $paymentMethod);
 
