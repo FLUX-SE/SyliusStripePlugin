@@ -96,6 +96,11 @@ final readonly class ExpressCheckoutAddressNormalizer implements ExpressCheckout
         }
     }
 
+    /**
+     * Merge — only overwrite first/last name when the payload actually supplies a value,
+     * so the NOT NULL placeholders from {@see createAddress()} survive single-token names
+     * (Stripe Link sometimes returns "GS" with no space).
+     */
     private function applyFullName(AddressInterface $address, ?string $fullName): void
     {
         if (null === $fullName) {
@@ -103,8 +108,15 @@ final readonly class ExpressCheckoutAddressNormalizer implements ExpressCheckout
         }
 
         $parts = explode(' ', trim($fullName), 2);
-        $address->setFirstName($parts[0] ?? null);
-        $address->setLastName($parts[1] ?? null);
+        $firstName = $this->stringOrNull($parts[0] ?? null);
+        if (null !== $firstName) {
+            $address->setFirstName($firstName);
+        }
+
+        $lastName = $this->stringOrNull($parts[1] ?? null);
+        if (null !== $lastName) {
+            $address->setLastName($lastName);
+        }
     }
 
     private function createAddress(): AddressInterface

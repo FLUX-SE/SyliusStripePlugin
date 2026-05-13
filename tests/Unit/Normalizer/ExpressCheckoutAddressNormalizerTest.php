@@ -62,7 +62,9 @@ final class ExpressCheckoutAddressNormalizerTest extends TestCase
         ]);
 
         self::assertSame('Madonna', $address->getFirstName());
-        self::assertNull($address->getLastName());
+        // Single-token names (Stripe Link sometimes returns "GS" or "Madonna" without
+        // a space) keep the NOT NULL placeholder for last_name set in createAddress().
+        self::assertSame('?', $address->getLastName());
         self::assertSame('1 Infinite Loop', $address->getStreet());
     }
 
