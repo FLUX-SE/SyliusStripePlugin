@@ -68,7 +68,11 @@ final readonly class OrderCompleter implements OrderCompleterInterface
         }
 
         $shippingAddress = $this->normalizeShipping($payload);
-        $billingAddress = $this->addressNormalizer->normalizeBilling($payload->raw(), $shippingAddress);
+        // ECE wallets sometimes return placeholder billing data (e.g. Google Pay sandbox
+        // populates billingDetails with "Card Holder Name" + Googleplex address). Since
+        // the wallet popup never lets the customer pick a separate billing address, the
+        // shipping address is the only intent the customer expressed — clone it.
+        $billingAddress = clone $shippingAddress;
 
         $shippingMethod = $this->resolveShippingMethod($payload);
 

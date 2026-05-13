@@ -107,7 +107,6 @@ final class OrderCompleterTest extends TestCase
     {
         $channel = $this->createMock(ChannelInterface::class);
         $shippingAddress = $this->createMock(AddressInterface::class);
-        $billingAddress = $this->createMock(AddressInterface::class);
         $customer = $this->createMock(CustomerInterface::class);
         $shipment = $this->createMock(ShipmentInterface::class);
         $shippingMethod = $this->createMock(ShippingMethodInterface::class);
@@ -132,14 +131,15 @@ final class OrderCompleterTest extends TestCase
         ]));
 
         $this->addressNormalizer->method('normalizeShipping')->willReturn($shippingAddress);
-        $this->addressNormalizer->method('normalizeBilling')->with(self::anything(), $shippingAddress)->willReturn($billingAddress);
 
         $this->customerResolver->method('resolve')->with('shopper@example.com')->willReturn($customer);
         $this->shippingMethodRepository->method('findOneBy')->with(['code' => 'ups_ground'])->willReturn($shippingMethod);
 
         $cart->expects(self::once())->method('setCustomer')->with($customer);
         $cart->expects(self::once())->method('setShippingAddress')->with($shippingAddress);
-        $cart->expects(self::once())->method('setBillingAddress')->with($billingAddress);
+        // Billing address is always a clone of the shipping address — wallet popups
+        // never expose a separate billing picker, so cloning is the correct intent.
+        $cart->expects(self::once())->method('setBillingAddress')->with(self::isInstanceOf(AddressInterface::class));
         $cart->expects(self::once())->method('addPayment')->with($payment);
 
         $shipment->expects(self::once())->method('setMethod')->with($shippingMethod);
@@ -222,7 +222,6 @@ final class OrderCompleterTest extends TestCase
     {
         $this->setUpUpToPayload(new ExpressCheckoutPayload(['billingDetails' => ['email' => 'a@b.c']]));
         $this->addressNormalizer->method('normalizeShipping')->willReturn($this->createMock(AddressInterface::class));
-        $this->addressNormalizer->method('normalizeBilling')->willReturn($this->createMock(AddressInterface::class));
 
         $this->expectException(InvalidPayloadException::class);
 
@@ -236,7 +235,6 @@ final class OrderCompleterTest extends TestCase
             'shippingRate' => ['id' => 'unknown'],
         ]));
         $this->addressNormalizer->method('normalizeShipping')->willReturn($this->createMock(AddressInterface::class));
-        $this->addressNormalizer->method('normalizeBilling')->willReturn($this->createMock(AddressInterface::class));
         $this->shippingMethodRepository->method('findOneBy')->with(['code' => 'unknown'])->willReturn(null);
 
         $this->expectException(ShippingMethodNotFoundException::class);
@@ -253,7 +251,6 @@ final class OrderCompleterTest extends TestCase
         $cart->method('getShipments')->willReturn(new ArrayCollection([]));
 
         $this->addressNormalizer->method('normalizeShipping')->willReturn($this->createMock(AddressInterface::class));
-        $this->addressNormalizer->method('normalizeBilling')->willReturn($this->createMock(AddressInterface::class));
         $this->shippingMethodRepository->method('findOneBy')->willReturn($this->createMock(ShippingMethodInterface::class));
         $this->customerResolver->method('resolve')->willReturn($this->createMock(CustomerInterface::class));
 
@@ -273,7 +270,6 @@ final class OrderCompleterTest extends TestCase
         $cart->method('getCurrencyCode')->willReturn(null);
 
         $this->addressNormalizer->method('normalizeShipping')->willReturn($this->createMock(AddressInterface::class));
-        $this->addressNormalizer->method('normalizeBilling')->willReturn($this->createMock(AddressInterface::class));
         $this->shippingMethodRepository->method('findOneBy')->willReturn($this->createMock(ShippingMethodInterface::class));
         $this->customerResolver->method('resolve')->willReturn($this->createMock(CustomerInterface::class));
         $this->paymentFactory->method('createNew')->willReturn($this->createMock(PaymentInterface::class));
@@ -295,7 +291,6 @@ final class OrderCompleterTest extends TestCase
         $cart->method('getTotal')->willReturn(100);
 
         $this->addressNormalizer->method('normalizeShipping')->willReturn($this->createMock(AddressInterface::class));
-        $this->addressNormalizer->method('normalizeBilling')->willReturn($this->createMock(AddressInterface::class));
         $this->shippingMethodRepository->method('findOneBy')->willReturn($this->createMock(ShippingMethodInterface::class));
         $this->customerResolver->method('resolve')->willReturn($this->createMock(CustomerInterface::class));
         $this->paymentFactory->method('createNew')->willReturn($this->createMock(PaymentInterface::class));

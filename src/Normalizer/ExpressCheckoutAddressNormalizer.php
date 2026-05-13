@@ -26,26 +26,6 @@ final readonly class ExpressCheckoutAddressNormalizer implements ExpressCheckout
         return $this->fromShippingAddress($shippingAddress);
     }
 
-    public function normalizeBilling(array $payload, AddressInterface $shippingFallback): AddressInterface
-    {
-        $billingDetails = $payload['billingDetails'] ?? null;
-        if (!is_array($billingDetails)) {
-            return clone $shippingFallback;
-        }
-
-        $address = $billingDetails['address'] ?? null;
-        if (!is_array($address) || !$this->hasCompleteAddress($address)) {
-            return clone $shippingFallback;
-        }
-
-        $billing = $this->createAddress();
-        $this->applyFullName($billing, $this->stringOrNull($billingDetails['name'] ?? null));
-        $this->applyAddressFields($billing, $address);
-        $billing->setPhoneNumber($this->stringOrNull($billingDetails['phone'] ?? null));
-
-        return $billing;
-    }
-
     public function normalizeAddress(array $address): AddressInterface
     {
         $result = $this->createAddress();
@@ -125,13 +105,6 @@ final readonly class ExpressCheckoutAddressNormalizer implements ExpressCheckout
         $parts = explode(' ', trim($fullName), 2);
         $address->setFirstName($parts[0] ?? null);
         $address->setLastName($parts[1] ?? null);
-    }
-
-    /** @param array<string, mixed> $address */
-    private function hasCompleteAddress(array $address): bool
-    {
-        return null !== $this->stringOrNull($address['line1'] ?? null) &&
-            null !== $this->stringOrNull($address['country'] ?? null);
     }
 
     private function createAddress(): AddressInterface
