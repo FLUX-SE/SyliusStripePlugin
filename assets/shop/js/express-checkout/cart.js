@@ -10,7 +10,7 @@
 (function () {
     'use strict';
 
-    const SELECTOR = '[data-flux-se-stripe-express-checkout]';
+    const SELECTOR = '[data-sylius-stripe-express-checkout]';
     const STRIPE_JS_URL = 'https://js.stripe.com/v3/';
 
     function loadStripeJs() {
@@ -60,7 +60,7 @@
     }
 
     function showError(container, message) {
-        const target = container.querySelector('[data-flux-se-stripe-express-checkout-errors]');
+        const target = container.querySelector('[data-sylius-stripe-express-checkout-errors]');
         if (target) {
             target.textContent = message;
             target.hidden = false;
@@ -71,7 +71,7 @@
         const configurationUrl = container.dataset.configurationUrl;
         const shippingRatesUrl = container.dataset.shippingRatesUrl;
         const confirmUrl = container.dataset.confirmUrl;
-        const mountPoint = container.querySelector('[data-flux-se-stripe-express-checkout-mount]');
+        const mountPoint = container.querySelector('[data-sylius-stripe-express-checkout-mount]');
 
         if (!configurationUrl || !shippingRatesUrl || !confirmUrl || !mountPoint) {
             return;
