@@ -1,34 +1,15 @@
 services:
     FluxSE\SyliusStripePlugin\Controller\Shop\ExpressCheckout\ConfigurationAction:
         arguments:
-            - '@sylius.context.cart'
-            - '@sylius.context.channel'
-            - '@flux_se.sylius_stripe.resolver.express_checkout_payment_method'
+            - '@flux_se.sylius_stripe.shop.express_checkout.configuration_provider'
         tags: [controller.service_arguments]
 
     FluxSE\SyliusStripePlugin\Controller\Shop\ExpressCheckout\ShippingRatesAction:
         arguments:
-            - '@sylius.context.cart'
-            - '@sylius.order_processing.order_processor'
-            - '@sylius.resolver.shipping_methods'
-            - '@sylius.calculator.shipping'
-            - '@sylius.repository.shipping_method'
-            - '@flux_se.sylius_stripe.normalizer.express_checkout_address'
-            - '@doctrine.orm.entity_manager'
+            - '@flux_se.sylius_stripe.shop.express_checkout.shipping_options_calculator'
         tags: [controller.service_arguments]
 
     FluxSE\SyliusStripePlugin\Controller\Shop\ExpressCheckout\ConfirmAction:
         arguments:
-            - '@sylius.context.cart'
-            - '@sylius.context.channel'
-            - '@flux_se.sylius_stripe.resolver.express_checkout_payment_method'
-            - '@flux_se.sylius_stripe.normalizer.express_checkout_address'
-            - '@sylius.resolver.customer'
-            - '@sylius_abstraction.state_machine'
-            - '@sylius.factory.payment'
-            - '@sylius.factory.payment_request'
-            - '@sylius.payment_request.command_bus'
-            - '@sylius.repository.shipping_method'
-            - '@flux_se.sylius_stripe.shop.provider.after_url'
-            - '@doctrine.orm.entity_manager'
+            - '@flux_se.sylius_stripe.shop.express_checkout.order_completer'
         tags: [controller.service_arguments]
