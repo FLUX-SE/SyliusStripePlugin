@@ -17,4 +17,8 @@ interface StripePageInterface extends PageInterface
     public function notify(string $payload): Response;
 
     public function findLatestPaymentRequest(): PaymentRequestInterface;
+
+    public function getCurrentUrl(): string;
+
+    public function waitForRedirectFrom(string $previousUrl, int $timeoutMs = 2000): void;
 }
