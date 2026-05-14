@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace FluxSE\SyliusStripePlugin\ExpressCheckout\Payment;
 
-use Doctrine\ORM\EntityManagerInterface;
 use FluxSE\SyliusStripePlugin\Command\WebElements\CapturePaymentRequest;
 use Sylius\Component\Core\Model\PaymentInterface;
 use Sylius\Component\Core\Model\PaymentMethodInterface;
 use Sylius\Component\Payment\Factory\PaymentRequestFactoryInterface;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
+use Sylius\Component\Payment\Repository\PaymentRequestRepositoryInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
@@ -21,11 +21,14 @@ use Symfony\Component\Messenger\MessageBusInterface;
  */
 final readonly class CapturePaymentRequestDispatcher implements CapturePaymentRequestDispatcherInterface
 {
-    /** @param PaymentRequestFactoryInterface<PaymentRequestInterface> $paymentRequestFactory */
+    /**
+     * @param PaymentRequestFactoryInterface<PaymentRequestInterface> $paymentRequestFactory
+     * @param PaymentRequestRepositoryInterface<PaymentRequestInterface> $paymentRequestRepository
+     */
     public function __construct(
         private PaymentRequestFactoryInterface $paymentRequestFactory,
         private MessageBusInterface $paymentRequestCommandBus,
-        private EntityManagerInterface $entityManager,
+        private PaymentRequestRepositoryInterface $paymentRequestRepository,
     ) {
     }
 
@@ -34,9 +37,8 @@ final readonly class CapturePaymentRequestDispatcher implements CapturePaymentRe
         $paymentRequest = $this->paymentRequestFactory->create($payment, $paymentMethod);
         $paymentRequest->setAction(PaymentRequestInterface::ACTION_CAPTURE);
 
-        $this->entityManager->persist($paymentRequest);
+        $this->paymentRequestRepository->add($paymentRequest);
         $this->paymentRequestCommandBus->dispatch(new CapturePaymentRequest($paymentRequest->getId()));
-        $this->entityManager->flush();
 
         return $paymentRequest;
     }

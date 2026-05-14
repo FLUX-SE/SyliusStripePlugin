@@ -14,7 +14,7 @@ services:
         arguments:
             - '@sylius.factory.payment_request'
             - '@sylius.payment_request.command_bus'
-            - '@doctrine.orm.entity_manager'
+            - '@sylius.repository.payment_request'
     FluxSE\SyliusStripePlugin\ExpressCheckout\Payment\CapturePaymentRequestDispatcherInterface: '@flux_se.sylius_stripe.shop.express_checkout.capture_payment_request_dispatcher'
 
     flux_se.sylius_stripe.shop.express_checkout.configuration_provider:

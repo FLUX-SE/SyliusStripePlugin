@@ -11,9 +11,9 @@ use Sylius\Component\Payment\Model\PaymentRequestInterface;
 interface CapturePaymentRequestDispatcherInterface
 {
     /**
-     * Creates a PaymentRequest tied to the given Payment + PaymentMethod, persists it,
-     * dispatches the Web Elements Capture command, flushes, and returns the persisted
-     * PaymentRequest (with response_data populated by the command handler).
+     * Creates a PaymentRequest tied to the given Payment + PaymentMethod, stores it,
+     * dispatches the Web Elements Capture command (which populates `response_data`),
+     * and returns the stored PaymentRequest.
      */
     public function dispatch(PaymentInterface $payment, PaymentMethodInterface $paymentMethod): PaymentRequestInterface;
 }

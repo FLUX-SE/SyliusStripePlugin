@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\FluxSE\SyliusStripePlugin\Unit\ExpressCheckout\Payment;
 
-use Doctrine\ORM\EntityManagerInterface;
 use FluxSE\SyliusStripePlugin\Command\WebElements\CapturePaymentRequest;
 use FluxSE\SyliusStripePlugin\ExpressCheckout\Payment\CapturePaymentRequestDispatcher;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -13,6 +12,7 @@ use Sylius\Component\Core\Model\PaymentInterface;
 use Sylius\Component\Core\Model\PaymentMethodInterface;
 use Sylius\Component\Payment\Factory\PaymentRequestFactoryInterface;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
+use Sylius\Component\Payment\Repository\PaymentRequestRepositoryInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -24,8 +24,8 @@ final class CapturePaymentRequestDispatcherTest extends TestCase
     /** @var MessageBusInterface&MockObject */
     private MessageBusInterface $commandBus;
 
-    /** @var EntityManagerInterface&MockObject */
-    private EntityManagerInterface $entityManager;
+    /** @var PaymentRequestRepositoryInterface<PaymentRequestInterface>&MockObject */
+    private PaymentRequestRepositoryInterface $paymentRequestRepository;
 
     private CapturePaymentRequestDispatcher $dispatcher;
 
@@ -33,16 +33,16 @@ final class CapturePaymentRequestDispatcherTest extends TestCase
     {
         $this->paymentRequestFactory = $this->createMock(PaymentRequestFactoryInterface::class);
         $this->commandBus = $this->createMock(MessageBusInterface::class);
-        $this->entityManager = $this->createMock(EntityManagerInterface::class);
+        $this->paymentRequestRepository = $this->createMock(PaymentRequestRepositoryInterface::class);
 
         $this->dispatcher = new CapturePaymentRequestDispatcher(
             $this->paymentRequestFactory,
             $this->commandBus,
-            $this->entityManager,
+            $this->paymentRequestRepository,
         );
     }
 
-    public function test_it_creates_persists_dispatches_and_flushes(): void
+    public function test_it_creates_stores_and_dispatches(): void
     {
         $payment = $this->createMock(PaymentInterface::class);
         $paymentMethod = $this->createMock(PaymentMethodInterface::class);
@@ -59,11 +59,11 @@ final class CapturePaymentRequestDispatcherTest extends TestCase
             ->willReturn($paymentRequest);
 
         $callOrder = [];
-        $this->entityManager->expects(self::once())
-            ->method('persist')
+        $this->paymentRequestRepository->expects(self::once())
+            ->method('add')
             ->with($paymentRequest)
             ->willReturnCallback(function () use (&$callOrder): void {
-                $callOrder[] = 'persist';
+                $callOrder[] = 'add';
             });
 
         $this->commandBus->expects(self::once())
@@ -76,15 +76,9 @@ final class CapturePaymentRequestDispatcherTest extends TestCase
                 return new Envelope($message);
             });
 
-        $this->entityManager->expects(self::once())
-            ->method('flush')
-            ->willReturnCallback(function () use (&$callOrder): void {
-                $callOrder[] = 'flush';
-            });
-
         $result = $this->dispatcher->dispatch($payment, $paymentMethod);
 
         self::assertSame($paymentRequest, $result);
-        self::assertSame(['persist', 'dispatch', 'flush'], $callOrder);
+        self::assertSame(['add', 'dispatch'], $callOrder);
     }
 }
