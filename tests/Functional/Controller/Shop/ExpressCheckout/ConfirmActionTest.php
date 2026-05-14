@@ -7,9 +7,18 @@ namespace Tests\FluxSE\SyliusStripePlugin\Functional\Controller\Shop\ExpressChec
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\ORM\EntityManagerInterface;
 use Fidry\AliceDataFixtures\Loader\PurgerLoader;
+use Stripe\ApiResource;
+use Sylius\Component\Core\Model\OrderInterface;
+use Sylius\Component\Core\Repository\OrderRepositoryInterface;
+use Sylius\Component\Payment\Model\PaymentRequestInterface;
+use Sylius\Component\Payment\Repository\PaymentRequestRepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionFactoryInterface;
+use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api\PaymentIntentMocker;
+use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\StripeClientWithExpectationsInterface;
 
 final class ConfirmActionTest extends WebTestCase
 {
@@ -34,6 +43,7 @@ final class ConfirmActionTest extends WebTestCase
         $this->entityManager = $entityManager;
 
         $this->purgeDatabase();
+        $this->getStripeClientWithExpectations()->resetExpectations();
     }
 
     public function test_it_returns_unprocessable_entity_when_no_cart_exists(): void
@@ -76,9 +86,93 @@ final class ConfirmActionTest extends WebTestCase
         self::assertArrayHasKey('error', $body);
     }
 
-    /**
-     * @return array<string, mixed>
-     */
+    public function test_it_returns_200_and_creates_payment_intent(): void
+    {
+        $fixtures = $this->loadFixtures([
+            'channel.yaml',
+            'tax_category.yaml',
+            'shipping_category.yaml',
+            'product_variant.yaml',
+            'shipping_method.yaml',
+            'express_checkout/payment_method.yaml',
+            'express_checkout/cart_ready.yaml',
+        ]);
+
+        /** @var OrderInterface $cart */
+        $cart = $fixtures['cart_ready'];
+        $this->startCartSession($cart);
+
+        // Stripe API call (PaymentIntent::create) is intercepted by
+        // StripeClientWithExpectations decorator (already wired through Behat services.xml
+        // which TestApplication imports for the test env). PaymentIntentMocker primes the
+        // canned response with `client_secret: '1234567890'`.
+        $this->getPaymentIntentMocker()->mockCreateAction();
+
+        $this->postJson($this->validPayload());
+
+        $response = $this->client->getResponse();
+        self::assertSame(
+            Response::HTTP_OK,
+            $response->getStatusCode(),
+            sprintf('Response body: %s', $response->getContent()),
+        );
+
+        $body = $this->decodeResponseBody();
+        self::assertSame('1234567890', $body['clientSecret']);
+        self::assertArrayHasKey('returnUrl', $body);
+        self::assertIsString($body['returnUrl']);
+        self::assertStringContainsString('/payment-request/pay/', $body['returnUrl']);
+
+        // DB side-effects: cart transitioned to placed order, PaymentRequest created with
+        // capture action + responseData.client_secret persisted.
+        $this->entityManager->clear();
+        /** @var OrderRepositoryInterface<OrderInterface> $orderRepository */
+        $orderRepository = static::getContainer()->get('sylius.repository.order');
+        $placedOrder = $orderRepository->find($cart->getId());
+        self::assertNotNull($placedOrder);
+        self::assertSame('new', $placedOrder->getState());
+
+        /** @var PaymentRequestRepositoryInterface<PaymentRequestInterface> $paymentRequestRepo */
+        $paymentRequestRepo = static::getContainer()->get('sylius.repository.payment_request');
+        $paymentRequests = $paymentRequestRepo->findAll();
+        self::assertCount(1, $paymentRequests);
+        self::assertSame(PaymentRequestInterface::ACTION_CAPTURE, $paymentRequests[0]->getAction());
+        self::assertSame('1234567890', $paymentRequests[0]->getResponseData()['client_secret'] ?? null);
+    }
+
+    private function startCartSession(OrderInterface $cart): void
+    {
+        /** @var SessionFactoryInterface $sessionFactory */
+        $sessionFactory = static::getContainer()->get('session.factory');
+        $session = $sessionFactory->createSession();
+        $channel = $cart->getChannel();
+        self::assertNotNull($channel);
+        $session->set('_sylius.cart.' . $channel->getCode(), $cart->getId());
+        $session->save();
+
+        $this->client->getCookieJar()->set(
+            new Cookie($session->getName(), $session->getId()),
+        );
+    }
+
+    private function getPaymentIntentMocker(): PaymentIntentMocker
+    {
+        /** @var PaymentIntentMocker $mocker */
+        $mocker = static::getContainer()->get(PaymentIntentMocker::class);
+
+        return $mocker;
+    }
+
+    /** @return StripeClientWithExpectationsInterface<ApiResource> */
+    private function getStripeClientWithExpectations(): StripeClientWithExpectationsInterface
+    {
+        /** @var StripeClientWithExpectationsInterface<ApiResource> $client */
+        $client = static::getContainer()->get('flux_se.sylius_stripe.stripe.http_client');
+
+        return $client;
+    }
+
+    /** @return array<string, mixed> */
     private function validPayload(): array
     {
         return [
@@ -98,7 +192,7 @@ final class ConfirmActionTest extends WebTestCase
                 'name' => 'Jane Doe',
                 'phone' => '+1-555-0100',
             ],
-            'shippingRate' => ['id' => 'UPS_GROUND'],
+            'shippingRate' => ['id' => 'UPS'],
         ];
     }
 
@@ -123,8 +217,10 @@ final class ConfirmActionTest extends WebTestCase
 
     /**
      * @param list<string> $files
+     *
+     * @return array<string, object>
      */
-    private function loadFixtures(array $files): void
+    private function loadFixtures(array $files): array
     {
         // ExpressCheckout → Shop → Controller → Functional, then DataFixtures/ORM
         $fixturesDir = __DIR__ . '/../../../DataFixtures/ORM';
@@ -133,12 +229,10 @@ final class ConfirmActionTest extends WebTestCase
             $resolved[] = sprintf('%s/%s', $fixturesDir, $file);
         }
 
-        $this->fixtureLoader->load($resolved);
+        return $this->fixtureLoader->load($resolved);
     }
 
-    /**
-     * @param array<string, mixed> $body
-     */
+    /** @param array<string, mixed> $body */
     private function postJson(array $body): void
     {
         $this->client->request(

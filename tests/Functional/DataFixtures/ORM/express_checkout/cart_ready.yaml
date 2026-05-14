@@ -1,0 +1,22 @@
+Sylius\Component\Core\Model\Order:
+    cart_ready:
+        channel: '@channel_web'
+        currencyCode: 'USD'
+        localeCode: 'en_US'
+        state: 'cart'
+        tokenValue: 'ECE_TEST_CART_TOKEN'
+        items: ['@cart_ready_order_item']
+        createdAt: "<(new \\DateTime())>"
+        updatedAt: "<(new \\DateTime())>"
+
+Sylius\Component\Core\Model\OrderItem:
+    cart_ready_order_item:
+        variant: '@product_variant'
+        order: '@cart_ready'
+        units: ['@cart_ready_order_item_unit']
+
+Sylius\Component\Core\Model\OrderItemUnit:
+    cart_ready_order_item_unit:
+        __construct: ['@cart_ready_order_item']
+        createdAt: "<(new \\DateTime())>"
+        updatedAt: "<(new \\DateTime())>"
