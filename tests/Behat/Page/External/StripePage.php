@@ -108,17 +108,14 @@ final class StripePage extends Page implements StripePageInterface
 
     public function findLatestPaymentRequest(): PaymentRequestInterface
     {
-        // Allow to wait for PaymentRequest to be processed
-        sleep(2);
-
         $paymentRequests = $this->paymentRequestRepository->findBy(
             [
                 'state' => [
                     PaymentRequestInterface::STATE_PROCESSING,
                 ],
                 'action' => [
-                        PaymentRequestInterface::ACTION_CAPTURE,
-                        PaymentRequestInterface::ACTION_AUTHORIZE,
+                    PaymentRequestInterface::ACTION_CAPTURE,
+                    PaymentRequestInterface::ACTION_AUTHORIZE,
                 ],
             ],
             [
