@@ -34,9 +34,13 @@ class StripeCheckoutContext extends MinkContext implements StripeContextInterfac
      */
     public function iConfirmMyOrderWithStripePayment(): void
     {
+        $expectedCount = $this->stripePage->countPaymentRequests() + 1;
+
         $this->stripeCheckoutSessionMocker->mockCaptureOrAuthorize();
 
         $this->summaryPage->confirmOrder();
+
+        $this->stripePage->waitForPaymentRequestCount($expectedCount);
     }
 
     /**
@@ -45,9 +49,13 @@ class StripeCheckoutContext extends MinkContext implements StripeContextInterfac
      */
     public function iTryToPayAgainWithStripePayment(): void
     {
+        $expectedCount = $this->stripePage->countPaymentRequests() + 1;
+
         $this->stripeCheckoutSessionMocker->mockCaptureOrAuthorize();
 
         $this->orderDetails->pay();
+
+        $this->stripePage->waitForPaymentRequestCount($expectedCount);
     }
 
     /**

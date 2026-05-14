@@ -108,9 +108,6 @@ final class StripePage extends Page implements StripePageInterface
 
     public function findLatestPaymentRequest(): PaymentRequestInterface
     {
-        // Allow to wait for PaymentRequest to be processed
-        sleep(2);
-
         $paymentRequests = $this->paymentRequestRepository->findBy(
             [
                 'state' => [
@@ -131,6 +128,30 @@ final class StripePage extends Page implements StripePageInterface
         Assert::notNull($paymentRequest, 'Unable to find the latest payment request');
 
         return $paymentRequest;
+    }
+
+    public function countPaymentRequests(): int
+    {
+        return count($this->paymentRequestRepository->findBy([]));
+    }
+
+    public function waitForPaymentRequestCount(int $expected, int $timeoutMs = 2000, int $intervalMs = 50): void
+    {
+        $deadline = microtime(true) + ($timeoutMs / 1000);
+
+        do {
+            if ($this->countPaymentRequests() >= $expected) {
+                return;
+            }
+            usleep($intervalMs * 1000);
+        } while (microtime(true) < $deadline);
+
+        throw new \RuntimeException(sprintf(
+            'Expected at least %d PaymentRequest rows after %dms, found %d.',
+            $expected,
+            $timeoutMs,
+            $this->countPaymentRequests(),
+        ));
     }
 
     /**

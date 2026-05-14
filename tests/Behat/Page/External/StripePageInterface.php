@@ -17,4 +17,8 @@ interface StripePageInterface extends PageInterface
     public function notify(string $payload): Response;
 
     public function findLatestPaymentRequest(): PaymentRequestInterface;
+
+    public function countPaymentRequests(): int;
+
+    public function waitForPaymentRequestCount(int $expected, int $timeoutMs = 2000, int $intervalMs = 50): void;
 }
