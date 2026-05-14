@@ -14,19 +14,19 @@ Feature: Paying with Stripe Web Elements during checkout
         And I have product "PHP T-Shirt" added to the cart
         And I have proceeded selecting "Stripe" payment method
 
-    @ui @api @javascript
+    @api @ui @javascript
     Scenario: Successful payment in Stripe
         When I confirm my order with Stripe payment
         And I complete my Stripe payment successfully
         Then I should see the thank you page
 
-    @ui @api @javascript
+    @api @ui @javascript
     Scenario: Cancelling the payment
         When I confirm my order with Stripe payment
         And I click on "go back" during my Stripe payment
         Then I should be able to pay again
 
-    @ui @api @javascript
+    @api @ui @javascript
     Scenario: Retrying the payment with success
         Given I have confirmed my order with Stripe payment
         But I have clicked on "go back" during my Stripe payment
@@ -34,7 +34,7 @@ Feature: Paying with Stripe Web Elements during checkout
         And I complete my Stripe payment successfully
         Then I should see the thank you page
 
-    @ui @api @javascript
+    @api @ui @javascript
     Scenario: Retrying the payment and failing
         Given I have confirmed my order with Stripe payment
         But I have clicked on "go back" during my Stripe payment

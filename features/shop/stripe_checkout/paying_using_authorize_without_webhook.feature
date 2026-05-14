@@ -14,20 +14,20 @@ Feature: Paying with Stripe Checkout Session during checkout without webhook usi
         And I have product "PHP T-Shirt" added to the cart
         And I have proceeded selecting "Stripe" payment method
 
-    @ui @api @javascript
+    @api @ui @javascript
     Scenario: Successful payment in Stripe without webhooks using authorize
         When I confirm my order with Stripe payment using authorize
         And I complete my Stripe payment successfully without webhook using authorize
         Then I should be notified that my payment has been authorized
         And I should see the thank you page
 
-    @ui @api @javascript
+    @api @ui @javascript
     Scenario: Cancelling the payment without webhooks using authorize
         When I confirm my order with Stripe payment using authorize
         And I click on "go back" during my Stripe payment
         Then I should be able to pay again
 
-    @ui @api @javascript
+    @api @ui @javascript
     Scenario: Retrying the payment with success without webhooks using authorize
         Given I have confirmed my order with Stripe payment using authorize
         But I have clicked on "go back" during my Stripe payment
@@ -36,7 +36,7 @@ Feature: Paying with Stripe Checkout Session during checkout without webhook usi
         Then I should be notified that my payment has been authorized
         And I should see the thank you page
 
-    @ui @api @javascript
+    @api @ui @javascript
     Scenario: Retrying the payment and failing without webhooks using authorize
         Given I have confirmed my order with Stripe payment using authorize
         But I have clicked on "go back" during my Stripe payment
