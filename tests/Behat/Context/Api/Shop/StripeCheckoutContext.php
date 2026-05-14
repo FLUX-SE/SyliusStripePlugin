@@ -10,6 +10,7 @@ use Stripe\Checkout\Session;
 use Stripe\Event;
 use Stripe\PaymentIntent;
 use Sylius\Behat\Client\ApiClientInterface;
+use Sylius\Behat\Client\ResponseCheckerInterface;
 use Sylius\Behat\Context\Api\Shop\CheckoutContext;
 use Sylius\Behat\Context\Api\Shop\PaymentRequestContext;
 use Sylius\Behat\Service\SharedStorageInterface;
@@ -30,6 +31,7 @@ class StripeCheckoutContext extends MinkContext implements StripeContextInterfac
         private StripeCheckoutMocker $stripeCheckoutSessionMocker,
         private StripePage $stripePage,
         private ApiClientInterface $client,
+        private ResponseCheckerInterface $responseChecker,
     ) {
     }
 
@@ -136,18 +138,20 @@ class StripeCheckoutContext extends MinkContext implements StripeContextInterfac
         $paymentMethod = $order->getLastPayment()?->getMethod();
         Assert::notNull($paymentMethod);
 
-        $this->paymentRequestContext->aPaymentRequestWithActionForPaymentMethodShouldHaveState(
-            PaymentRequestInterface::ACTION_AUTHORIZE,
-            $paymentMethod,
-            PaymentRequestInterface::STATE_COMPLETED,
-        );
+        /** @var string $paymentRequestUri */
+        $paymentRequestUri = $this->sharedStorage->get('payment_request_uri');
+        $response = $this->client->customAction($paymentRequestUri, 'GET');
+
+        Assert::same($this->responseChecker->getValue($response, 'action'), PaymentRequestInterface::ACTION_AUTHORIZE);
+        Assert::contains($this->responseChecker->getValue($response, 'method'), (string) $paymentMethod->getCode());
+        Assert::same($this->responseChecker->getValue($response, 'state'), PaymentRequestInterface::STATE_COMPLETED);
     }
 
     protected function setupNotify(string $status, string $captureMethod): void
     {
-        $this->iTryToPayAgainWithStripePayment();
-
-        $paymentRequest = $this->stripePage->findLatestPaymentRequest();
+        /** @var string $paymentRequestUri */
+        $paymentRequestUri = $this->sharedStorage->get('payment_request_uri');
+        $paymentRequestHash = basename($paymentRequestUri);
 
         $paymentIntentId = 'pi_test_1';
         $checkoutSessionData = [
@@ -158,7 +162,7 @@ class StripeCheckoutContext extends MinkContext implements StripeContextInterfac
             'status' => Session::STATUS_COMPLETE,
             'payment_status' => Session::PAYMENT_STATUS_PAID,
             'metadata' => [
-                MetadataProviderInterface::DEFAULT_TOKEN_HASH_KEY_NAME => $paymentRequest->getId(),
+                MetadataProviderInterface::DEFAULT_TOKEN_HASH_KEY_NAME => $paymentRequestHash,
             ],
         ];
         $jsonEvent = [

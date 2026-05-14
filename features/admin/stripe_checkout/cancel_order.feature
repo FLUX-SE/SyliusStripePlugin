@@ -15,7 +15,7 @@ Feature: Canceling an order with Stripe Checkout
         And this order is not yet paid using Stripe Checkout
         And I am logged in as an administrator
 
-    @ui @api
+    @api @ui
     Scenario: Cancelling the order when a checkout session is still available
         Given I am viewing the summary of this order
         And I am prepared to expire this order
@@ -24,7 +24,7 @@ Feature: Canceling an order with Stripe Checkout
         And it should have payment with state cancelled
         And it should have payment state "Cancelled"
 
-    @ui @api
+    @api @ui
     Scenario: Cancelling the order after the customer canceled the payment
         Given I am viewing the summary of this order
         And I am prepared to expire this order

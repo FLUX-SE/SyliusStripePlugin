@@ -117,8 +117,8 @@ final class StripePage extends Page implements StripePageInterface
                     PaymentRequestInterface::STATE_PROCESSING,
                 ],
                 'action' => [
-                        PaymentRequestInterface::ACTION_CAPTURE,
-                        PaymentRequestInterface::ACTION_AUTHORIZE,
+                    PaymentRequestInterface::ACTION_CAPTURE,
+                    PaymentRequestInterface::ACTION_AUTHORIZE,
                 ],
             ],
             [

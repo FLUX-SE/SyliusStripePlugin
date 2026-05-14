@@ -15,7 +15,7 @@ Feature: Canceling an order with Stripe JS
         And this order is not yet paid using Stripe web elements
         And I am logged in as an administrator
 
-    @ui @api
+    @api @ui
     Scenario: Cancelling the order when a payment intent is still available
         Given I am viewing the summary of this order
         And I am prepared to cancel this order

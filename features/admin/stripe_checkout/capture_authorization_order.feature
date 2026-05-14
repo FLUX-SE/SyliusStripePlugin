@@ -15,7 +15,7 @@ Feature: Capturing the authorization of an order with Stripe Checkout Session
         And this order is already authorized using Stripe Checkout
         And I am logged in as an administrator
 
-    @ui @api
+    @api @ui
     Scenario: Capture the Stripe authorized payment
         Given I am viewing the summary of this order
         And I am prepared to capture authorization of this order
