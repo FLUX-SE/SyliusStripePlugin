@@ -15,4 +15,9 @@ final class CartUnavailableException extends ExpressCheckoutException
     {
         return new self('Cart is empty.');
     }
+
+    public static function alreadyPlaced(): self
+    {
+        return new self('Cart has already been placed as an order.');
+    }
 }

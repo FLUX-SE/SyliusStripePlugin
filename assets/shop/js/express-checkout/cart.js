@@ -178,29 +178,55 @@
             event.resolve({ lineItems: (result && result.lineItems) || [] });
         });
 
-        expressCheckout.on('confirm', async (event) => {
-            const result = await postJson(confirmUrl, {
-                expressPaymentType: event.expressPaymentType,
-                shippingAddress: event.shippingAddress,
-                billingDetails: event.billingDetails,
-                shippingRate: event.shippingRate,
-            }, csrfToken);
+        // The wallet popup can fire `confirm` more than once: double-click on the wallet
+        // button before the first request resolves, or auto-retry after a `card_declined`
+        // recovery. The cart-side state machine is not idempotent — the second POST to
+        // /express-checkout/cart/confirm would hit a placed order and 422. Guard locally
+        // so the second confirm never reaches the network.
+        let confirmInFlight = false;
+        let cartConsumed = false;
 
-            if (!result || result.error || !result.clientSecret) {
+        expressCheckout.on('confirm', async (event) => {
+            if (cartConsumed) {
                 event.paymentFailed({ reason: 'fail' });
-                showError(container, (result && result.error) || 'Express Checkout failed');
+                showError(container, 'Express Checkout already submitted.');
 
                 return;
             }
 
-            const { error } = await stripe.confirmPayment({
-                elements,
-                clientSecret: result.clientSecret,
-                confirmParams: { return_url: result.returnUrl },
-            });
+            if (confirmInFlight) {
+                return;
+            }
 
-            if (error) {
-                showError(container, error.message);
+            confirmInFlight = true;
+            try {
+                const result = await postJson(confirmUrl, {
+                    expressPaymentType: event.expressPaymentType,
+                    shippingAddress: event.shippingAddress,
+                    billingDetails: event.billingDetails,
+                    shippingRate: event.shippingRate,
+                }, csrfToken);
+
+                if (!result || result.error || !result.clientSecret) {
+                    event.paymentFailed({ reason: 'fail' });
+                    showError(container, (result && result.error) || 'Express Checkout failed');
+
+                    return;
+                }
+
+                cartConsumed = true;
+
+                const { error } = await stripe.confirmPayment({
+                    elements,
+                    clientSecret: result.clientSecret,
+                    confirmParams: { return_url: result.returnUrl },
+                });
+
+                if (error) {
+                    showError(container, error.message);
+                }
+            } finally {
+                confirmInFlight = false;
             }
         });
     }

@@ -226,6 +226,43 @@ final class ConfirmActionTest extends WebTestCase
         self::assertNull($placedOrder->getShippingAddress());
     }
 
+    public function test_it_returns_unprocessable_entity_on_double_confirm(): void
+    {
+        $fixtures = $this->loadFixtures([
+            'channel.yaml',
+            'tax_category.yaml',
+            'shipping_category.yaml',
+            'product_variant.yaml',
+            'shipping_method.yaml',
+            'express_checkout/payment_method.yaml',
+            'express_checkout/cart_ready.yaml',
+        ]);
+
+        /** @var OrderInterface $cart */
+        $cart = $fixtures['cart_ready'];
+        $token = $this->bootSession($cart);
+
+        $this->getPaymentIntentMocker()->mockCreateAction();
+
+        $this->postJson($this->validPayload(), $token);
+        self::assertSame(
+            Response::HTTP_OK,
+            $this->client->getResponse()->getStatusCode(),
+            sprintf('First confirm: %s', $this->client->getResponse()->getContent()),
+        );
+
+        // Second POST must not reach Stripe and must not raise a StateMachineExecutionException
+        // (which would surface as 500). For a sequential second request Sylius's CartContext
+        // already issued a fresh empty cart — so the rejection comes through the empty()
+        // guard rather than alreadyPlaced(). The race-condition path (two parallel requests
+        // hitting the same cart id) is covered by the defensive catch inside applyTransition().
+        $this->postJson($this->validPayload(), $token);
+
+        self::assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $this->client->getResponse()->getStatusCode());
+        $body = $this->decodeResponseBody();
+        self::assertArrayHasKey('error', $body);
+    }
+
     /**
      * Creates a session for the BrowserKit client and pre-generates a CSRF token
      * inside it (via a temporary RequestStack push so CsrfTokenManager writes to

@@ -20,6 +20,7 @@ use FluxSE\SyliusStripePlugin\Provider\AfterUrlProviderInterface;
 use FluxSE\SyliusStripePlugin\Resolver\ExpressCheckoutPaymentMethodResolverInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Sylius\Abstraction\StateMachine\Exception\StateMachineExecutionException;
 use Sylius\Abstraction\StateMachine\StateMachineInterface;
 use Sylius\Bundle\CoreBundle\Resolver\CustomerResolverInterface;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
@@ -366,6 +367,41 @@ final class OrderCompleterTest extends TestCase
         $this->orderCompleter->complete(new Request());
     }
 
+    public function test_it_throws_when_cart_is_no_longer_in_cart_state(): void
+    {
+        $channel = $this->createMock(ChannelInterface::class);
+        $cart = $this->createMock(OrderInterface::class);
+        $items = $this->createMock(\Doctrine\Common\Collections\Collection::class);
+        $items->method('isEmpty')->willReturn(false);
+        $cart->method('getItems')->willReturn($items);
+        $cart->method('getState')->willReturn(OrderInterface::STATE_NEW);
+        $cart->method('getChannel')->willReturn($channel);
+
+        $this->channelContext->method('getChannel')->willReturn($channel);
+        $this->cartContext->method('getCart')->willReturn($cart);
+
+        $this->expectException(CartUnavailableException::class);
+        $this->expectExceptionMessage('Cart has already been placed as an order.');
+
+        $this->orderCompleter->complete(new Request());
+    }
+
+    public function test_it_remaps_state_machine_failure_to_cart_unavailable(): void
+    {
+        $this->setUpUpToPayload(new ExpressCheckoutPayload([
+            'billingDetails' => ['email' => 'a@b.c'],
+            'shippingRate' => ['id' => 'ups'],
+        ]));
+        $this->addressNormalizer->method('normalizeShipping')->willReturn($this->createMock(AddressInterface::class));
+        $this->shippingMethodRepository->method('findOneBy')->willReturn($this->createMock(ShippingMethodInterface::class));
+        $this->stateMachine->method('apply')->willThrowException(new StateMachineExecutionException('cannot apply'));
+
+        $this->expectException(CartUnavailableException::class);
+        $this->expectExceptionMessage('Cart has already been placed as an order.');
+
+        $this->orderCompleter->complete(new Request());
+    }
+
     public function test_it_throws_when_email_is_missing_from_the_payload(): void
     {
         $this->setUpUpToPayload(new ExpressCheckoutPayload([]));
@@ -500,6 +536,7 @@ final class OrderCompleterTest extends TestCase
         $items->method('isEmpty')->willReturn(false);
         $cart->method('getItems')->willReturn($items);
         $cart->method('isShippingRequired')->willReturn($isShippingRequired);
+        $cart->method('getState')->willReturn(OrderInterface::STATE_CART);
 
         return $cart;
     }

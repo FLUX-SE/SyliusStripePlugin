@@ -17,6 +17,7 @@ use FluxSE\SyliusStripePlugin\ExpressCheckout\Payment\CapturePaymentRequestDispa
 use FluxSE\SyliusStripePlugin\Normalizer\ExpressCheckoutAddressNormalizerInterface;
 use FluxSE\SyliusStripePlugin\Provider\AfterUrlProviderInterface;
 use FluxSE\SyliusStripePlugin\Resolver\ExpressCheckoutPaymentMethodResolverInterface;
+use Sylius\Abstraction\StateMachine\Exception\StateMachineExecutionException;
 use Sylius\Abstraction\StateMachine\StateMachineInterface;
 use Sylius\Bundle\CoreBundle\Resolver\CustomerResolverInterface;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
@@ -60,6 +61,9 @@ final readonly class OrderCompleter implements OrderCompleterInterface
     {
         $this->resolveChannel();
         $cart = $this->resolveCart();
+        if (OrderInterface::STATE_CART !== $cart->getState()) {
+            throw CartUnavailableException::alreadyPlaced();
+        }
         $paymentMethod = $this->resolvePaymentMethod($cart);
 
         $payload = $this->payloadReader->read($request);
@@ -223,7 +227,14 @@ final readonly class OrderCompleter implements OrderCompleterInterface
 
     private function applyTransition(OrderInterface $cart, string $transition): void
     {
-        $this->stateMachine->apply($cart, OrderCheckoutTransitions::GRAPH, $transition);
+        try {
+            $this->stateMachine->apply($cart, OrderCheckoutTransitions::GRAPH, $transition);
+        } catch (StateMachineExecutionException) {
+            // Race-condition safety net for parallel POSTs that bypass the STATE_CART
+            // guard in complete(): once the first request flips the cart out of `cart`
+            // state, subsequent transitions raise SM exception — surface it as 422.
+            throw CartUnavailableException::alreadyPlaced();
+        }
     }
 
     private function createPayment(OrderInterface $cart, PaymentMethodInterface $paymentMethod): PaymentInterface
