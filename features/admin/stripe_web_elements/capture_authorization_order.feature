@@ -15,7 +15,7 @@ Feature: Capturing the authorization of an order with Stripe JS
         And this order is already authorized using Stripe web elements
         And I am logged in as an administrator
 
-    @ui @api
+    @api @ui
     Scenario: Initializing the Stripe refund
         Given I am viewing the summary of this order
         And I am prepared to capture authorization of this order

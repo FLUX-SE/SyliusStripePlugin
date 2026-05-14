@@ -15,7 +15,7 @@ Feature: Canceling an authorized order with Stripe Checkout
         And this order is already authorized using Stripe Checkout
         And I am logged in as an administrator
 
-    @ui @api
+    @api @ui
     Scenario: Cancelling the order with an authorized payment
         Given I am viewing the summary of this order
         And I am prepared to cancel authorization on this order
