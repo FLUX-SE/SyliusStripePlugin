@@ -7,6 +7,7 @@ namespace Tests\FluxSE\SyliusStripePlugin\Functional\Controller\Shop\ExpressChec
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\ORM\EntityManagerInterface;
 use Fidry\AliceDataFixtures\Loader\PurgerLoader;
+use FluxSE\SyliusStripePlugin\ExpressCheckout\ExpressCheckoutCsrf;
 use Stripe\ApiResource;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Repository\OrderRepositoryInterface;
@@ -15,8 +16,12 @@ use Sylius\Component\Payment\Repository\PaymentRequestRepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\Cookie;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionFactoryInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api\PaymentIntentMocker;
 use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\StripeClientWithExpectationsInterface;
 
@@ -46,11 +51,31 @@ final class ConfirmActionTest extends WebTestCase
         $this->getStripeClientWithExpectations()->resetExpectations();
     }
 
-    public function test_it_returns_unprocessable_entity_when_no_cart_exists(): void
+    public function test_it_returns_forbidden_when_csrf_token_is_missing(): void
     {
         $this->loadFixtures(['channel.yaml']);
 
         $this->postJson($this->validPayload());
+
+        self::assertSame(Response::HTTP_FORBIDDEN, $this->client->getResponse()->getStatusCode());
+    }
+
+    public function test_it_returns_forbidden_when_csrf_token_is_invalid(): void
+    {
+        $this->loadFixtures(['channel.yaml']);
+        $this->bootSession();
+
+        $this->postJson($this->validPayload(), 'invalid_csrf_token');
+
+        self::assertSame(Response::HTTP_FORBIDDEN, $this->client->getResponse()->getStatusCode());
+    }
+
+    public function test_it_returns_unprocessable_entity_when_no_cart_exists(): void
+    {
+        $this->loadFixtures(['channel.yaml']);
+        $token = $this->bootSession();
+
+        $this->postJson($this->validPayload(), $token);
 
         self::assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $this->client->getResponse()->getStatusCode());
     }
@@ -61,8 +86,9 @@ final class ConfirmActionTest extends WebTestCase
             'channel.yaml',
             'payment_method.yaml',
         ]);
+        $token = $this->bootSession();
 
-        $this->postJson($this->validPayload());
+        $this->postJson($this->validPayload(), $token);
 
         self::assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $this->client->getResponse()->getStatusCode());
         $body = $this->decodeResponseBody();
@@ -75,11 +101,12 @@ final class ConfirmActionTest extends WebTestCase
             'channel.yaml',
             'express_checkout/payment_method.yaml',
         ]);
+        $token = $this->bootSession();
 
         $payload = $this->validPayload();
         unset($payload['billingDetails']);
 
-        $this->postJson($payload);
+        $this->postJson($payload, $token);
 
         self::assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $this->client->getResponse()->getStatusCode());
         $body = $this->decodeResponseBody();
@@ -100,7 +127,7 @@ final class ConfirmActionTest extends WebTestCase
 
         /** @var OrderInterface $cart */
         $cart = $fixtures['cart_ready'];
-        $this->startCartSession($cart);
+        $token = $this->bootSession($cart);
 
         // Stripe API call (PaymentIntent::create) is intercepted by
         // StripeClientWithExpectations decorator (already wired through Behat services.xml
@@ -108,7 +135,7 @@ final class ConfirmActionTest extends WebTestCase
         // canned response with `client_secret: '1234567890'`.
         $this->getPaymentIntentMocker()->mockCreateAction();
 
-        $this->postJson($this->validPayload());
+        $this->postJson($this->validPayload(), $token);
 
         $response = $this->client->getResponse();
         self::assertSame(
@@ -140,19 +167,51 @@ final class ConfirmActionTest extends WebTestCase
         self::assertSame('1234567890', $paymentRequests[0]->getResponseData()['client_secret'] ?? null);
     }
 
-    private function startCartSession(OrderInterface $cart): void
+    /**
+     * Creates a session for the BrowserKit client and pre-generates a CSRF token
+     * inside it (via a temporary RequestStack push so CsrfTokenManager writes to
+     * the same SessionInterface that the next HTTP request will load).
+     *
+     * Returns the randomized token value to send in the X-CSRF-Token header.
+     */
+    private function bootSession(?OrderInterface $cart = null): string
     {
         /** @var SessionFactoryInterface $sessionFactory */
         $sessionFactory = static::getContainer()->get('session.factory');
         $session = $sessionFactory->createSession();
-        $channel = $cart->getChannel();
-        self::assertNotNull($channel);
-        $session->set('_sylius.cart.' . $channel->getCode(), $cart->getId());
-        $session->save();
 
+        if (null !== $cart) {
+            $channel = $cart->getChannel();
+            self::assertNotNull($channel);
+            $session->set('_sylius.cart.' . $channel->getCode(), $cart->getId());
+        }
+
+        $token = $this->generateCsrfToken($session);
+
+        $session->save();
         $this->client->getCookieJar()->set(
             new Cookie($session->getName(), $session->getId()),
         );
+
+        return $token;
+    }
+
+    private function generateCsrfToken(SessionInterface $session): string
+    {
+        /** @var RequestStack $requestStack */
+        $requestStack = static::getContainer()->get('request_stack');
+        $request = new Request();
+        $request->setSession($session);
+        $requestStack->push($request);
+
+        try {
+            /** @var CsrfTokenManagerInterface $tokenManager */
+            $tokenManager = static::getContainer()->get('security.csrf.token_manager');
+
+            return $tokenManager->getToken(ExpressCheckoutCsrf::TOKEN_ID)->getValue();
+        } finally {
+            $requestStack->pop();
+        }
     }
 
     private function getPaymentIntentMocker(): PaymentIntentMocker
@@ -232,13 +291,19 @@ final class ConfirmActionTest extends WebTestCase
         return $this->fixtureLoader->load($resolved);
     }
 
-    /** @param array<string, mixed> $body */
-    private function postJson(array $body): void
+    /**
+     * @param array<string, mixed> $body
+     */
+    private function postJson(array $body, ?string $csrfToken = null): void
     {
+        $server = ['CONTENT_TYPE' => 'application/json'];
+        if (null !== $csrfToken) {
+            $server['HTTP_X_CSRF_TOKEN'] = $csrfToken;
+        }
         $this->client->request(
             method: 'POST',
             uri: self::URI,
-            server: ['CONTENT_TYPE' => 'application/json'],
+            server: $server,
             content: json_encode($body, \JSON_THROW_ON_ERROR),
         );
     }

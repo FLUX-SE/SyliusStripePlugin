@@ -7,6 +7,7 @@ namespace Tests\FluxSE\SyliusStripePlugin\Functional\Controller\Shop\ExpressChec
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\ORM\EntityManagerInterface;
 use Fidry\AliceDataFixtures\Loader\PurgerLoader;
+use FluxSE\SyliusStripePlugin\ExpressCheckout\ExpressCheckoutCsrf;
 use Stripe\ApiResource;
 use Stripe\Event;
 use Stripe\PaymentIntent;
@@ -19,8 +20,12 @@ use Sylius\Component\Payment\Repository\PaymentRequestRepositoryInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\Cookie;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionFactoryInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api\EventMocker;
 use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\Api\PaymentIntentMocker;
 use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\StripeClientWithExpectationsInterface;
@@ -100,11 +105,11 @@ final class PaymentLifecycleTest extends WebTestCase
         /** @var OrderInterface $cart */
         $cart = $fixtures['cart_ready'];
         $cartId = $cart->getId();
-        $this->startCartSession($cart);
+        $csrfToken = $this->startCartSession($cart);
 
         $this->getPaymentIntentMocker()->mockCreateAction();
 
-        $this->postJson(self::CONFIRM_URI, $this->validConfirmPayload());
+        $this->postJson(self::CONFIRM_URI, $this->validConfirmPayload(), $csrfToken);
 
         $confirmResponse = $this->client->getResponse();
         self::assertSame(
@@ -223,7 +228,7 @@ final class PaymentLifecycleTest extends WebTestCase
         );
     }
 
-    private function startCartSession(OrderInterface $cart): void
+    private function startCartSession(OrderInterface $cart): string
     {
         /** @var SessionFactoryInterface $sessionFactory */
         $sessionFactory = static::getContainer()->get('session.factory');
@@ -231,11 +236,34 @@ final class PaymentLifecycleTest extends WebTestCase
         $channel = $cart->getChannel();
         self::assertNotNull($channel);
         $session->set('_sylius.cart.' . $channel->getCode(), $cart->getId());
+
+        $token = $this->generateCsrfToken($session);
+
         $session->save();
 
         $this->client->getCookieJar()->set(
             new Cookie($session->getName(), $session->getId()),
         );
+
+        return $token;
+    }
+
+    private function generateCsrfToken(SessionInterface $session): string
+    {
+        /** @var RequestStack $requestStack */
+        $requestStack = static::getContainer()->get('request_stack');
+        $request = new Request();
+        $request->setSession($session);
+        $requestStack->push($request);
+
+        try {
+            /** @var CsrfTokenManagerInterface $tokenManager */
+            $tokenManager = static::getContainer()->get('security.csrf.token_manager');
+
+            return $tokenManager->getToken(ExpressCheckoutCsrf::TOKEN_ID)->getValue();
+        } finally {
+            $requestStack->pop();
+        }
     }
 
     private function getPaymentIntentMocker(): PaymentIntentMocker
@@ -288,12 +316,16 @@ final class PaymentLifecycleTest extends WebTestCase
     }
 
     /** @param array<string, mixed> $body */
-    private function postJson(string $uri, array $body): void
+    private function postJson(string $uri, array $body, ?string $csrfToken = null): void
     {
+        $server = ['CONTENT_TYPE' => 'application/json'];
+        if (null !== $csrfToken) {
+            $server['HTTP_X_CSRF_TOKEN'] = $csrfToken;
+        }
         $this->client->request(
             method: 'POST',
             uri: $uri,
-            server: ['CONTENT_TYPE' => 'application/json'],
+            server: $server,
             content: json_encode($body, \JSON_THROW_ON_ERROR),
         );
     }

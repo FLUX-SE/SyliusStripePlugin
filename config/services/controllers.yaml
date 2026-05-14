@@ -7,9 +7,11 @@ services:
     FluxSE\SyliusStripePlugin\Controller\Shop\ExpressCheckout\ShippingRatesAction:
         arguments:
             - '@flux_se.sylius_stripe.shop.express_checkout.shipping_options_calculator'
+            - '@security.csrf.token_manager'
         tags: [controller.service_arguments]
 
     FluxSE\SyliusStripePlugin\Controller\Shop\ExpressCheckout\ConfirmAction:
         arguments:
             - '@flux_se.sylius_stripe.shop.express_checkout.order_completer'
+            - '@security.csrf.token_manager'
         tags: [controller.service_arguments]

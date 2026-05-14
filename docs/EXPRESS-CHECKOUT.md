@@ -187,6 +187,18 @@ secret keys and keep the process running.
 | `stripe.confirmPayment` throws "no such payment_intent" | The `confirm` endpoint returned an error and the JS did not stop — open the network tab and inspect the response body |
 | Webhook delivers but `Payment` stays `processing` | For a `stripe_checkout` PaymentMethod, check the `payment_intent.*` events are subscribed (see the table above) |
 
+## CSRF protection
+
+The two state-changing endpoints (`POST /express-checkout/cart/shipping-rates` and `POST /express-checkout/cart/confirm`) 
+require a CSRF token under the id `sylius_stripe_express_checkout` sent in the `X-CSRF-Token` request header.
+The plugin's default Twig partial renders the token into a `data-csrf-token` attribute on the container and the bundled 
+JS forwards it on every POST — no integrator action is needed when reusing the shipped templates.
+
+Integrators who **override** `@FluxSESyliusStripePlugin/shop/cart/_express_checkout.html.twig` must keep the 
+`data-csrf-token="{{ csrf_token('sylius_stripe_express_checkout') }}"` attribute. Integrators who ship their own ECE 
+frontend must send the token in `X-CSRF-Token` themselves. Applications that disable `framework.csrf_protection`
+in `config/packages/framework.yaml` will receive `403 Forbidden` from these endpoints.
+
 ## Architecture notes
 
 - The Express Checkout pipeline reuses `FluxSE\SyliusStripePlugin\CommandHandler\WebElements\CapturePaymentRequestHandler`

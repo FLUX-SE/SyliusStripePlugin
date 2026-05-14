@@ -1,5 +1,3 @@
-// Cart-page Express Checkout (Google Pay / Apple Pay) integration.
-//
 // Mounts Stripe's Express Checkout Element next to the cart summary and wires it to
 // the plugin's AJAX endpoints (configuration / shipping-rates / confirm).
 //
@@ -46,10 +44,14 @@
         return response.json();
     }
 
-    async function postJson(url, body) {
+    async function postJson(url, body, csrfToken) {
+        const headers = { 'Content-Type': 'application/json', Accept: 'application/json' };
+        if (csrfToken) {
+            headers['X-CSRF-Token'] = csrfToken;
+        }
         const response = await fetch(url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            headers,
             body: JSON.stringify(body),
         });
         if (!response.ok) {
@@ -71,6 +73,7 @@
         const configurationUrl = container.dataset.configurationUrl;
         const shippingRatesUrl = container.dataset.shippingRatesUrl;
         const confirmUrl = container.dataset.confirmUrl;
+        const csrfToken = container.dataset.csrfToken;
         const mountPoint = container.querySelector('[data-sylius-stripe-express-checkout-mount]');
 
         if (!configurationUrl || !shippingRatesUrl || !confirmUrl || !mountPoint) {
@@ -155,7 +158,7 @@
         });
 
         expressCheckout.on('shippingaddresschange', async (event) => {
-            const result = await postJson(shippingRatesUrl, { address: event.address });
+            const result = await postJson(shippingRatesUrl, { address: event.address }, csrfToken);
             if (!result || result.error || !Array.isArray(result.shippingRates) || result.shippingRates.length === 0) {
                 event.reject();
 
@@ -171,7 +174,7 @@
             const result = await postJson(shippingRatesUrl, {
                 address: event.address,
                 shippingRateId: event.shippingRate.id,
-            });
+            }, csrfToken);
             event.resolve({ lineItems: (result && result.lineItems) || [] });
         });
 
@@ -181,7 +184,7 @@
                 shippingAddress: event.shippingAddress,
                 billingDetails: event.billingDetails,
                 shippingRate: event.shippingRate,
-            });
+            }, csrfToken);
 
             if (!result || result.error || !result.clientSecret) {
                 event.paymentFailed({ reason: 'fail' });
