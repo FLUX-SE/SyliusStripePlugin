@@ -69,30 +69,15 @@ final readonly class OrderCompleter implements OrderCompleterInterface
             throw InvalidPayloadException::missingEmail();
         }
 
-        $shippingAddress = $this->normalizeShipping($payload);
-        // ECE wallets sometimes return placeholder billing data (e.g. Google Pay sandbox
-        // populates billingDetails with "Card Holder Name" + Googleplex address). Since
-        // the wallet popup never lets the customer pick a separate billing address, the
-        // shipping address is the only intent the customer expressed — clone it.
-        $billingAddress = clone $shippingAddress;
-
-        $shippingMethod = $this->resolveShippingMethod($payload);
-
         if (null === $cart->getCustomer()) {
             $cart->setCustomer($this->customerResolver->resolve($email));
         }
-        $cart->setShippingAddress($shippingAddress);
-        $cart->setBillingAddress($billingAddress);
 
-        $this->applyTransition($cart, OrderCheckoutTransitions::TRANSITION_ADDRESS);
-
-        $shipment = $cart->getShipments()->first();
-        if (!$shipment instanceof ShipmentInterface) {
-            throw ShippingMethodNotFoundException::shipmentMissing();
+        if ($cart->isShippingRequired()) {
+            $this->applyPhysicalCheckout($cart, $payload);
+        } else {
+            $this->applyDigitalCheckout($cart, $payload);
         }
-
-        $shipment->setMethod($shippingMethod);
-        $this->applyTransition($cart, OrderCheckoutTransitions::TRANSITION_SELECT_SHIPPING);
 
         $payment = $this->createPayment($cart, $paymentMethod);
         $cart->addPayment($payment);
@@ -117,6 +102,40 @@ final readonly class OrderCompleter implements OrderCompleterInterface
             clientSecret: $clientSecret,
             returnUrl: $this->afterUrlProvider->getUrl($paymentRequest, AfterUrlProviderInterface::ACTION_URL),
         );
+    }
+
+    private function applyPhysicalCheckout(OrderInterface $cart, ExpressCheckoutPayload $payload): void
+    {
+        $shippingAddress = $this->normalizeShipping($payload);
+        // ECE wallets sometimes return placeholder billing data (e.g. Google Pay sandbox
+        // populates billingDetails with "Card Holder Name" + Googleplex address). Since
+        // the wallet popup never lets the customer pick a separate billing address, the
+        // shipping address is the only intent the customer expressed — clone it.
+        $billingAddress = clone $shippingAddress;
+        $shippingMethod = $this->resolveShippingMethod($payload);
+
+        $cart->setShippingAddress($shippingAddress);
+        $cart->setBillingAddress($billingAddress);
+        $this->applyTransition($cart, OrderCheckoutTransitions::TRANSITION_ADDRESS);
+
+        $shipment = $cart->getShipments()->first();
+        if (!$shipment instanceof ShipmentInterface) {
+            throw ShippingMethodNotFoundException::shipmentMissing();
+        }
+
+        $shipment->setMethod($shippingMethod);
+        $this->applyTransition($cart, OrderCheckoutTransitions::TRANSITION_SELECT_SHIPPING);
+    }
+
+    private function applyDigitalCheckout(OrderInterface $cart, ExpressCheckoutPayload $payload): void
+    {
+        // Wallet popup never asks for an address when shippingAddressRequired=false (set by
+        // ConfigurationProvider for digital-only carts). billingDetails is the only address
+        // Stripe sends back — use it as billing-only and let the state machine auto-skip
+        // the shipping step via the sylius_skip_shipping after-callback on TRANSITION_ADDRESS.
+        $billingAddress = $this->normalizeBilling($payload);
+        $cart->setBillingAddress($billingAddress);
+        $this->applyTransition($cart, OrderCheckoutTransitions::TRANSITION_ADDRESS);
     }
 
     private function resolveChannel(): ChannelInterface
@@ -174,6 +193,15 @@ final readonly class OrderCompleter implements OrderCompleterInterface
             return $this->addressNormalizer->normalizeShipping($payload->raw());
         } catch (\LogicException | \InvalidArgumentException $exception) {
             throw InvalidPayloadException::invalidShippingAddress($exception->getMessage());
+        }
+    }
+
+    private function normalizeBilling(ExpressCheckoutPayload $payload): AddressInterface
+    {
+        try {
+            return $this->addressNormalizer->normalizeBilling($payload->raw());
+        } catch (\LogicException | \InvalidArgumentException $exception) {
+            throw InvalidPayloadException::invalidBillingAddress($exception->getMessage());
         }
     }
 

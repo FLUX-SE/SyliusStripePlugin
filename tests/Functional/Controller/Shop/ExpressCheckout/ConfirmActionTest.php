@@ -167,6 +167,65 @@ final class ConfirmActionTest extends WebTestCase
         self::assertSame('1234567890', $paymentRequests[0]->getResponseData()['client_secret'] ?? null);
     }
 
+    public function test_it_completes_a_digital_only_cart_without_shipping_step(): void
+    {
+        $fixtures = $this->loadFixtures([
+            'channel.yaml',
+            'tax_category.yaml',
+            'express_checkout/payment_method.yaml',
+            'express_checkout/cart_digital_ready.yaml',
+        ]);
+
+        /** @var OrderInterface $cart */
+        $cart = $fixtures['cart_digital_ready'];
+        $token = $this->bootSession($cart);
+
+        $this->getPaymentIntentMocker()->mockCreateAction();
+
+        // Digital-only payload: wallet popup was opened with shippingAddressRequired:false
+        // (configured by ConfigurationProvider when $cart->isShippingRequired() === false),
+        // so Stripe Element omits shippingAddress and shippingRate from the confirm event.
+        $this->postJson([
+            'expressPaymentType' => 'google_pay',
+            'billingDetails' => [
+                'email' => 'jane@example.com',
+                'name' => 'Jane Doe',
+                'phone' => '+1-555-0100',
+                'address' => [
+                    'line1' => '500 Terry A Francois Blvd',
+                    'city' => 'San Francisco',
+                    'state' => 'CA',
+                    'postal_code' => '94158',
+                    'country' => 'US',
+                ],
+            ],
+        ], $token);
+
+        $response = $this->client->getResponse();
+        self::assertSame(
+            Response::HTTP_OK,
+            $response->getStatusCode(),
+            sprintf('Response body: %s', $response->getContent()),
+        );
+
+        $body = $this->decodeResponseBody();
+        self::assertSame('1234567890', $body['clientSecret']);
+
+        $this->entityManager->clear();
+        /** @var OrderRepositoryInterface<OrderInterface> $orderRepository */
+        $orderRepository = static::getContainer()->get('sylius.repository.order');
+        $placedOrder = $orderRepository->find($cart->getId());
+        self::assertNotNull($placedOrder);
+        self::assertSame('new', $placedOrder->getState());
+        // Digital cart never reaches shipping_selected — OrderShipmentProcessor doesn't
+        // create a Shipment for variants with shipping_required = false, and Sylius's
+        // sylius_skip_shipping after-callback on TRANSITION_ADDRESS moves the checkout
+        // state to shipping_skipped (then select_payment → completed).
+        self::assertCount(0, $placedOrder->getShipments());
+        self::assertSame('Jane', $placedOrder->getBillingAddress()?->getFirstName());
+        self::assertNull($placedOrder->getShippingAddress());
+    }
+
     /**
      * Creates a session for the BrowserKit client and pre-generates a CSRF token
      * inside it (via a temporary RequestStack push so CsrfTokenManager writes to

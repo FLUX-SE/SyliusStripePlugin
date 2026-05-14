@@ -92,6 +92,29 @@ final class ConfigurationActionTest extends WebTestCase
         self::assertIsArray($body['allowedCountryCodes']);
     }
 
+    public function test_it_returns_shipping_required_false_for_a_digital_only_cart(): void
+    {
+        $fixtures = $this->loadFixtures([
+            'channel.yaml',
+            'tax_category.yaml',
+            'express_checkout/payment_method.yaml',
+            'express_checkout/cart_digital_ready.yaml',
+        ]);
+
+        /** @var OrderInterface $cart */
+        $cart = $fixtures['cart_digital_ready'];
+        $this->startCartSession($cart);
+
+        $this->client->request('GET', self::URI);
+
+        $response = $this->client->getResponse();
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $body = json_decode((string) $response->getContent(), true);
+        self::assertIsArray($body);
+        self::assertFalse($body['shippingRequired']);
+    }
+
     private function startCartSession(OrderInterface $cart): void
     {
         /** @var SessionFactoryInterface $sessionFactory */

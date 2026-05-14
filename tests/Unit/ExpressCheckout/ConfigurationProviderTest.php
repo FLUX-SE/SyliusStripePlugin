@@ -76,6 +76,22 @@ final class ConfigurationProviderTest extends TestCase
         self::assertTrue($configuration->shippingRequired);
     }
 
+    public function test_it_marks_configuration_as_not_requiring_shipping_for_digital_only_cart(): void
+    {
+        $channel = $this->createChannel('Shop', []);
+        $cart = $this->createCart('USD', 1500, isShippingRequired: false);
+
+        $paymentMethod = $this->createMock(PaymentMethodInterface::class);
+        $paymentMethod->method('getCode')->willReturn('ece');
+
+        $this->channelContext->method('getChannel')->willReturn($channel);
+        $this->cartContext->method('getCart')->willReturn($cart);
+        $this->paymentMethodResolver->method('resolveForChannel')->willReturn($paymentMethod);
+        $this->paymentMethodResolver->method('getPublishableKey')->willReturn('pk_test');
+
+        self::assertFalse($this->configurationProvider->provide()->shippingRequired);
+    }
+
     public function test_it_falls_back_to_channel_base_currency_when_cart_has_no_currency(): void
     {
         $currency = $this->createMock(CurrencyInterface::class);
@@ -200,11 +216,16 @@ final class ConfigurationProviderTest extends TestCase
         return $channel;
     }
 
-    private function createCart(?string $currencyCode, int $total, bool $isEmpty = false): OrderInterface&MockObject
-    {
+    private function createCart(
+        ?string $currencyCode,
+        int $total,
+        bool $isEmpty = false,
+        bool $isShippingRequired = true,
+    ): OrderInterface&MockObject {
         $cart = $this->createMock(OrderInterface::class);
         $cart->method('getCurrencyCode')->willReturn($currencyCode);
         $cart->method('getTotal')->willReturn($total);
+        $cart->method('isShippingRequired')->willReturn($isShippingRequired);
 
         $items = $this->createMock(\Doctrine\Common\Collections\Collection::class);
         $items->method('isEmpty')->willReturn($isEmpty);

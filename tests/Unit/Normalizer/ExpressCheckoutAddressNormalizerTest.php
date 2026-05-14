@@ -76,6 +76,57 @@ final class ExpressCheckoutAddressNormalizerTest extends TestCase
         $this->normalizer->normalizeShipping([]);
     }
 
+    public function test_it_normalizes_a_billing_details_payload(): void
+    {
+        $address = $this->normalizer->normalizeBilling([
+            'billingDetails' => [
+                'name' => 'John Smith',
+                'email' => 'john@example.com',
+                'address' => [
+                    'line1' => '500 Terry A Francois Blvd',
+                    'city' => 'San Francisco',
+                    'state' => 'CA',
+                    'postal_code' => '94158',
+                    'country' => 'US',
+                ],
+                'phone' => '+1-555-0200',
+            ],
+        ]);
+
+        self::assertSame('John', $address->getFirstName());
+        self::assertSame('Smith', $address->getLastName());
+        self::assertSame('500 Terry A Francois Blvd', $address->getStreet());
+        self::assertSame('San Francisco', $address->getCity());
+        self::assertSame('94158', $address->getPostcode());
+        self::assertSame('CA', $address->getProvinceName());
+        self::assertSame('US', $address->getCountryCode());
+        self::assertSame('+1-555-0200', $address->getPhoneNumber());
+    }
+
+    public function test_it_throws_when_billing_details_are_missing(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/billingDetails/');
+
+        $this->normalizer->normalizeBilling([]);
+    }
+
+    public function test_it_keeps_placeholders_when_billing_address_block_is_missing(): void
+    {
+        $address = $this->normalizer->normalizeBilling([
+            'billingDetails' => [
+                'name' => 'Jane',
+                'email' => 'jane@example.com',
+            ],
+        ]);
+
+        self::assertSame('Jane', $address->getFirstName());
+        self::assertSame('?', $address->getLastName());
+        self::assertSame('?', $address->getStreet());
+        self::assertSame('?', $address->getCity());
+        self::assertSame('?', $address->getPostcode());
+    }
+
     public function test_it_normalizes_a_flat_partial_address_and_keeps_placeholders_for_not_null_fields(): void
     {
         $address = $this->normalizer->normalizeAddress([

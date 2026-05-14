@@ -23,7 +23,17 @@ final readonly class ExpressCheckoutAddressNormalizer implements ExpressCheckout
             throw new \InvalidArgumentException('Missing or invalid "shippingAddress" in payload.');
         }
 
-        return $this->fromShippingAddress($shippingAddress);
+        return $this->fromContact($shippingAddress);
+    }
+
+    public function normalizeBilling(array $payload): AddressInterface
+    {
+        $billingDetails = $payload['billingDetails'] ?? null;
+        if (!is_array($billingDetails)) {
+            throw new \InvalidArgumentException('Missing or invalid "billingDetails" in payload.');
+        }
+
+        return $this->fromContact($billingDetails);
     }
 
     public function normalizeAddress(array $address): AddressInterface
@@ -35,24 +45,26 @@ final readonly class ExpressCheckoutAddressNormalizer implements ExpressCheckout
     }
 
     /**
-     * Stripe's Express Checkout Element normalizes the wallet-specific shipping payload
-     * (Apple Pay `shippingContact`, Google Pay's `shippingAddress`, Link, etc.) into a
-     * single shape: `{name, address: {line1, line2, city, state, postal_code, country}, phone}`.
+     * Stripe's Express Checkout Element normalizes both wallet shipping payloads
+     * (Apple Pay `shippingContact`, Google Pay's `shippingAddress`, Link, etc.) and the
+     * `billingDetails` confirm payload into the same shape: `{name, address: {line1,
+     * line2, city, state, postal_code, country}, phone}`. The only difference is that
+     * `billingDetails` additionally carries `email` — read elsewhere via the payload reader.
      *
-     * @param array<string, mixed> $shippingAddress
+     * @param array<string, mixed> $contact
      */
-    private function fromShippingAddress(array $shippingAddress): AddressInterface
+    private function fromContact(array $contact): AddressInterface
     {
         $address = $this->createAddress();
 
-        $this->applyFullName($address, $this->stringOrNull($shippingAddress['name'] ?? null));
+        $this->applyFullName($address, $this->stringOrNull($contact['name'] ?? null));
 
-        $addressFields = $shippingAddress['address'] ?? null;
+        $addressFields = $contact['address'] ?? null;
         if (is_array($addressFields)) {
             $this->applyAddressFields($address, $addressFields);
         }
 
-        $address->setPhoneNumber($this->stringOrNull($shippingAddress['phone'] ?? null));
+        $address->setPhoneNumber($this->stringOrNull($contact['phone'] ?? null));
 
         return $address;
     }

@@ -53,6 +53,7 @@ final readonly class ConfigurationProvider implements ConfigurationProviderInter
             country: $this->resolveMerchantCountry($channel),
             allowedCountryCodes: $this->extractCountryCodes($channel),
             merchantName: $channel->getName() ?? 'Shop',
+            shippingRequired: $cart->isShippingRequired(),
         );
     }
 

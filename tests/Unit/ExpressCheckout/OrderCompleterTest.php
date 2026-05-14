@@ -194,6 +194,101 @@ final class OrderCompleterTest extends TestCase
         self::assertSame('https://example.com/return', $confirmation->returnUrl);
     }
 
+    public function test_it_completes_a_digital_only_cart_without_setting_shipping_address_or_method(): void
+    {
+        $channel = $this->createMock(ChannelInterface::class);
+        $billingAddress = $this->createMock(AddressInterface::class);
+        $customer = $this->createMock(CustomerInterface::class);
+        $paymentMethod = $this->createMock(PaymentMethodInterface::class);
+        $payment = $this->createMock(PaymentInterface::class);
+        $paymentRequest = $this->createMock(PaymentRequestInterface::class);
+
+        $cart = $this->createReadyCart(isShippingRequired: false);
+        $cart->method('getChannel')->willReturn($channel);
+        $cart->method('getCurrencyCode')->willReturn('USD');
+        $cart->method('getTotal')->willReturn(1500);
+        $cart->method('getId')->willReturn(77);
+        $cart->method('getCustomer')->willReturn(null);
+
+        $this->session->expects(self::once())->method('set')->with('sylius_order_id', 77);
+
+        $this->channelContext->method('getChannel')->willReturn($channel);
+        $this->cartContext->method('getCart')->willReturn($cart);
+        $this->paymentMethodResolver->method('resolveForChannel')->with($channel)->willReturn($paymentMethod);
+
+        // Digital-only confirm payload — Stripe Element omits shippingAddress / shippingRate
+        // when the wallet popup was opened with shippingAddressRequired:false.
+        $this->payloadReader->method('read')->willReturn(new ExpressCheckoutPayload([
+            'billingDetails' => [
+                'name' => 'John Smith',
+                'email' => 'john@example.com',
+                'address' => [
+                    'line1' => '500 Terry A Francois Blvd',
+                    'city' => 'San Francisco',
+                    'postal_code' => '94158',
+                    'country' => 'US',
+                ],
+            ],
+        ]));
+
+        $this->customerResolver->method('resolve')->with('john@example.com')->willReturn($customer);
+
+        $this->addressNormalizer->expects(self::once())->method('normalizeBilling')->willReturn($billingAddress);
+        $this->addressNormalizer->expects(self::never())->method('normalizeShipping');
+
+        $cart->expects(self::once())->method('setCustomer')->with($customer);
+        $cart->expects(self::once())->method('setBillingAddress')->with($billingAddress);
+        $cart->expects(self::never())->method('setShippingAddress');
+        $cart->expects(self::never())->method('getShipments');
+        $cart->expects(self::once())->method('addPayment')->with($payment);
+
+        $this->shippingMethodRepository->expects(self::never())->method('findOneBy');
+
+        $this->paymentFactory->method('createNew')->willReturn($payment);
+
+        $transitionCalls = [];
+        $this->stateMachine->expects(self::exactly(3))
+            ->method('apply')
+            ->willReturnCallback(function ($subject, string $graph, string $transition) use (&$transitionCalls, $cart): void {
+                self::assertSame($cart, $subject);
+                self::assertSame('sylius_order_checkout', $graph);
+                $transitionCalls[] = $transition;
+            });
+
+        $this->capturePaymentRequestDispatcher->method('dispatch')->willReturn($paymentRequest);
+        $paymentRequest->method('getResponseData')->willReturn(['client_secret' => 'pi_digital_secret']);
+        $this->afterUrlProvider->method('getUrl')->willReturn('https://example.com/digital/return');
+
+        $confirmation = $this->orderCompleter->complete(new Request());
+
+        // select_shipping must be absent — state machine auto-applies skip_shipping via the
+        // sylius_skip_shipping after-callback on TRANSITION_ADDRESS for non-shippable carts.
+        self::assertSame(['address', 'select_payment', 'complete'], $transitionCalls);
+        self::assertSame('pi_digital_secret', $confirmation->clientSecret);
+    }
+
+    public function test_it_rewraps_billing_normalizer_exceptions_as_invalid_payload(): void
+    {
+        $channel = $this->createMock(ChannelInterface::class);
+        $cart = $this->createReadyCart(isShippingRequired: false);
+        $cart->method('getChannel')->willReturn($channel);
+        $cart->method('getCustomer')->willReturn($this->createMock(CustomerInterface::class));
+
+        $this->channelContext->method('getChannel')->willReturn($channel);
+        $this->cartContext->method('getCart')->willReturn($cart);
+        $this->paymentMethodResolver->method('resolveForChannel')->willReturn($this->createMock(PaymentMethodInterface::class));
+        $this->payloadReader->method('read')->willReturn(new ExpressCheckoutPayload([
+            'billingDetails' => ['email' => 'a@b.c'],
+        ]));
+
+        $this->addressNormalizer->method('normalizeBilling')->willThrowException(new \InvalidArgumentException('bad billing'));
+
+        $this->expectException(InvalidPayloadException::class);
+        $this->expectExceptionMessage('bad billing');
+
+        $this->orderCompleter->complete(new Request());
+    }
+
     public function test_it_preserves_existing_customer_when_cart_already_has_one(): void
     {
         $channel = $this->createMock(ChannelInterface::class);
@@ -390,16 +485,21 @@ final class OrderCompleterTest extends TestCase
         $this->cartContext->method('getCart')->willReturn($cart);
         $this->paymentMethodResolver->method('resolveForChannel')->willReturn($this->createMock(PaymentMethodInterface::class));
         $this->payloadReader->method('read')->willReturn($payload);
+        // Customer resolution moved ahead of the shipping branch so the resolver is hit on
+        // every test that gets past email validation; default to a mock so unrelated error
+        // tests don't trip on a non-nullable return type.
+        $this->customerResolver->method('resolve')->willReturn($this->createMock(CustomerInterface::class));
 
         return $cart;
     }
 
-    private function createReadyCart(): OrderInterface&MockObject
+    private function createReadyCart(bool $isShippingRequired = true): OrderInterface&MockObject
     {
         $cart = $this->createMock(OrderInterface::class);
         $items = $this->createMock(\Doctrine\Common\Collections\Collection::class);
         $items->method('isEmpty')->willReturn(false);
         $cart->method('getItems')->willReturn($items);
+        $cart->method('isShippingRequired')->willReturn($isShippingRequired);
 
         return $cart;
     }

@@ -25,4 +25,9 @@ final class InvalidPayloadException extends ExpressCheckoutException
     {
         return new self($reason);
     }
+
+    public static function invalidBillingAddress(string $reason): self
+    {
+        return new self($reason);
+    }
 }

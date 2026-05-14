@@ -15,7 +15,7 @@ final readonly class ExpressCheckoutConfiguration
         public ?string $country,
         public array $allowedCountryCodes,
         public string $merchantName,
-        public bool $shippingRequired = true,
+        public bool $shippingRequired,
     ) {
     }
 
