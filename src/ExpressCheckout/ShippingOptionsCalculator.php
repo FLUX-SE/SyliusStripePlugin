@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace FluxSE\SyliusStripePlugin\ExpressCheckout;
 
-use Doctrine\ORM\EntityManagerInterface;
 use FluxSE\SyliusStripePlugin\ExpressCheckout\Dto\ExpressCheckoutLineItem;
 use FluxSE\SyliusStripePlugin\ExpressCheckout\Dto\ExpressCheckoutShippingOptions;
 use FluxSE\SyliusStripePlugin\ExpressCheckout\Exception\CartUnavailableException;
@@ -33,7 +32,6 @@ final readonly class ShippingOptionsCalculator implements ShippingOptionsCalcula
         private ExpressCheckoutAddressNormalizerInterface $addressNormalizer,
         private ExpressCheckoutPayloadReaderInterface $payloadReader,
         private ShippingRateAssemblerInterface $shippingRateAssembler,
-        private EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -57,8 +55,6 @@ final readonly class ShippingOptionsCalculator implements ShippingOptionsCalcula
 
         $shipment = $cart->getShipments()->first();
         if (!$shipment instanceof ShipmentInterface) {
-            $this->entityManager->flush();
-
             return new ExpressCheckoutShippingOptions(
                 shippingRates: [],
                 lineItems: $this->buildLineItems($cart),
@@ -81,8 +77,6 @@ final readonly class ShippingOptionsCalculator implements ShippingOptionsCalcula
         if (null !== $chosenMethod) {
             $this->orderProcessor->process($cart);
         }
-
-        $this->entityManager->flush();
 
         return new ExpressCheckoutShippingOptions(
             shippingRates: $rates,

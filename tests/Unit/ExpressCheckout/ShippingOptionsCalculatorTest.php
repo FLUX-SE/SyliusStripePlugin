@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\FluxSE\SyliusStripePlugin\Unit\ExpressCheckout;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\EntityManagerInterface;
 use FluxSE\SyliusStripePlugin\ExpressCheckout\Dto\ExpressCheckoutShippingRate;
 use FluxSE\SyliusStripePlugin\ExpressCheckout\Exception\CartUnavailableException;
 use FluxSE\SyliusStripePlugin\ExpressCheckout\Exception\InvalidPayloadException;
@@ -50,9 +49,6 @@ final class ShippingOptionsCalculatorTest extends TestCase
     /** @var ShippingRateAssemblerInterface&MockObject */
     private ShippingRateAssemblerInterface $shippingRateAssembler;
 
-    /** @var EntityManagerInterface&MockObject */
-    private EntityManagerInterface $entityManager;
-
     private ShippingOptionsCalculator $calculator;
 
     protected function setUp(): void
@@ -64,7 +60,6 @@ final class ShippingOptionsCalculatorTest extends TestCase
         $this->addressNormalizer = $this->createMock(ExpressCheckoutAddressNormalizerInterface::class);
         $this->payloadReader = $this->createMock(ExpressCheckoutPayloadReaderInterface::class);
         $this->shippingRateAssembler = $this->createMock(ShippingRateAssemblerInterface::class);
-        $this->entityManager = $this->createMock(EntityManagerInterface::class);
 
         $this->calculator = new ShippingOptionsCalculator(
             $this->cartContext,
@@ -74,7 +69,6 @@ final class ShippingOptionsCalculatorTest extends TestCase
             $this->addressNormalizer,
             $this->payloadReader,
             $this->shippingRateAssembler,
-            $this->entityManager,
         );
     }
 
@@ -111,7 +105,7 @@ final class ShippingOptionsCalculatorTest extends TestCase
         $this->calculator->calculate(new Request());
     }
 
-    public function test_it_returns_empty_rates_when_cart_has_no_shipment_and_still_flushes(): void
+    public function test_it_returns_empty_rates_when_cart_has_no_shipment(): void
     {
         $cart = $this->createReadyCart();
         $shippingAddress = $this->createMock(AddressInterface::class);
@@ -130,7 +124,6 @@ final class ShippingOptionsCalculatorTest extends TestCase
 
         $this->orderProcessor->expects(self::once())->method('process')->with($cart);
         $this->shippingRateAssembler->expects(self::never())->method('assemble');
-        $this->entityManager->expects(self::once())->method('flush');
 
         $options = $this->calculator->calculate(new Request());
 
@@ -168,8 +161,6 @@ final class ShippingOptionsCalculatorTest extends TestCase
 
         // The fallback supported method is set on the shipment after rates are assembled.
         $shipment->expects(self::once())->method('setMethod')->with($supportedMethod);
-
-        $this->entityManager->expects(self::once())->method('flush');
 
         $options = $this->calculator->calculate(new Request());
 

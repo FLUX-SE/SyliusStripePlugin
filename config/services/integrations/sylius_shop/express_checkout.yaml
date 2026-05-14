@@ -35,7 +35,6 @@ services:
             - '@flux_se.sylius_stripe.normalizer.express_checkout_address'
             - '@flux_se.sylius_stripe.shop.express_checkout.payload_reader'
             - '@flux_se.sylius_stripe.shop.express_checkout.shipping_rate_assembler'
-            - '@doctrine.orm.entity_manager'
     FluxSE\SyliusStripePlugin\ExpressCheckout\ShippingOptionsCalculatorInterface: '@flux_se.sylius_stripe.shop.express_checkout.shipping_options_calculator'
 
     flux_se.sylius_stripe.shop.express_checkout.order_completer:
