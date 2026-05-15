@@ -333,6 +333,59 @@ final class OrderCompleterTest extends TestCase
         $this->orderCompleter->complete(new Request());
     }
 
+    public function test_it_drops_pending_payments_before_attaching_the_express_checkout_one(): void
+    {
+        $channel = $this->createMock(ChannelInterface::class);
+        $shippingAddress = $this->createMock(AddressInterface::class);
+        $existingCustomer = $this->createMock(CustomerInterface::class);
+        $shipment = $this->createMock(ShipmentInterface::class);
+        $shippingMethod = $this->createMock(ShippingMethodInterface::class);
+        $paymentMethod = $this->createMock(PaymentMethodInterface::class);
+        $newPayment = $this->createMock(PaymentInterface::class);
+        $paymentRequest = $this->createMock(PaymentRequestInterface::class);
+
+        // Pending Payment left on the cart by a previous /checkout/select-payment submit
+        // — must be removed before the ECE Payment is added.
+        $pendingPayment = $this->createMock(PaymentInterface::class);
+        $pendingPayment->method('getState')->willReturn(PaymentInterface::STATE_NEW);
+        // A processing/completed Payment, by contrast, must NOT be touched (the SDK could
+        // legitimately still surface ECE on a partially-paid order).
+        $processingPayment = $this->createMock(PaymentInterface::class);
+        $processingPayment->method('getState')->willReturn(PaymentInterface::STATE_PROCESSING);
+
+        $cart = $this->createReadyCart();
+        $cart->method('getChannel')->willReturn($channel);
+        $cart->method('getCurrencyCode')->willReturn('USD');
+        $cart->method('getTotal')->willReturn(4999);
+        $cart->method('getShipments')->willReturn(new ArrayCollection([$shipment]));
+        $cart->method('getId')->willReturn(99);
+        $cart->method('getCustomer')->willReturn($existingCustomer);
+        $cart->method('getPayments')->willReturn(new ArrayCollection([$pendingPayment, $processingPayment]));
+
+        $this->channelContext->method('getChannel')->willReturn($channel);
+        $this->cartContext->method('getCart')->willReturn($cart);
+        $this->paymentMethodResolver->method('resolveForChannel')->with($channel)->willReturn($paymentMethod);
+
+        $this->payloadReader->method('read')->willReturn(new ExpressCheckoutPayload([
+            'billingDetails' => ['email' => 'wallet@example.com'],
+            'shippingAddress' => ['name' => 'Jane Doe'],
+            'shippingRate' => ['id' => 'ups_ground'],
+        ]));
+
+        $this->addressNormalizer->method('normalizeShipping')->willReturn($shippingAddress);
+        $this->shippingMethodRepository->method('findOneBy')->willReturn($shippingMethod);
+
+        $cart->expects(self::once())->method('removePayment')->with($pendingPayment);
+        $cart->expects(self::once())->method('addPayment')->with($newPayment);
+
+        $this->paymentFactory->method('createNew')->willReturn($newPayment);
+        $this->capturePaymentRequestDispatcher->method('dispatch')->willReturn($paymentRequest);
+        $paymentRequest->method('getResponseData')->willReturn(['client_secret' => 'pi_secret']);
+        $this->afterUrlProvider->method('getUrl')->willReturn('https://example.com/return');
+
+        $this->orderCompleter->complete(new Request());
+    }
+
     public function test_it_throws_when_channel_is_missing(): void
     {
         $this->channelContext->method('getChannel')->willThrowException(new \Sylius\Component\Channel\Context\ChannelNotFoundException());

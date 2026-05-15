@@ -83,6 +83,16 @@ final readonly class OrderCompleter implements OrderCompleterInterface
             $this->applyDigitalCheckout($cart, $payload);
         }
 
+        // ECE may be triggered after the customer already picked a payment method on
+        // /checkout/select-payment, leaving a pending Payment on the cart. Drop those
+        // before adding the ECE one so the order does not end up with two payments —
+        // Order::addPayment() only dedups by object identity, not state.
+        foreach ($cart->getPayments() as $existingPayment) {
+            if (PaymentInterface::STATE_NEW === $existingPayment->getState()) {
+                $cart->removePayment($existingPayment);
+            }
+        }
+
         $payment = $this->createPayment($cart, $paymentMethod);
         $cart->addPayment($payment);
         $this->applyTransition($cart, OrderCheckoutTransitions::TRANSITION_SELECT_PAYMENT);
