@@ -27,7 +27,7 @@ use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\StripeClientWithExpectationsInt
 
 final class ConfirmActionTest extends WebTestCase
 {
-    private const URI = '/express-checkout/cart/confirm';
+    private const URI = '/express-checkout/confirm';
 
     private KernelBrowser $client;
 

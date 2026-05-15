@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Session\SessionFactoryInterface;
 
 final class ConfigurationActionTest extends WebTestCase
 {
-    private const URI = '/express-checkout/cart/configuration';
+    private const URI = '/express-checkout/configuration';
 
     private KernelBrowser $client;
 

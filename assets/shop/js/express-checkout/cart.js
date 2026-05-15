@@ -181,7 +181,7 @@
         // The wallet popup can fire `confirm` more than once: double-click on the wallet
         // button before the first request resolves, or auto-retry after a `card_declined`
         // recovery. The cart-side state machine is not idempotent — the second POST to
-        // /express-checkout/cart/confirm would hit a placed order and 422. Guard locally
+        // /express-checkout/confirm would hit a placed order and 422. Guard locally
         // so the second confirm never reaches the network.
         let confirmInFlight = false;
         let cartConsumed = false;

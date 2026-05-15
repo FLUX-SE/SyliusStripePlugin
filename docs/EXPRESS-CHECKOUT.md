@@ -77,7 +77,7 @@ the `stripe_web_elements` one (its webhook subscriptions already include the
 
 > 📖 Express Checkout button only appears if the channel has at least one enabled
 > PaymentMethod with the toggle on. Otherwise the cart-page partial is hidden silently
-> (the `GET /express-checkout/cart/configuration` endpoint returns 204 and the JS no-ops).
+> (the `GET /express-checkout/configuration` endpoint returns 204 and the JS no-ops).
 
 ## Stripe Dashboard configuration
 
@@ -181,7 +181,7 @@ secret keys and keep the process running.
 
 | Symptom | Likely cause |
 |---|---|
-| Cart page renders no wallet button | `GET /express-checkout/cart/configuration` returns 204 — check the toggle is on, channel matches, cart is not empty, and the channel has an enabled shipping method |
+| Cart page renders no wallet button | `GET /express-checkout/configuration` returns 204 — check the toggle is on, channel matches, cart is not empty, and the channel has an enabled shipping method |
 | 4xx in the browser network tab on `/configuration` | Routes not imported in the application — see step 4 of [Installation](../README.md#installation) |
 | Wallet popup opens but reports "no shipping option" | The address (country / region) is not covered by any enabled `ShippingMethod`. Add a zone covering the country in the Sylius admin |
 | `stripe.confirmPayment` throws "no such payment_intent" | The `confirm` endpoint returned an error and the JS did not stop — open the network tab and inspect the response body |
@@ -189,7 +189,7 @@ secret keys and keep the process running.
 
 ## CSRF protection
 
-The two state-changing endpoints (`POST /express-checkout/cart/shipping-rates` and `POST /express-checkout/cart/confirm`) 
+The two state-changing endpoints (`POST /express-checkout/shipping-rates` and `POST /express-checkout/confirm`) 
 require a CSRF token under the id `sylius_stripe_express_checkout` sent in the `X-CSRF-Token` request header.
 The plugin's default Twig partial renders the token into a `data-csrf-token` attribute on the container and the bundled 
 JS forwards it on every POST — no integrator action is needed when reusing the shipped templates.
