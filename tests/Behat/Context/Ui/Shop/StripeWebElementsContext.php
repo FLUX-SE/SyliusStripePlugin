@@ -33,9 +33,13 @@ class StripeWebElementsContext extends MinkContext implements StripeContextInter
      */
     public function iConfirmMyOrderWithStripePayment(): void
     {
+        $urlBefore = $this->stripePage->getCurrentUrl();
+
         $this->stripeWebElementsMocker->mockCaptureOrAuthorize();
 
         $this->summaryPage->confirmOrder();
+
+        $this->stripePage->waitForRedirectFrom($urlBefore);
     }
 
     /**
@@ -44,9 +48,13 @@ class StripeWebElementsContext extends MinkContext implements StripeContextInter
      */
     public function iTryToPayAgainWithStripePayment(): void
     {
+        $urlBefore = $this->stripePage->getCurrentUrl();
+
         $this->stripeWebElementsMocker->mockCaptureOrAuthorize();
 
         $this->orderDetails->pay();
+
+        $this->stripePage->waitForRedirectFrom($urlBefore);
     }
 
     /**

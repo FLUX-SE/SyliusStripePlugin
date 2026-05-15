@@ -34,9 +34,13 @@ class StripeCheckoutContext extends MinkContext implements StripeContextInterfac
      */
     public function iConfirmMyOrderWithStripePayment(): void
     {
+        $urlBefore = $this->stripePage->getCurrentUrl();
+
         $this->stripeCheckoutSessionMocker->mockCaptureOrAuthorize();
 
         $this->summaryPage->confirmOrder();
+
+        $this->stripePage->waitForRedirectFrom($urlBefore);
     }
 
     /**
@@ -45,9 +49,13 @@ class StripeCheckoutContext extends MinkContext implements StripeContextInterfac
      */
     public function iTryToPayAgainWithStripePayment(): void
     {
+        $urlBefore = $this->stripePage->getCurrentUrl();
+
         $this->stripeCheckoutSessionMocker->mockCaptureOrAuthorize();
 
         $this->orderDetails->pay();
+
+        $this->stripePage->waitForRedirectFrom($urlBefore);
     }
 
     /**

@@ -108,9 +108,6 @@ final class StripePage extends Page implements StripePageInterface
 
     public function findLatestPaymentRequest(): PaymentRequestInterface
     {
-        // Allow to wait for PaymentRequest to be processed
-        sleep(2);
-
         $paymentRequests = $this->paymentRequestRepository->findBy(
             [
                 'state' => [
@@ -131,6 +128,19 @@ final class StripePage extends Page implements StripePageInterface
         Assert::notNull($paymentRequest, 'Unable to find the latest payment request');
 
         return $paymentRequest;
+    }
+
+    public function getCurrentUrl(): string
+    {
+        return $this->getSession()->getCurrentUrl();
+    }
+
+    public function waitForRedirectFrom(string $previousUrl, int $timeoutMs = 2000): void
+    {
+        $this->getSession()->wait(
+            $timeoutMs,
+            sprintf('window.location.href !== %s', json_encode($previousUrl)),
+        );
     }
 
     /**
