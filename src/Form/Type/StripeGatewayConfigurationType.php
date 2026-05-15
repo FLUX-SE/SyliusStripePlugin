@@ -69,6 +69,10 @@ final class StripeGatewayConfigurationType extends AbstractType
                 'required' => false,
                 'label' => 'flux_se_sylius_stripe_plugin.form.gateway_configuration.stripe.use_authorize',
             ])
+            ->add('enable_express_checkout', CheckboxType::class, [
+                'required' => false,
+                'label' => 'flux_se_sylius_stripe_plugin.form.gateway_configuration.stripe.enable_express_checkout',
+            ])
             ->add('webhook_secret_keys', LiveCollectionType::class, [
                 'label' => 'flux_se_sylius_stripe_plugin.form.gateway_configuration.stripe.webhook_secret_keys',
                 'allow_add' => true,

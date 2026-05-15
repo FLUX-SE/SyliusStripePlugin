@@ -78,3 +78,96 @@ If you override this parameter, rebuild your list around `invoice.payments`. The
 
 `payment_method` was added (alongside the existing `latest_charge`). If you override this parameter, add
 `payment_method` back — it is required for subscription-mode PaymentIntent enrichment to work end-to-end.
+
+## Express Checkout (cart page)
+
+2.0 introduces Express Checkout (ECE) on the cart page — a single button rendering Apple Pay, Google Pay, Link
+and whatever other wallets your Stripe Dashboard exposes. The feature is opt-in per PaymentMethod (the
+`enable_express_checkout` toggle in the gateway configuration), but the steps below apply even to applications
+that do **not** plan to enable it, because the new routes and the rewired command provider land regardless.
+
+### Shop routes must be imported
+
+The plugin now ships an additional shop routes file that the bundle does **not** auto-load. Add it to your
+application's route configuration:
+
+```yaml
+# config/routes/flux_se_sylius_stripe.yaml
+
+flux_se_sylius_stripe_express_checkout_shop:
+    resource: "@FluxSESyliusStripePlugin/config/routes/shop_express_checkout.yaml"
+```
+
+The file `config/routes/shop_express_checkout.yaml` registers three endpoints under `/express-checkout/cart/`:
+
+| Route name | Method | Path |
+|---|---|---|
+| `flux_se_sylius_stripe_express_checkout_configuration` | `GET` | `/express-checkout/cart/configuration` |
+| `flux_se_sylius_stripe_express_checkout_shipping_rates` | `POST` | `/express-checkout/cart/shipping-rates` |
+| `flux_se_sylius_stripe_express_checkout_confirm` | `POST` | `/express-checkout/cart/confirm` |
+
+Without the import, `GET /express-checkout/cart/configuration` returns 404, the cart-page JavaScript silently
+hides itself, and the wallet button never appears — there is no visible error.
+
+If your application uses a non-default firewall pattern (e.g. `^/(en|fr)/`), make sure these paths fall inside
+the shop firewall — they rely on the cart session like the rest of the shop area.
+
+### New required Stripe webhook events when Express Checkout is enabled
+
+Express Checkout always creates a Stripe `PaymentIntent`, regardless of the gateway type backing the
+PaymentMethod. This means a `stripe_checkout` PaymentMethod with `enable_express_checkout` turned on must
+subscribe to PaymentIntent events **in addition** to the existing `checkout.session.*` ones.
+
+Add the following events to the Stripe webhook endpoint of every `stripe_checkout` PaymentMethod that has the
+toggle on:
+
+- `payment_intent.succeeded`
+- `payment_intent.canceled`
+- `payment_intent.processing`
+
+For `stripe_web_elements` PaymentMethods the same three events are already required by the regular flow, so
+the toggle does not change that list.
+
+Without these events the ECE payment never receives a completion signal — the Sylius `Payment` stays in the
+`processing` state and never transitions to `completed`. The full per-gateway matrix is in
+`docs/EXPRESS-CHECKOUT.md` (section *Webhook events*).
+
+### `flux_se.sylius_stripe.command_provider.checkout` now wraps the old class
+
+The service ID `flux_se.sylius_stripe.command_provider.checkout` points to a **different class** in 2.0. The
+old class is still wired, but under a new ID.
+
+#### Before (1.x)
+
+```yaml
+flux_se.sylius_stripe.command_provider.checkout:
+    class: Sylius\Bundle\PaymentBundle\CommandProvider\ActionsCommandProvider
+```
+
+#### After (2.0)
+
+```yaml
+flux_se.sylius_stripe.command_provider.checkout.actions:
+    class: Sylius\Bundle\PaymentBundle\CommandProvider\ActionsCommandProvider
+    # ...
+
+flux_se.sylius_stripe.command_provider.checkout:
+    class: FluxSE\SyliusStripePlugin\CommandProvider\Checkout\CheckoutOrPaymentIntentCommandProvider
+    arguments:
+        - '@flux_se.sylius_stripe.command_provider.checkout.actions'
+        - '@flux_se.sylius_stripe.command_provider.web_elements'
+```
+
+The new wrapper inspects the Stripe object stored on the `PaymentRequest` (Checkout `Session` vs
+`PaymentIntent`) and delegates to the Web Elements command provider whenever it sees a PaymentIntent. This is
+what lets a `payment_intent.*` webhook arriving on a `stripe_checkout` PaymentMethod URL (the ECE case above)
+reach the correct command pipeline.
+
+This is a **real BC change** for anyone decorating that service:
+
+- If you decorated `flux_se.sylius_stripe.command_provider.checkout` to extend `ActionsCommandProvider`
+  (e.g. to register an extra `action`), move the decoration to
+  `flux_se.sylius_stripe.command_provider.checkout.actions`.
+- If you decorated it to intercept the dispatch itself, keep the same ID but note that `'$.inner'` is now
+  `CheckoutOrPaymentIntentCommandProvider`, not `ActionsCommandProvider`. The wrapper's constructor signature
+  is `(PaymentRequestCommandProviderInterface $checkoutCommandProvider, PaymentRequestCommandProviderInterface $webElementsCommandProvider)`.

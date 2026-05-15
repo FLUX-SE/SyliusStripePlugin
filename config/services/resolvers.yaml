@@ -1,0 +1,13 @@
+services:
+    flux_se.sylius_stripe.resolver.express_checkout_payment_method:
+        class: FluxSE\SyliusStripePlugin\Resolver\ExpressCheckoutPaymentMethodResolver
+        arguments:
+            - '@sylius.repository.payment_method'
+            - '%flux_se.sylius_stripe.factories%'
+    FluxSE\SyliusStripePlugin\Resolver\ExpressCheckoutPaymentMethodResolverInterface: '@flux_se.sylius_stripe.resolver.express_checkout_payment_method'
+
+    flux_se.sylius_stripe.normalizer.express_checkout_address:
+        class: FluxSE\SyliusStripePlugin\Normalizer\ExpressCheckoutAddressNormalizer
+        arguments:
+            - '@sylius.factory.address'
+    FluxSE\SyliusStripePlugin\Normalizer\ExpressCheckoutAddressNormalizerInterface: '@flux_se.sylius_stripe.normalizer.express_checkout_address'

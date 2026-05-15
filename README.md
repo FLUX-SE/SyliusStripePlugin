@@ -34,6 +34,14 @@ This is where your description should go. Limit it to a paragraph or two. Consid
     # ...
     - { resource: "@FluxSESyliusStripePlugin/config/config.yaml" }
     ```
+4. Import shop routes (required for the Express Checkout cart button — Apple Pay, Google Pay, Link, etc.)
+    ```yaml
+    # config/routes/flux_se_sylius_stripe.yaml
+
+    flux_se_sylius_stripe_express_checkout_shop:
+        resource: "@FluxSESyliusStripePlugin/config/routes/shop_express_checkout.yaml"
+    ```
+
 ## Configuration
 
  - Go to the admin area.
@@ -93,6 +101,22 @@ Then create a new endpoint with those events:
 |-|-|-|
 | Webhook events |  - `checkout.session.completed`<br> - `checkout.session.async_payment_failed`<br> - `checkout.session.async_payment_succeeded`<br> - `checkout.session.expired`<br> - `setup_intent.canceled` (⚠️ Only when using `setup` mode)<br> - `setup_intent.succeeded`  (⚠️ Only when using `setup` mode) |  - `payment_intent.canceled`<br> - `payment_intent.succeeded`<br> - `setup_intent.canceled` (⚠️ Only when using `setup` mode)<br> - `setup_intent.succeeded`  (⚠️ Only when using `setup` mode) |
 
+> 💡 **Express Checkout on the cart page** (`enable_express_checkout` toggle on) always
+> creates a PaymentIntent on Stripe regardless of the gateway type. If you enable it on
+> a `stripe_checkout` PaymentMethod, **add these events to that endpoint** in addition
+> to the `checkout.session.*` ones listed above:
+> - `payment_intent.succeeded`
+> - `payment_intent.canceled`
+> - `payment_intent.processing`
+>
+> For `stripe_web_elements` the same `payment_intent.*` events are already required by
+> the regular flow — no extra subscription is needed when the toggle is on.
+>
+> See [Express Checkout on the cart page](docs/EXPRESS-CHECKOUT.md) for the full setup
+> (domain registration, wallet activation, local testing). Which wallets actually appear
+> on the button (Apple Pay, Google Pay, Link, PayPal, Amazon Pay) is decided by your
+> Stripe Dashboard configuration and the customer's browser — the plugin does not
+> hard-code that list.
 
 The URL to fill is the route named `sylius_payment_method_notify` with the `{code}`
 param equal to the `payment method code`, here is an example :
@@ -140,6 +164,14 @@ Then start to listen for the Stripe events (minimal ones are used here), forward
        --events payment_intent.canceled,payment_intent.succeeded \
        --forward-to https://localhost/payment-methods/my_shop_stripe_web_elements
     ```
+ 3. Example with `my_shop_stripe_checkout` as payment method code **and Express Checkout enabled**
+    (merges the `checkout.session.*` events of the regular flow with the `payment_intent.*`
+    events emitted by the cart-page wallet flow):
+    ```shell
+    stripe listen \
+       --events checkout.session.completed,checkout.session.async_payment_failed,checkout.session.async_payment_succeeded,checkout.session.expired,payment_intent.succeeded,payment_intent.canceled,payment_intent.processing \
+       --forward-to https://localhost/payment-methods/my_shop_stripe_checkout
+    ```
 
 > 💡 Replace --forward-to argument value with the right one you need.
 
@@ -153,6 +185,7 @@ Payment method configuration edit form in the Sylius admin.
 
 - [API (Sylius using APIPlatform)](docs/API.md)
 - [Webhook events](docs/WEBHOOK-EVENTS.md)
+- [Express Checkout on the cart page](docs/EXPRESS-CHECKOUT.md)
 
 ## Changelog
 

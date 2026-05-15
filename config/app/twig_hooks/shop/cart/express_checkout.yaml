@@ -1,0 +1,6 @@
+sylius_twig_hooks:
+    hooks:
+        'sylius_shop.cart.index.content.form.sections.general#right':
+            express_checkout:
+                template: '@FluxSESyliusStripePlugin/shop/cart/_express_checkout.html.twig'
+                priority: -100

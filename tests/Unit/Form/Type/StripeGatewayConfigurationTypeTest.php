@@ -6,6 +6,8 @@ namespace Tests\FluxSE\SyliusStripePlugin\Unit\Form\Type;
 
 use FluxSE\SyliusStripePlugin\Form\Type\StripeGatewayConfigurationType;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Validation;
@@ -18,6 +20,29 @@ final class StripeGatewayConfigurationTypeTest extends TestCase
     protected function setUp(): void
     {
         $this->validator = Validation::createValidator();
+    }
+
+    public function test_buildForm_registers_enable_express_checkout_field(): void
+    {
+        $registered = [];
+        $builder = $this->createMock(FormBuilderInterface::class);
+        $builder
+            ->method('add')
+            ->willReturnCallback(function (string $name, string $type, array $options) use (&$registered, $builder): FormBuilderInterface {
+                $registered[$name] = ['type' => $type, 'options' => $options];
+
+                return $builder;
+            });
+
+        (new StripeGatewayConfigurationType())->buildForm($builder, []);
+
+        self::assertArrayHasKey('enable_express_checkout', $registered, 'enable_express_checkout field is not registered on the form.');
+        self::assertSame(CheckboxType::class, $registered['enable_express_checkout']['type']);
+        self::assertFalse($registered['enable_express_checkout']['options']['required']);
+        self::assertSame(
+            'flux_se_sylius_stripe_plugin.form.gateway_configuration.stripe.enable_express_checkout',
+            $registered['enable_express_checkout']['options']['label'],
+        );
     }
 
     /** @dataProvider acceptedSecretKeyProvider */

@@ -1,0 +1,17 @@
+flux_se_sylius_stripe_express_checkout_configuration:
+    path: /express-checkout/cart/configuration
+    methods: [GET]
+    defaults:
+        _controller: FluxSE\SyliusStripePlugin\Controller\Shop\ExpressCheckout\ConfigurationAction
+
+flux_se_sylius_stripe_express_checkout_shipping_rates:
+    path: /express-checkout/cart/shipping-rates
+    methods: [POST]
+    defaults:
+        _controller: FluxSE\SyliusStripePlugin\Controller\Shop\ExpressCheckout\ShippingRatesAction
+
+flux_se_sylius_stripe_express_checkout_confirm:
+    path: /express-checkout/cart/confirm
+    methods: [POST]
+    defaults:
+        _controller: FluxSE\SyliusStripePlugin\Controller\Shop\ExpressCheckout\ConfirmAction
