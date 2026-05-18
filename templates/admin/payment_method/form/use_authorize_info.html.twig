@@ -1,0 +1,17 @@
+<div class="col-12 col-md-6 mt-4">
+    <div class="alert alert-info" {{ sylius_test_html_attribute('use-authorize-info') }}>
+    <div class="d-flex align-items-start">
+        <div class="me-2">{{ ux_icon('tabler:info-circle', {'class': 'icon alert-icon text-primary'}) }}</div>
+        <div>
+            <p class="fw-bold">
+                {{ 'flux_se_sylius_stripe_plugin.form.gateway_configuration.stripe.info.use_authorize'|trans }}
+            </p>
+            <p class="mb-0">
+                <a class="fw-bold text-decoration-none" href="https://stripe.com/docs/payments/capture-later" target="_blank" rel="noopener noreferrer">
+                    {{ 'sylius.ui.view_more'|trans }}
+                </a>
+            </p>
+        </div>
+    </div>
+    </div>
+</div>
