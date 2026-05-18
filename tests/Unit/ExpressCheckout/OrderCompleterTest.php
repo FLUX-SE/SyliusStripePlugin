@@ -333,25 +333,22 @@ final class OrderCompleterTest extends TestCase
         $this->orderCompleter->complete(new Request());
     }
 
-    public function test_it_drops_pending_payments_before_attaching_the_express_checkout_one(): void
+    public function test_it_reuses_cart_payment_by_swapping_method_when_one_already_exists(): void
     {
         $channel = $this->createMock(ChannelInterface::class);
         $shippingAddress = $this->createMock(AddressInterface::class);
         $existingCustomer = $this->createMock(CustomerInterface::class);
         $shipment = $this->createMock(ShipmentInterface::class);
         $shippingMethod = $this->createMock(ShippingMethodInterface::class);
-        $paymentMethod = $this->createMock(PaymentMethodInterface::class);
-        $newPayment = $this->createMock(PaymentInterface::class);
+        $eceMethod = $this->createMock(PaymentMethodInterface::class);
         $paymentRequest = $this->createMock(PaymentRequestInterface::class);
 
-        // Pending Payment left on the cart by a previous /checkout/select-payment submit
-        // — must be removed before the ECE Payment is added.
-        $pendingPayment = $this->createMock(PaymentInterface::class);
-        $pendingPayment->method('getState')->willReturn(PaymentInterface::STATE_NEW);
-        // A processing/completed Payment, by contrast, must NOT be touched (the SDK could
-        // legitimately still surface ECE on a partially-paid order).
-        $processingPayment = $this->createMock(PaymentInterface::class);
-        $processingPayment->method('getState')->willReturn(PaymentInterface::STATE_PROCESSING);
+        // Sylius's OrderPaymentProcessor (sylius_process_cart after-callback on
+        // the address transition) already attached a Payment in STATE_CART with the
+        // channel's default PaymentMethod (e.g. Cash on delivery). OrderCompleter must
+        // reuse it and just swap the method — adding a second Payment is what produced
+        // the duplicate "Cash on delivery (new)" + "Stripe Checkout (completed)" pair.
+        $existingPayment = $this->createMock(PaymentInterface::class);
 
         $cart = $this->createReadyCart();
         $cart->method('getChannel')->willReturn($channel);
@@ -360,11 +357,11 @@ final class OrderCompleterTest extends TestCase
         $cart->method('getShipments')->willReturn(new ArrayCollection([$shipment]));
         $cart->method('getId')->willReturn(99);
         $cart->method('getCustomer')->willReturn($existingCustomer);
-        $cart->method('getPayments')->willReturn(new ArrayCollection([$pendingPayment, $processingPayment]));
+        $cart->method('getLastPayment')->with(PaymentInterface::STATE_CART)->willReturn($existingPayment);
 
         $this->channelContext->method('getChannel')->willReturn($channel);
         $this->cartContext->method('getCart')->willReturn($cart);
-        $this->paymentMethodResolver->method('resolveForChannel')->with($channel)->willReturn($paymentMethod);
+        $this->paymentMethodResolver->method('resolveForChannel')->with($channel)->willReturn($eceMethod);
 
         $this->payloadReader->method('read')->willReturn(new ExpressCheckoutPayload([
             'billingDetails' => ['email' => 'wallet@example.com'],
@@ -375,11 +372,20 @@ final class OrderCompleterTest extends TestCase
         $this->addressNormalizer->method('normalizeShipping')->willReturn($shippingAddress);
         $this->shippingMethodRepository->method('findOneBy')->willReturn($shippingMethod);
 
-        $cart->expects(self::once())->method('removePayment')->with($pendingPayment);
-        $cart->expects(self::once())->method('addPayment')->with($newPayment);
+        $cart->expects(self::never())->method('addPayment');
+        $cart->expects(self::never())->method('removePayment');
+        $this->paymentFactory->expects(self::never())->method('createNew');
 
-        $this->paymentFactory->method('createNew')->willReturn($newPayment);
-        $this->capturePaymentRequestDispatcher->method('dispatch')->willReturn($paymentRequest);
+        $existingPayment->expects(self::once())->method('setMethod')->with($eceMethod);
+        $existingPayment->expects(self::once())->method('setCurrencyCode')->with('USD');
+        $existingPayment->expects(self::once())->method('setAmount')->with(4999);
+
+        $this->capturePaymentRequestDispatcher
+            ->expects(self::once())
+            ->method('dispatch')
+            ->with($existingPayment, $eceMethod)
+            ->willReturn($paymentRequest);
+
         $paymentRequest->method('getResponseData')->willReturn(['client_secret' => 'pi_secret']);
         $this->afterUrlProvider->method('getUrl')->willReturn('https://example.com/return');
 
