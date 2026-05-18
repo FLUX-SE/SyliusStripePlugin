@@ -1,8 +1,9 @@
-# Express Checkout on the cart page
+# Express Checkout
 
 Stripe's [Express Checkout Element](https://docs.stripe.com/elements/express-checkout-element)
 exposes wallet buttons (Apple Pay, Google Pay, Link, PayPal, Amazon Pay) that let a
-customer pay directly from the cart page, skipping the regular multi-step Sylius checkout.
+customer pay directly from the cart page or from the checkout sidebar on any step,
+skipping the rest of the regular multi-step Sylius checkout.
 
 **The plugin does not hard-code which wallets to show.** The buttons rendered depend on:
 
@@ -26,23 +27,26 @@ The plugin uses the existing Web Elements `CapturePaymentRequestHandler` to crea
 PaymentIntent — even when the resolved PaymentMethod is configured as `stripe_checkout`
 (the publishable / secret keys are per Stripe account, not per gateway type).
 
+The same backend flow runs no matter which placement (cart or checkout sidebar) the
+customer clicks the wallet button from.
+
 ```
 ┌──────────────────────┐         ┌────────────────────────────┐
-│ Cart page            │         │ Sylius backend             │
+│ Cart or checkout     │         │ Sylius backend             │
 │ (Express Checkout JS)│         │                            │
 │                      │ ───────▶│ GET  /express-checkout/    │
-│                      │ config  │      cart/configuration    │
+│                      │ config  │      configuration         │
 │                      │◀─────── │ (publishableKey, amount…)  │
 │                      │         │                            │
 │                      │ shipping│                            │
 │                      │ change  │ POST /express-checkout/    │
-│                      │ ───────▶│      cart/shipping-rates   │
+│                      │ ───────▶│      shipping-rates        │
 │                      │◀─────── │ (shipping rates per Sylius │
 │                      │ rates   │  shipping methods resolver)│
 │                      │         │                            │
 │                      │ confirm │                            │
 │                      │ ───────▶│ POST /express-checkout/    │
-│                      │         │      cart/confirm          │
+│                      │         │      confirm               │
 │                      │         │ → state machine: address → │
 │                      │         │   select_shipping → select │
 │                      │         │   _payment → complete      │
@@ -76,8 +80,48 @@ the `stripe_web_elements` one (its webhook subscriptions already include the
 `payment_intent.*` events).
 
 > 📖 Express Checkout button only appears if the channel has at least one enabled
-> PaymentMethod with the toggle on. Otherwise the cart-page partial is hidden silently
-> (the `GET /express-checkout/configuration` endpoint returns 204 and the JS no-ops).
+> PaymentMethod with the toggle on. Otherwise every placement (cart and checkout
+> sidebar) is hidden silently — the `GET /express-checkout/configuration` endpoint
+> returns 204 and the JS no-ops.
+
+## Placements
+
+Out of the box the plugin renders the wallet button in four places, each backed by its
+own Sylius Twig Hook entry:
+
+| Placement              | Hook                                                            | Entry name         |
+|------------------------|-----------------------------------------------------------------|--------------------|
+| Cart page              | `sylius_shop.cart.index.content.form.sections.general#right`    | `express_checkout` |
+| Checkout — address     | `sylius_shop.checkout.address.sidebar.summary`                  | `express_checkout` |
+| Checkout — shipping    | `sylius_shop.checkout.select_shipping.sidebar.summary`          | `express_checkout` |
+| Checkout — payment     | `sylius_shop.checkout.select_payment.sidebar.summary`           | `express_checkout` |
+
+The `complete` step has no sidebar (Sylius's `complete.html.twig` empties the `sidebar`
+block), so the button is not rendered there — no override is needed to hide it.
+
+End apps disable any placement by adding an `enabled: false` override in their own
+`config/packages/sylius_twig_hooks.yaml`. Disable the cart placement:
+
+```yaml
+sylius_twig_hooks:
+    hooks:
+        'sylius_shop.cart.index.content.form.sections.general#right':
+            express_checkout:
+                enabled: false
+```
+
+Disable the button on the payment step only:
+
+```yaml
+sylius_twig_hooks:
+    hooks:
+        'sylius_shop.checkout.select_payment.sidebar.summary':
+            express_checkout:
+                enabled: false
+```
+
+To hide the button on all checkout steps at once, override all three checkout hooks
+with `enabled: false`.
 
 ## Stripe Dashboard configuration
 
@@ -194,7 +238,7 @@ require a CSRF token under the id `sylius_stripe_express_checkout` sent in the `
 The plugin's default Twig partial renders the token into a `data-csrf-token` attribute on the container and the bundled 
 JS forwards it on every POST — no integrator action is needed when reusing the shipped templates.
 
-Integrators who **override** `@FluxSESyliusStripePlugin/shop/cart/_express_checkout.html.twig` must keep the 
+Integrators who **override** `@FluxSESyliusStripePlugin/shop/express_checkout/_button.html.twig` must keep the
 `data-csrf-token="{{ csrf_token('sylius_stripe_express_checkout') }}"` attribute. Integrators who ship their own ECE 
 frontend must send the token in `X-CSRF-Token` themselves. Applications that disable `framework.csrf_protection`
 in `config/packages/framework.yaml` will receive `403 Forbidden` from these endpoints.
@@ -214,9 +258,11 @@ in `config/packages/framework.yaml` will receive `403 Forbidden` from these endp
   handler is a composite that dispatches on `Payment.details['object']` —
   `checkout.session` to the session processor, `payment_intent` to the PaymentIntent
   processor.
-- The cart page partial is mounted by the Twig hook
-  `sylius_shop.cart.index.content.form.sections.general#right` with priority 300 (above
-  Sylius's `summary` at priority 100 and `checkout` button at priority 0).
+- The wallet partial is mounted at multiple Twig Hook anchors — see the [Placements](#placements)
+  section. The shared `_button.html.twig` carries a `placement` context (`cart` or
+  `checkout`) and the JS bootstraps (`assets/shop/js/express-checkout/cart.js` and
+  `…/checkout.js`) each scan for the matching `data-sylius-stripe-express-checkout-<placement>`
+  attribute.
 - The JS module loads Stripe.js v3 lazily from the CDN (sharing the script tag with the
   existing order-pay flow if both are present).
 - The `expressCheckout` Element is created with an empty `paymentMethods` config —

@@ -1,6 +1,20 @@
 sylius_twig_hooks:
     hooks:
-        'sylius_shop.checkout.common.sidebar.summary':
+        'sylius_shop.checkout.address.sidebar.summary':
+            express_checkout:
+                template: '@FluxSESyliusStripePlugin/shop/express_checkout/_button.html.twig'
+                priority: -100
+                context:
+                    placement: 'checkout'
+
+        'sylius_shop.checkout.select_shipping.sidebar.summary':
+            express_checkout:
+                template: '@FluxSESyliusStripePlugin/shop/express_checkout/_button.html.twig'
+                priority: -100
+                context:
+                    placement: 'checkout'
+
+        'sylius_shop.checkout.select_payment.sidebar.summary':
             express_checkout:
                 template: '@FluxSESyliusStripePlugin/shop/express_checkout/_button.html.twig'
                 priority: -100
