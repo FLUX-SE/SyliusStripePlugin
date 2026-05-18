@@ -98,15 +98,15 @@ flux_se_sylius_stripe_express_checkout_shop:
     resource: "@FluxSESyliusStripePlugin/config/routes/shop_express_checkout.yaml"
 ```
 
-The file `config/routes/shop_express_checkout.yaml` registers three endpoints under `/express-checkout/cart/`:
+The file `config/routes/shop_express_checkout.yaml` registers three endpoints under `/express-checkout/`:
 
 | Route name | Method | Path |
 |---|---|---|
-| `flux_se_sylius_stripe_express_checkout_configuration` | `GET` | `/express-checkout/cart/configuration` |
-| `flux_se_sylius_stripe_express_checkout_shipping_rates` | `POST` | `/express-checkout/cart/shipping-rates` |
-| `flux_se_sylius_stripe_express_checkout_confirm` | `POST` | `/express-checkout/cart/confirm` |
+| `flux_se_sylius_stripe_express_checkout_configuration` | `GET` | `/express-checkout/configuration` |
+| `flux_se_sylius_stripe_express_checkout_shipping_rates` | `POST` | `/express-checkout/shipping-rates` |
+| `flux_se_sylius_stripe_express_checkout_confirm` | `POST` | `/express-checkout/confirm` |
 
-Without the import, `GET /express-checkout/cart/configuration` returns 404, the cart-page JavaScript silently
+Without the import, `GET /express-checkout/configuration` returns 404, the cart-page JavaScript silently
 hides itself, and the wallet button never appears — there is no visible error.
 
 If your application uses a non-default firewall pattern (e.g. `^/(en|fr)/`), make sure these paths fall inside

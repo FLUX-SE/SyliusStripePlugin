@@ -83,8 +83,7 @@ final readonly class OrderCompleter implements OrderCompleterInterface
             $this->applyDigitalCheckout($cart, $payload);
         }
 
-        $payment = $this->createPayment($cart, $paymentMethod);
-        $cart->addPayment($payment);
+        $payment = $this->resolveCartPayment($cart, $paymentMethod);
         $this->applyTransition($cart, OrderCheckoutTransitions::TRANSITION_SELECT_PAYMENT);
 
         $this->applyTransition($cart, OrderCheckoutTransitions::TRANSITION_COMPLETE);
@@ -237,15 +236,20 @@ final readonly class OrderCompleter implements OrderCompleterInterface
         }
     }
 
-    private function createPayment(OrderInterface $cart, PaymentMethodInterface $paymentMethod): PaymentInterface
+    private function resolveCartPayment(OrderInterface $cart, PaymentMethodInterface $paymentMethod): PaymentInterface
     {
         $currencyCode = $cart->getCurrencyCode();
         if (null === $currencyCode) {
             throw PaymentIntentNotCreatedException::cartHasNoCurrency();
         }
 
-        /** @var PaymentInterface $payment */
-        $payment = $this->paymentFactory->createNew();
+        $payment = $cart->getLastPayment(PaymentInterface::STATE_CART);
+        if (null === $payment) {
+            /** @var PaymentInterface $payment */
+            $payment = $this->paymentFactory->createNew();
+            $cart->addPayment($payment);
+        }
+
         $payment->setMethod($paymentMethod);
         $payment->setCurrencyCode($currencyCode);
         $payment->setAmount($cart->getTotal());

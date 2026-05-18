@@ -1,3 +1,1 @@
-// Plugin shop entrypoint
-
-import './js/express-checkout/cart';
+import './js/express-checkout';

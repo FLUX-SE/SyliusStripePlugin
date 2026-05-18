@@ -20,7 +20,7 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 final class ShippingRatesActionTest extends WebTestCase
 {
-    private const URI = '/express-checkout/cart/shipping-rates';
+    private const URI = '/express-checkout/shipping-rates';
 
     private KernelBrowser $client;
 

@@ -33,7 +33,7 @@ use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\StripeClientWithExpectationsInt
 /**
  * Full E2E coverage for the Express Checkout payment lifecycle:
  *
- * 1. `POST /express-checkout/cart/confirm` creates a `PaymentIntent` and persists a
+ * 1. `POST /express-checkout/confirm` creates a `PaymentIntent` and persists a
  *    capture `PaymentRequest` with the client_secret.
  * 2. `POST /payment-methods/{code}` with a signed `payment_intent.succeeded` event
  *    re-fetches the Stripe Event + PaymentIntent server-side and drives the Sylius
@@ -48,7 +48,7 @@ use Tests\FluxSE\SyliusStripePlugin\Behat\Mocker\StripeClientWithExpectationsInt
  */
 final class PaymentLifecycleTest extends WebTestCase
 {
-    private const CONFIRM_URI = '/express-checkout/cart/confirm';
+    private const CONFIRM_URI = '/express-checkout/confirm';
 
     private const WEBHOOK_SECRET = 'whsec_test_ece_123';
 
