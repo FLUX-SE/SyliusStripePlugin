@@ -1,0 +1,8 @@
+{%- block button_widget -%}
+    {%- if attr.class is not defined or attr.class is empty -%}
+        {%- set attr = attr|merge({'class': 'btn btn-outline-primary'}) -%}
+    {%- endif -%}
+    <button type="{{ type|default('button') }}" {{ block('button_attributes') }}>
+        {{- translation_domain is same as(false) ? label : label|trans(label_translation_parameters, translation_domain) -}}
+    </button>
+{%- endblock -%}

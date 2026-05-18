@@ -1,4 +1,5 @@
 {% set form = hookable_metadata.context.form.gatewayConfig.config.payment_method_types %}
+{% form_theme form '@FluxSESyliusStripePlugin/admin/payment_method/form/stripe_form_theme.html.twig' %}
 
 <div class="col-12 col-md-6{{ form.vars.valid ? '' : ' border rounded border-danger' }}">
     {{ form_label(form) }}
