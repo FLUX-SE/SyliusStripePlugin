@@ -110,26 +110,6 @@ final class StripeGatewayConfigurationType extends AbstractType
                     ],
                 ],
             ])
-            ->add('payment_method_types', LiveCollectionType::class, [
-                'label' => 'flux_se_sylius_stripe_plugin.form.gateway_configuration.stripe.payment_method_types',
-                'required' => false,
-                'allow_add' => true,
-                'allow_delete' => true,
-                'delete_empty' => true,
-                'button_delete_options' => [
-                    'label' => 'sylius.ui.delete',
-                    'attr' => [
-                        'class' => 'btn btn-danger',
-                    ],
-                ],
-                'button_add_options' => [
-                    'label' => 'sylius.ui.add',
-                    'attr' => [
-                        'class' => 'btn btn-primary',
-                    ],
-                ],
-                'error_bubbling' => false,
-            ])
         ;
     }
 }

@@ -17,12 +17,6 @@ services:
             - name: flux_se.sylius_stripe.provider.web_elements.create.inner_params
               priority: -200
 
-    flux_se.sylius_stripe.provider.web_elements.create.payment_method_types:
-        class: FluxSE\SyliusStripePlugin\Provider\PaymentMethodTypesProvider
-        tags:
-            - name: flux_se.sylius_stripe.provider.web_elements.create.inner_params
-              priority: -300
-
     flux_se.sylius_stripe.provider.web_elements.create.capture_method.manual:
         class: FluxSE\SyliusStripePlugin\Provider\PaymentIntentCaptureMethodManualProvider
         tags:
