@@ -14,10 +14,11 @@ flux_se_sylius_stripe_plugin:
                     secret_key: Collez votre clé secrète Stripe (sk_…) depuis le tableau de bord Stripe, ou une clé d'API restreinte (rk_…) générée par la page de paramètres de l'application Sylius Stripe.
                     use_authorize:  Lorsqu'un paiement est autorisé, la banque garantit le montant et le conserve sur la carte du client jusqu'à sept jours.
                     webhook_secret_key: Créez un nouveau webhook endpoint pour créer une clé secrète de webhook sur le tableau de bord Stripe et écoutez plusieurs événements.
-                    payment_method_type: Il n'est normalement pas nécessaire de définir des méthodes de paiement, vous pouvez les gérer dans votre tableau de bord Stripe.
+                    payment_method_types_deprecated: Ce paramètre est obsolète et sera supprimé dans Stripe Plugin 2.0. Laissez cette liste vide et gérez les méthodes de paiement actives directement dans votre tableau de bord Stripe, afin que Stripe puisse présenter dynamiquement le meilleur sous-ensemble à chaque client.
                 action:
                     secret_key: Ouvrir les clés API du tableau de bord Stripe.
                     webhook_secret_key: Créez un nouveau webhook endpoint.
+                    manage_payment_methods: Gérer les méthodes de paiement dans le tableau de bord Stripe
     order_pay:
         web_elements:
             pay: Payer
