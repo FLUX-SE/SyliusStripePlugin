@@ -1,2 +1,2 @@
 // Plugin admin entrypoint
-import './stripe.scss';
+import './form.scss';

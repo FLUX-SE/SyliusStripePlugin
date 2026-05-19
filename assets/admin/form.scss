@@ -1,4 +1,4 @@
-$md-breakpoint: 992px; // Sylius admin col-md-* breakpoint
+$md-breakpoint: 992px;
 
 .mt-4-md-field {
     margin-top: 1.5rem;
@@ -10,6 +10,6 @@ $md-breakpoint: 992px; // Sylius admin col-md-* breakpoint
     }
 
     .mt-4-md-field {
-        margin-top: 3.25rem; // mt-4 (1.5rem) + label offset (1.75rem)
+        margin-top: 3.25rem;
     }
 }
