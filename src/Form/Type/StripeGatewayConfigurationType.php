@@ -87,6 +87,9 @@ final class StripeGatewayConfigurationType extends AbstractType
                 ],
                 'button_add_options' => [
                     'label' => 'sylius.ui.add',
+                    'attr' => [
+                        'class' => 'btn btn-primary',
+                    ],
                 ],
                 'error_bubbling' => false,
                 'constraints' => [
@@ -121,6 +124,9 @@ final class StripeGatewayConfigurationType extends AbstractType
                 ],
                 'button_add_options' => [
                     'label' => 'sylius.ui.add',
+                    'attr' => [
+                        'class' => 'btn btn-primary',
+                    ],
                 ],
                 'error_bubbling' => false,
             ])

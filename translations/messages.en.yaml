@@ -16,10 +16,11 @@ flux_se_sylius_stripe_plugin:
                     use_authorize: When a payment is authorized, the bank guarantees the amount and holds it on the customer’s card for up to seven days.
                     enable_express_checkout: Show wallet buttons (Apple Pay, Google Pay, Link, …) on the cart page using this gateway's keys. The actual buttons rendered are decided by the wallets enabled in your Stripe Dashboard and by the customer's browser. Requires payment_intent.succeeded, payment_intent.canceled and payment_intent.processing events subscribed in your Stripe Dashboard webhook, and a registered payment method domain.
                     webhook_secret_key: Create a new webhook endpoint to generate a new webhook secret key on the Stripe dashboard and listen for several events.
-                    payment_method_type: It's normally not necessary to define payment methods here, you can manage them using the Stripe dashboard.
+                    payment_method_types_deprecated: This setting is deprecated and will be removed in Stripe Plugin 2.0. Leave this list empty and manage active payment methods directly in your Stripe Dashboard, so Stripe can dynamically present the best subset to each customer.
                 action:
                     secret_key: Open Stripe Dashboard API keys.
                     webhook_secret_key: Create a new webhook endpoint.
+                    manage_payment_methods: Manage payment methods in Stripe Dashboard
     order_pay:
         web_elements:
             pay: Pay
