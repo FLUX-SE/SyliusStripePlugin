@@ -30,6 +30,9 @@ sylius_twig_hooks:
             use_authorize_info:
                 template: '@FluxSESyliusStripePlugin/admin/payment_method/form/use_authorize_info.html.twig'
                 priority: 150
+            enable_express_checkout:
+                template: '@FluxSESyliusStripePlugin/admin/payment_method/form/enable_express_checkout.html.twig'
+                priority: 125
             webhook_secret_keys:
                 template: '@FluxSESyliusStripePlugin/admin/payment_method/form/webhook_secret_keys.html.twig'
                 priority: 100

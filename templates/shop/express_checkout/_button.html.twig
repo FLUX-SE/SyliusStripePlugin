@@ -1,0 +1,11 @@
+{% set placement = hookable_metadata.context.placement %}
+<div class="mt-3"
+     data-sylius-stripe-express-checkout
+     data-sylius-stripe-express-checkout-{{ placement }}
+     data-configuration-url="{{ path('flux_se_sylius_stripe_express_checkout_configuration') }}"
+     data-shipping-rates-url="{{ path('flux_se_sylius_stripe_express_checkout_shipping_rates') }}"
+     data-confirm-url="{{ path('flux_se_sylius_stripe_express_checkout_confirm') }}"
+     data-csrf-token="{{ csrf_token(constant('FluxSE\\SyliusStripePlugin\\ExpressCheckout\\ExpressCheckoutCsrf::TOKEN_ID')) }}">
+    <div data-sylius-stripe-express-checkout-mount></div>
+    <div class="text-danger small mt-2" data-sylius-stripe-express-checkout-errors hidden></div>
+</div>

@@ -11,6 +11,17 @@ parameters:
         - tests/Functional/Api/JsonApiTestCase.php
 
     ignoreErrors:
+        # spaze/phpstan-stripe stubs (v3.x targeting stripe-php ^17) declare strict array{...} shapes for Stripe\Service\* methods.
+        # The plugin builds params via tagged InnerParamsProviderInterface composites returning array<int|string, mixed>,
+        # so feeding them into typed service params trips the stubs. Until the stubs accept generic arrays again, ignore here.
+        - message: '/Parameter \#(1|2) \$params of method Stripe\\Service\\.+::(all|create|retrieve|capture|cancel|expire)\(\) expects array\{.+\}\|null, array<int\|string, mixed>\|null given\./'
+          paths:
+              - src/Manager/AllManagerTrait.php
+              - src/Manager/CreateManagerTrait.php
+              - src/Manager/RetrieveManagerTrait.php
+              - src/Manager/Checkout/ExpireManager.php
+              - src/Manager/WebElements/CancelManager.php
+              - src/Manager/WebElements/CaptureManager.php
         - message: '/Method FluxSE\\SyliusStripePlugin\\Stripe\\HttpClient\\PsrClient::[^\(]+\(\) has parameter \$[^ ]+ with no value type specified in iterable type array\./'
           path: src/Stripe/HttpClient/PsrClient.php
         - message: '/Method FluxSE\\SyliusStripePlugin\\Stripe\\HttpClient\\PsrClient::[^\(]+\(\) return type has no value type specified in iterable type array\./'

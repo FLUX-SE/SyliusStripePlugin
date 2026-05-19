@@ -1,0 +1,173 @@
+# Upgrade from 1.0 to 2.0
+
+## Stripe PHP SDK upgrade
+
+`stripe/stripe-php` is bumped from `^16.1` to `^20.0`. Crossing those majors brings breaking changes — both at this 
+plugin's public surface (DI parameters, service decorators, providers) and transitively through the Stripe SDK / Stripe 
+API itself.
+
+The subsections below list only the changes that can affect **end applications** embedding this plugin.
+
+### Stripe PHP SDK requirement
+
+`composer.json` now requires `stripe/stripe-php: ^20.0` (was `^16.1`). Applications depending on the SDK directly inherit
+the bump and should review the upstream changelog for BC breaks introduced across v17–v20:
+
+https://github.com/stripe/stripe-php/blob/master/CHANGELOG.md
+
+### Stripe API version (default)
+
+The plugin does not call `Stripe::setApiVersion()`, so it inherits the default pinned by the SDK. Bumping the SDK across
+four majors moves the default forward to a newer Basil API. As a result:
+
+- Live webhook payloads will use the new schema. Custom processors tagged
+  `flux_se.sylius_stripe.processor.webhook_event.{checkout,web_elements}` should be reviewed.
+- Existing webhook endpoints in your Stripe Dashboard keep delivering events on the API version they were created with —
+  only newly created (or explicitly upgraded) endpoints will match the new SDK default. Verify both sides agree before
+  going live.
+
+To lock to a specific version, call `Stripe::setApiVersion()` from your application bootstrap.
+
+### `Invoice.payment_intent` moved under `Invoice.payments`
+
+Stripe removed the direct `Invoice.payment_intent` field. The PaymentIntent attached to a subscription invoice now lives
+under `Invoice.payments.data[].payment.payment_intent`, gated by `payment.type === 'payment_intent'`.
+
+You must migrate if your application:
+
+- decorates / extends `SubscriptionModeTransitionProvider` or `RefundSubscriptionInitProvider`,
+- reads `payment.details['invoice']['payment_intent']` directly anywhere (listeners, controllers, fixtures, reports).
+
+#### Before
+
+```php
+$paymentIntentId = $invoice['payment_intent']; // string|array
+```
+
+#### After
+
+```php
+$paymentIntentId = null;
+foreach ($invoice['payments']['data'] ?? [] as $invoicePayment) {
+    $payment = $invoicePayment['payment'] ?? null;
+    if (null === $payment || 'payment_intent' !== ($payment['type'] ?? null)) {
+        continue;
+    }
+
+    $pi = $payment['payment_intent'] ?? null;
+    $paymentIntentId = is_array($pi) ? ($pi['id'] ?? null) : $pi;
+    break;
+}
+```
+
+See `src/Provider/Transition/Checkout/SubscriptionModeTransitionProvider.php` for a typed-SDK reference.
+
+### `flux_se.sylius_stripe.checkout.retrieve.expand_fields` parameter changed
+
+Defined in `config/services/providers/checkout/retrieve_params_providers.yaml`.
+
+- **Removed:** `invoice.charge`, `invoice.payment_intent`, `invoice.payment_intent.latest_charge`,
+  `invoice.payment_intent.payment_method`
+- **Added:** `invoice.payments`
+
+If you override this parameter, rebuild your list around `invoice.payments`. The deeper
+`invoice.payments.data.payment.payment_intent.*` chain is intentionally **not** in `expand_fields` — Stripe caps
+`expand[]` at 4 levels, and the PaymentIntent is fetched separately by the new manager (see below).
+
+### `flux_se.sylius_stripe.web_elements.retrieve.expand_fields` parameter changed
+
+`payment_method` was added (alongside the existing `latest_charge`). If you override this parameter, add
+`payment_method` back — it is required for subscription-mode PaymentIntent enrichment to work end-to-end.
+
+## Express Checkout (cart page)
+
+2.0 introduces Express Checkout (ECE) on the cart page — a single button rendering Apple Pay, Google Pay, Link
+and whatever other wallets your Stripe Dashboard exposes. The feature is opt-in per PaymentMethod (the
+`enable_express_checkout` toggle in the gateway configuration), but the steps below apply even to applications
+that do **not** plan to enable it, because the new routes and the rewired command provider land regardless.
+
+### Shop routes must be imported
+
+The plugin now ships an additional shop routes file that the bundle does **not** auto-load. Add it to your
+application's route configuration:
+
+```yaml
+# config/routes/flux_se_sylius_stripe.yaml
+
+flux_se_sylius_stripe_express_checkout_shop:
+    resource: "@FluxSESyliusStripePlugin/config/routes/shop_express_checkout.yaml"
+```
+
+The file `config/routes/shop_express_checkout.yaml` registers three endpoints under `/express-checkout/`:
+
+| Route name | Method | Path |
+|---|---|---|
+| `flux_se_sylius_stripe_express_checkout_configuration` | `GET` | `/express-checkout/configuration` |
+| `flux_se_sylius_stripe_express_checkout_shipping_rates` | `POST` | `/express-checkout/shipping-rates` |
+| `flux_se_sylius_stripe_express_checkout_confirm` | `POST` | `/express-checkout/confirm` |
+
+Without the import, `GET /express-checkout/configuration` returns 404, the cart-page JavaScript silently
+hides itself, and the wallet button never appears — there is no visible error.
+
+If your application uses a non-default firewall pattern (e.g. `^/(en|fr)/`), make sure these paths fall inside
+the shop firewall — they rely on the cart session like the rest of the shop area.
+
+### New required Stripe webhook events when Express Checkout is enabled
+
+Express Checkout always creates a Stripe `PaymentIntent`, regardless of the gateway type backing the
+PaymentMethod. This means a `stripe_checkout` PaymentMethod with `enable_express_checkout` turned on must
+subscribe to PaymentIntent events **in addition** to the existing `checkout.session.*` ones.
+
+Add the following events to the Stripe webhook endpoint of every `stripe_checkout` PaymentMethod that has the
+toggle on:
+
+- `payment_intent.succeeded`
+- `payment_intent.canceled`
+- `payment_intent.processing`
+
+For `stripe_web_elements` PaymentMethods the same three events are already required by the regular flow, so
+the toggle does not change that list.
+
+Without these events the ECE payment never receives a completion signal — the Sylius `Payment` stays in the
+`processing` state and never transitions to `completed`. The full per-gateway matrix is in
+`docs/EXPRESS-CHECKOUT.md` (section *Webhook events*).
+
+### `flux_se.sylius_stripe.command_provider.checkout` now wraps the old class
+
+The service ID `flux_se.sylius_stripe.command_provider.checkout` points to a **different class** in 2.0. The
+old class is still wired, but under a new ID.
+
+#### Before (1.x)
+
+```yaml
+flux_se.sylius_stripe.command_provider.checkout:
+    class: Sylius\Bundle\PaymentBundle\CommandProvider\ActionsCommandProvider
+```
+
+#### After (2.0)
+
+```yaml
+flux_se.sylius_stripe.command_provider.checkout.actions:
+    class: Sylius\Bundle\PaymentBundle\CommandProvider\ActionsCommandProvider
+    # ...
+
+flux_se.sylius_stripe.command_provider.checkout:
+    class: FluxSE\SyliusStripePlugin\CommandProvider\Checkout\CheckoutOrPaymentIntentCommandProvider
+    arguments:
+        - '@flux_se.sylius_stripe.command_provider.checkout.actions'
+        - '@flux_se.sylius_stripe.command_provider.web_elements'
+```
+
+The new wrapper inspects the Stripe object stored on the `PaymentRequest` (Checkout `Session` vs
+`PaymentIntent`) and delegates to the Web Elements command provider whenever it sees a PaymentIntent. This is
+what lets a `payment_intent.*` webhook arriving on a `stripe_checkout` PaymentMethod URL (the ECE case above)
+reach the correct command pipeline.
+
+This is a **real BC change** for anyone decorating that service:
+
+- If you decorated `flux_se.sylius_stripe.command_provider.checkout` to extend `ActionsCommandProvider`
+  (e.g. to register an extra `action`), move the decoration to
+  `flux_se.sylius_stripe.command_provider.checkout.actions`.
+- If you decorated it to intercept the dispatch itself, keep the same ID but note that `'$.inner'` is now
+  `CheckoutOrPaymentIntentCommandProvider`, not `ActionsCommandProvider`. The wrapper's constructor signature
+  is `(PaymentRequestCommandProviderInterface $checkoutCommandProvider, PaymentRequestCommandProviderInterface $webElementsCommandProvider)`.

@@ -1,6 +1,7 @@
 parameters:
     flux_se.sylius_stripe.web_elements.retrieve.expand_fields:
         - 'latest_charge'
+        - 'payment_method'
 
 services:
 

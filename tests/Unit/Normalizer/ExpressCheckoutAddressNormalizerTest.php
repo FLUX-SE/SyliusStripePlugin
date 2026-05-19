@@ -1,0 +1,150 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\FluxSE\SyliusStripePlugin\Unit\Normalizer;
+
+use FluxSE\SyliusStripePlugin\Normalizer\ExpressCheckoutAddressNormalizer;
+use PHPUnit\Framework\TestCase;
+use Sylius\Component\Core\Model\Address;
+use Sylius\Component\Resource\Factory\FactoryInterface;
+
+final class ExpressCheckoutAddressNormalizerTest extends TestCase
+{
+    private ExpressCheckoutAddressNormalizer $normalizer;
+
+    protected function setUp(): void
+    {
+        $factory = $this->createMock(FactoryInterface::class);
+        $factory->method('createNew')->willReturnCallback(static fn (): Address => new Address());
+
+        $this->normalizer = new ExpressCheckoutAddressNormalizer($factory);
+    }
+
+    public function test_it_normalizes_a_shipping_address_payload(): void
+    {
+        $address = $this->normalizer->normalizeShipping([
+            'shippingAddress' => [
+                'name' => 'Jane Doe',
+                'address' => [
+                    'line1' => '1 Infinite Loop',
+                    'line2' => 'Apt 5',
+                    'city' => 'Cupertino',
+                    'state' => 'CA',
+                    'postal_code' => '95014',
+                    'country' => 'US',
+                ],
+                'phone' => '+1-555-0100',
+            ],
+        ]);
+
+        self::assertSame('Jane', $address->getFirstName());
+        self::assertSame('Doe', $address->getLastName());
+        self::assertSame('1 Infinite Loop Apt 5', $address->getStreet());
+        self::assertSame('Cupertino', $address->getCity());
+        self::assertSame('95014', $address->getPostcode());
+        self::assertSame('CA', $address->getProvinceName());
+        self::assertSame('US', $address->getCountryCode());
+        self::assertSame('+1-555-0100', $address->getPhoneNumber());
+    }
+
+    public function test_it_handles_shipping_address_without_line2(): void
+    {
+        $address = $this->normalizer->normalizeShipping([
+            'shippingAddress' => [
+                'name' => 'Madonna',
+                'address' => [
+                    'line1' => '1 Infinite Loop',
+                    'city' => 'Cupertino',
+                    'country' => 'US',
+                ],
+            ],
+        ]);
+
+        self::assertSame('Madonna', $address->getFirstName());
+        // Single-token names (Stripe Link sometimes returns "GS" or "Madonna" without
+        // a space) keep the NOT NULL placeholder for last_name set in createAddress().
+        self::assertSame('?', $address->getLastName());
+        self::assertSame('1 Infinite Loop', $address->getStreet());
+    }
+
+    public function test_it_throws_when_shipping_address_is_missing(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/shippingAddress/');
+
+        $this->normalizer->normalizeShipping([]);
+    }
+
+    public function test_it_normalizes_a_billing_details_payload(): void
+    {
+        $address = $this->normalizer->normalizeBilling([
+            'billingDetails' => [
+                'name' => 'John Smith',
+                'email' => 'john@example.com',
+                'address' => [
+                    'line1' => '500 Terry A Francois Blvd',
+                    'city' => 'San Francisco',
+                    'state' => 'CA',
+                    'postal_code' => '94158',
+                    'country' => 'US',
+                ],
+                'phone' => '+1-555-0200',
+            ],
+        ]);
+
+        self::assertSame('John', $address->getFirstName());
+        self::assertSame('Smith', $address->getLastName());
+        self::assertSame('500 Terry A Francois Blvd', $address->getStreet());
+        self::assertSame('San Francisco', $address->getCity());
+        self::assertSame('94158', $address->getPostcode());
+        self::assertSame('CA', $address->getProvinceName());
+        self::assertSame('US', $address->getCountryCode());
+        self::assertSame('+1-555-0200', $address->getPhoneNumber());
+    }
+
+    public function test_it_throws_when_billing_details_are_missing(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageMatches('/billingDetails/');
+
+        $this->normalizer->normalizeBilling([]);
+    }
+
+    public function test_it_keeps_placeholders_when_billing_address_block_is_missing(): void
+    {
+        $address = $this->normalizer->normalizeBilling([
+            'billingDetails' => [
+                'name' => 'Jane',
+                'email' => 'jane@example.com',
+            ],
+        ]);
+
+        self::assertSame('Jane', $address->getFirstName());
+        self::assertSame('?', $address->getLastName());
+        self::assertSame('?', $address->getStreet());
+        self::assertSame('?', $address->getCity());
+        self::assertSame('?', $address->getPostcode());
+    }
+
+    public function test_it_normalizes_a_flat_partial_address_and_keeps_placeholders_for_not_null_fields(): void
+    {
+        $address = $this->normalizer->normalizeAddress([
+            'city' => 'Cupertino',
+            'state' => 'CA',
+            'postal_code' => '95014',
+            'country' => 'US',
+        ]);
+
+        self::assertSame('Cupertino', $address->getCity());
+        self::assertSame('CA', $address->getProvinceName());
+        self::assertSame('95014', $address->getPostcode());
+        self::assertSame('US', $address->getCountryCode());
+        // Fields not present in the partial wallet payload keep the placeholder set in
+        // createAddress(), so Doctrine's NOT NULL constraints on first_name/last_name/street
+        // are satisfied when the cart is flushed during shipping-rate preview.
+        self::assertSame('?', $address->getFirstName());
+        self::assertSame('?', $address->getLastName());
+        self::assertSame('?', $address->getStreet());
+    }
+}

@@ -1,0 +1,65 @@
+Sylius\Component\Core\Model\Product:
+    product_digital:
+        fallbackLocale: en_US
+        currentLocale: en
+        code: 'EBOOK'
+
+Sylius\Component\Core\Model\ProductVariant:
+    product_variant_digital:
+        code: 'EBOOK_PDF'
+        version: 1
+        product: '@product_digital'
+        fallbackLocale: en_US
+        currentLocale: en
+        position: 1
+        channelPricings:
+            channel_web: '@product_variant_digital_channel_web_pricing'
+        enabled: true
+        tracked: false
+        onHold: 0
+        onHand: 0
+        taxCategory: '@tax_category_default'
+        shippingRequired: false
+
+Sylius\Component\Core\Model\ProductTranslation:
+    product_translation_ebook_en_US:
+        locale: 'en_US'
+        translatable: '@product_digital'
+        slug: 'ebook'
+        name: 'Ebook'
+        description: 'A digital book — no shipping needed.'
+        shortDescription: 'Short ebook description'
+
+Sylius\Component\Product\Model\ProductVariantTranslation:
+    product_variant_digital_translation:
+        name: 'Ebook (PDF)'
+        locale: en_US
+        translatable: '@product_variant_digital'
+
+Sylius\Component\Core\Model\ChannelPricing:
+    product_variant_digital_channel_web_pricing:
+        channelCode: 'WEB'
+        price: 1500
+
+Sylius\Component\Core\Model\Order:
+    cart_digital_ready:
+        channel: '@channel_web'
+        currencyCode: 'USD'
+        localeCode: 'en_US'
+        state: 'cart'
+        tokenValue: 'ECE_DIGITAL_TEST_CART_TOKEN'
+        items: ['@cart_digital_ready_order_item']
+        createdAt: "<(new \\DateTime())>"
+        updatedAt: "<(new \\DateTime())>"
+
+Sylius\Component\Core\Model\OrderItem:
+    cart_digital_ready_order_item:
+        variant: '@product_variant_digital'
+        order: '@cart_digital_ready'
+        units: ['@cart_digital_ready_order_item_unit']
+
+Sylius\Component\Core\Model\OrderItemUnit:
+    cart_digital_ready_order_item_unit:
+        __construct: ['@cart_digital_ready_order_item']
+        createdAt: "<(new \\DateTime())>"
+        updatedAt: "<(new \\DateTime())>"

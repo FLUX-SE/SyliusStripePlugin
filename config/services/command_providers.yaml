@@ -1,11 +1,20 @@
 services:
     
-    flux_se.sylius_stripe.command_provider.checkout:
+    # Per-action ActionsCommandProvider for the Checkout namespace; not tagged for the
+    # Sylius announcer — wrapped by the composite below which forwards Express Checkout
+    # payments (PaymentIntent in payment.details) to the Web Elements provider.
+    flux_se.sylius_stripe.command_provider.checkout.actions:
         class: Sylius\Bundle\PaymentBundle\CommandProvider\ActionsCommandProvider
         arguments:
             - !tagged_locator
                 tag: flux_se.sylius_stripe.command_provider.checkout
                 index_by: 'action'
+
+    flux_se.sylius_stripe.command_provider.checkout:
+        class: FluxSE\SyliusStripePlugin\CommandProvider\Checkout\CheckoutOrPaymentIntentCommandProvider
+        arguments:
+            - '@flux_se.sylius_stripe.command_provider.checkout.actions'
+            - '@flux_se.sylius_stripe.command_provider.web_elements'
         tags:
             - name: sylius.payment_request.command_provider
               gateway_factory: 'stripe_checkout'
