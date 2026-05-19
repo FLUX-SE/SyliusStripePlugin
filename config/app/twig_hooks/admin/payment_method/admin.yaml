@@ -5,7 +5,7 @@ sylius_twig_hooks:
                 props:
                     factoryName: '@=_context.resource.getGatewayConfig().getFactoryName()'
         'sylius_admin.payment_method.update.content': *component
-        
+
         'sylius_admin.payment_method.create.content.form.sections.gateway_configuration.stripe_checkout': &form
             form:
                 template: '@FluxSESyliusStripePlugin/admin/payment_method/form.html.twig'
@@ -13,11 +13,14 @@ sylius_twig_hooks:
         'sylius_admin.payment_method.create.content.form.sections.gateway_configuration.stripe_web_elements': *form
         'sylius_admin.payment_method.update.content.form.sections.gateway_configuration.stripe_checkout': *form
         'sylius_admin.payment_method.update.content.form.sections.gateway_configuration.stripe_web_elements': *form
-        
+
         'sylius_admin.payment_method.create.content.form.sections.gateway_configuration.stripe_checkout.form': &form_inner
-            api_keys:
-                template: '@FluxSESyliusStripePlugin/admin/payment_method/form/api_keys.html.twig'
+            publishable_key:
+                template: '@FluxSESyliusStripePlugin/admin/payment_method/form/publishable_key.html.twig'
                 priority: 400
+            secret_key:
+                template: '@FluxSESyliusStripePlugin/admin/payment_method/form/secret_key.html.twig'
+                priority: 300
             secret_key_info:
                 template: '@FluxSESyliusStripePlugin/admin/payment_method/form/secret_key_info.html.twig'
                 priority: 350
