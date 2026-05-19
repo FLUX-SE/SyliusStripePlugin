@@ -78,8 +78,7 @@
             "php-http/discovery": true,
             "phpstan/extension-installer": true,
             "symfony/flex": true,
-            "symfony/runtime": true,
-            "php-http/discovery": true
+            "symfony/runtime": true
         }
     },
     "extra": {
