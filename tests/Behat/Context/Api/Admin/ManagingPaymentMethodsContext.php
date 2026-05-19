@@ -64,14 +64,6 @@ class ManagingPaymentMethodsContext implements Context
     }
 
     /**
-     * @Given /^I should not see a warning message under the use authorize field$/
-     */
-    public function iShouldNotSeeAWarningMessageUnderTheUseAuthorizeField(): void
-    {
-        // Not reproductible
-    }
-
-    /**
      * @param array<string, string|string[]|bool> $updatedConfig
      */
     private function updateGatewayConfig(array $updatedConfig): void

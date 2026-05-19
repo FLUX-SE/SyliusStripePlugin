@@ -31,5 +31,5 @@ Feature: Adding a new  Stripe Checkout Session payment method
         And I don't use authorize
         And I add it
         Then I should be notified that it has been successfully created
-        And I should not see a warning message under the use authorize field
+        And I should see a warning message under the use authorize field
         And the payment method "Stripe Checkout" should appear in the registry
