@@ -39,6 +39,9 @@ sylius_twig_hooks:
             payment_method_types:
                 template: '@FluxSESyliusStripePlugin/admin/payment_method/form/payment_method_types.html.twig'
                 priority: 0
+            payment_method_types_info:
+                template: '@FluxSESyliusStripePlugin/admin/payment_method/form/payment_method_types_info.html.twig'
+                priority: -50
         'sylius_admin.payment_method.create.content.form.sections.gateway_configuration.stripe_web_elements.form': *form_inner
         'sylius_admin.payment_method.update.content.form.sections.gateway_configuration.stripe_checkout.form': *form_inner
         'sylius_admin.payment_method.update.content.form.sections.gateway_configuration.stripe_web_elements.form': *form_inner
