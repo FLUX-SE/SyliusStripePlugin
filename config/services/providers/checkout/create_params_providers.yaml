@@ -43,12 +43,6 @@ services:
             - name: flux_se.sylius_stripe.provider.checkout.create.inner_params
               priority: -400
 
-    flux_se.sylius_stripe.provider.checkout.create.payment_method_types:
-        class: FluxSE\SyliusStripePlugin\Provider\PaymentMethodTypesProvider
-        tags:
-            - name: flux_se.sylius_stripe.provider.checkout.create.inner_params
-              priority: -500
-
     flux_se.sylius_stripe.provider.checkout.create.payment_intent_data:
         class: FluxSE\SyliusStripePlugin\Provider\Checkout\Create\CheckoutSessionModeDataProvider
         arguments:

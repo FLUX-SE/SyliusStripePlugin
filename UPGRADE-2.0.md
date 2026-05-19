@@ -171,3 +171,33 @@ This is a **real BC change** for anyone decorating that service:
 - If you decorated it to intercept the dispatch itself, keep the same ID but note that `'$.inner'` is now
   `CheckoutOrPaymentIntentCommandProvider`, not `ActionsCommandProvider`. The wrapper's constructor signature
   is `(PaymentRequestCommandProviderInterface $checkoutCommandProvider, PaymentRequestCommandProviderInterface $webElementsCommandProvider)`.
+
+## `payment_method_types` gateway configuration removed
+
+The `payment_method_types` field in the Stripe gateway configuration (deprecated in 1.1 — see `UPGRADE-1.1.md`) is fully 
+removed in 2.0. Stripe's Payment Element / Checkout Session now relies on the automatic payment methods configured 
+in your Stripe Dashboard for every customer.
+
+**Removed surface:**
+
+- Form field `payment_method_types` in `FluxSE\SyliusStripePlugin\Form\Type\StripeGatewayConfigurationType`
+- Class `FluxSE\SyliusStripePlugin\Provider\PaymentMethodTypesProvider`
+- Services `flux_se.sylius_stripe.provider.checkout.create.payment_method_types` and
+  `flux_se.sylius_stripe.provider.web_elements.create.payment_method_types`
+- Admin templates under `@FluxSESyliusStripePlugin/admin/payment_method/form/payment_method_types*` and the
+  associated twig hooks
+- Translation keys `flux_se_sylius_stripe_plugin.form.gateway_configuration.stripe.payment_method_types`,
+  `...info.payment_method_types_deprecated`, `...action.manage_payment_methods`
+
+**Migration:**
+
+1. Before upgrading, follow the migration steps in `UPGRADE-1.1.md` — open your Stripe Dashboard → Settings →
+   Payment methods, enable the methods you want to offer, and clear the "Payment method types" field in each
+   Sylius Stripe payment method.
+2. After upgrading, the field disappears from the admin form. Any remaining `payment_method_types: [...]` value
+   still serialized inside `payment_method.gateway_config.config` is silently ignored — no data migration is provided.
+   If you want a clean payload, clear it manually (e.g. via a one-off update query) before or after the upgrade;
+   it has no functional impact.
+
+**For developers extending the plugin:** if your custom code references the removed class, services,
+templates or twig hooks, remove those references before upgrading.
