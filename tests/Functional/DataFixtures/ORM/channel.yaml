@@ -70,3 +70,7 @@ Sylius\Component\Locale\Model\Locale:
 Sylius\Component\Core\Model\Taxon:
     menu_taxon:
         code: "MENU"
+    mugs_taxon:
+        code: "MUGS"
+    tea_taxon:
+        code: "TEA"

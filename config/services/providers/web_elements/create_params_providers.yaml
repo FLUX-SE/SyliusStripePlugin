@@ -42,3 +42,23 @@ services:
         tags:
             - name: flux_se.sylius_stripe.provider.web_elements.create.metadata
               priority: -100
+
+    flux_se.sylius_stripe.provider.web_elements.create.metadata.order:
+        class: FluxSE\SyliusStripePlugin\Provider\OrderMetadataProvider
+        tags:
+            - name: flux_se.sylius_stripe.provider.web_elements.create.metadata
+              priority: -200
+
+    flux_se.sylius_stripe.provider.web_elements.create.metadata.product_categories:
+        class: FluxSE\SyliusStripePlugin\Provider\ProductCategoriesMetadataProvider
+        tags:
+            - name: flux_se.sylius_stripe.provider.web_elements.create.metadata
+              priority: -250
+
+    flux_se.sylius_stripe.provider.web_elements.create.metadata.first_order_flag:
+        class: FluxSE\SyliusStripePlugin\Provider\FirstOrderFlagMetadataProvider
+        arguments:
+            - '@sylius.repository.order'
+        tags:
+            - name: flux_se.sylius_stripe.provider.web_elements.create.metadata
+              priority: -300

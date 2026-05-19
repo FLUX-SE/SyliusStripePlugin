@@ -6,6 +6,7 @@ Sylius\Component\Core\Model\Order:
         state: "new"
         paymentState: "awaiting_payment"
         shippingState: "ready"
+        number: "000000001"
         tokenValue: "token"
         customer: "@customer_oliver"
         billingAddress: "@address"
@@ -18,7 +19,7 @@ Sylius\Component\Core\Model\OrderItem:
         variant: "@product_variant"
         order: "@order"
     order_item_2:
-        variant: "@product_variant_free"
+        variant: "@product_variant_tea"
         order: "@order"
 
 Sylius\Component\Core\Model\OrderItemUnit:
