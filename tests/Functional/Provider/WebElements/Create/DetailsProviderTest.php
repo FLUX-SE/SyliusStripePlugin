@@ -99,6 +99,12 @@ class DetailsProviderTest extends KernelTestCase
             'currency' => 'USD',
             'metadata' => [
                 'token_hash' => '',
+                'order_number' => '000000001',
+                'order_total' => '1500',
+                'currency' => 'USD',
+                'locale' => 'en_US',
+                'product_categories' => 'mugs,tea',
+                'first_order' => 'yes',
             ],
         ];
 

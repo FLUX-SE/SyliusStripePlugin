@@ -133,7 +133,7 @@ final class SubscriptionModeTransitionProviderTest extends TestCase
             $paymentIntentStatus,
             $sessionPaymentStatus,
             null,
-            $chargeRefunded
+            $chargeRefunded,
         );
 
         $result = $this->provider->isRefund($session);
@@ -263,7 +263,7 @@ final class SubscriptionModeTransitionProviderTest extends TestCase
         string $sessionPaymentStatus = Session::PAYMENT_STATUS_PAID,
         ?array $lastPaymentError = null,
         bool $chargeRefunded = false,
-        bool $includeCharge = true
+        bool $includeCharge = true,
     ): Session {
         $paymentIntentData = [
             'id' => 'pi_test_1',
@@ -309,4 +309,3 @@ final class SubscriptionModeTransitionProviderTest extends TestCase
         ]);
     }
 }
-

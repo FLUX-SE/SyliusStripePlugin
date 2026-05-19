@@ -3,6 +3,12 @@ Sylius\Component\Core\Model\Product:
         fallbackLocale: en_US
         currentLocale: en
         code: 'MUG_SW'
+        mainTaxon: '@mugs_taxon'
+    product_tea:
+        fallbackLocale: en_US
+        currentLocale: en
+        code: 'TEA_SW'
+        mainTaxon: '@tea_taxon'
 
 Sylius\Component\Core\Model\ProductVariant:
     product_variant:
@@ -42,7 +48,15 @@ Sylius\Component\Core\Model\ProductVariant:
         position: 3
         channelPricings:
             channel_web: '@product_variant_free_channel_web_pricing'
-    
+    product_variant_tea:
+        code: 'TEA'
+        product: '@product_tea'
+        fallbackLocale: en_US
+        currentLocale: en
+        position: 1
+        channelPricings:
+            channel_web: '@product_variant_tea_channel_web_pricing'
+
 Sylius\Component\Core\Model\ProductTranslation:
     product_translation_mug_en_US:
         locale: 'en_US'
@@ -53,6 +67,11 @@ Sylius\Component\Core\Model\ProductTranslation:
         shortDescription: 'Short mug description'
         metaKeywords: 'mug'
         metaDescription: 'Mug description'
+    product_translation_tea_en_US:
+        locale: 'en_US'
+        translatable: '@product_tea'
+        slug: 'tea'
+        name: 'Tea'
 
 Sylius\Component\Product\Model\ProductVariantTranslation:
     product_variant_translation:
@@ -63,6 +82,10 @@ Sylius\Component\Product\Model\ProductVariantTranslation:
         name: 'Mug 2'
         locale: en_US
         translatable: '@product_variant_2'
+    product_variant_tea_translation:
+        name: 'Tea'
+        locale: en_US
+        translatable: '@product_variant_tea'
 
 Sylius\Component\Core\Model\ChannelPricing:
     product_variant_channel_web_pricing:
@@ -72,6 +95,9 @@ Sylius\Component\Core\Model\ChannelPricing:
         channelCode: 'WEB'
         price: 3000
     product_variant_free_channel_web_pricing:
+        channelCode: 'WEB'
+        price: 0
+    product_variant_tea_channel_web_pricing:
         channelCode: 'WEB'
         price: 0
 

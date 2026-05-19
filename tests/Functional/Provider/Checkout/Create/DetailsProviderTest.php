@@ -122,6 +122,15 @@ class DetailsProviderTest extends KernelTestCase
      */
     public static function getPaymentRequestAndExpectedDetails(): iterable
     {
+        $orderMetadata = [
+            'order_number' => '000000001',
+            'order_total' => '1500',
+            'currency' => 'USD',
+            'locale' => 'en_US',
+            'product_categories' => 'mugs,tea',
+            'first_order' => 'yes',
+        ];
+
         $expected = [
             'customer_email' => 'oliver@doe.com',
             'line_items' => [
@@ -143,7 +152,7 @@ class DetailsProviderTest extends KernelTestCase
                         'unit_amount' => 0,
                         'currency' => 'USD',
                         'product_data' => [
-                            'name' => '1x - Mug',
+                            'name' => '1x - Tea',
                             'images' => [
                                 'https://placehold.co/300',
                             ],
@@ -165,6 +174,9 @@ class DetailsProviderTest extends KernelTestCase
             'mode' => 'payment',
             'success_url' => 'https://myshop.tld/target-path',
             'cancel_url' => 'https://myshop.tld/after-path',
+            'payment_intent_data' => [
+                'metadata' => $orderMetadata,
+            ],
             'metadata' => [
                 'token_hash' => '',
             ],
@@ -188,6 +200,7 @@ class DetailsProviderTest extends KernelTestCase
             array_merge($expected, [
                 'payment_intent_data' => [
                     'capture_method' => 'manual',
+                    'metadata' => $orderMetadata,
                 ],
             ]),
         ];
@@ -199,6 +212,7 @@ class DetailsProviderTest extends KernelTestCase
                 'cancel_url' => 'https://myshop.tld/after-path',
                 'payment_intent_data' => [
                     'capture_method' => 'manual',
+                    'metadata' => $orderMetadata,
                 ],
             ]),
         ];
