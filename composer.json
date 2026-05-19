@@ -12,7 +12,8 @@
     ],
     "require": {
         "sylius/core-bundle": "^2.0",
-        "stripe/stripe-php": "^16.1"
+        "stripe/stripe-php": "^16.1",
+        "symfony/deprecation-contracts": "^3.5"
     },
     "require-dev": {
         "behat/behat": "^3.7",
