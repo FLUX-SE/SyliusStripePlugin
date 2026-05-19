@@ -55,12 +55,4 @@ class ManagingPaymentMethodsContext implements Context
     {
         Assert::true($this->createPage->isUseAuthorizeWarningMessageDisplayed());
     }
-
-    /**
-     * @Given /^I should not see a warning message under the use authorize field$/
-     */
-    public function iShouldNotSeeAWarningMessageUnderTheUseAuthorizeField(): void
-    {
-        Assert::false($this->createPage->isUseAuthorizeWarningMessageDisplayed());
-    }
 }
