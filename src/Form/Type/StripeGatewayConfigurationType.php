@@ -14,7 +14,7 @@ use Symfony\UX\LiveComponent\Form\Type\LiveCollectionType;
 
 final class StripeGatewayConfigurationType extends AbstractType
 {
-    public const SECRET_KEY_PATTERN = '/^(sk|rk)_(test|live)_/';
+    public const SECRET_KEY_PATTERN = '/^rk_(test|live)_/';
 
     public const PUBLISHABLE_KEY_PATTERN = '/^pk_(test|live)_/';
 

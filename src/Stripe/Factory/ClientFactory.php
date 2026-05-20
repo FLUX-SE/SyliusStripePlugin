@@ -39,8 +39,8 @@ final readonly class ClientFactory implements ClientFactoryInterface
         if (is_string($secretKey) && str_starts_with($secretKey, 'sk_')) {
             trigger_deprecation(
                 'flux-se/sylius-stripe-plugin',
-                '1.1',
-                'Using a Stripe secret key (sk_…) for the "%s" payment method is deprecated since 1.1 and support will be removed in 2.0. Install the Sylius Stripe App (https://marketplace.stripe.com/apps/install/link/com.sylius.stripe) and use a Restricted API Key (rk_…) instead.',
+                '2.0',
+                'Using a Stripe secret key (sk_…) for the "%s" payment method is no longer supported since Stripe plugin 2.0. The form validator rejects sk_… values; this payment method keeps operating only because its key was saved before the upgrade. Replace it with a Restricted API Key (rk_…) from the Sylius Stripe App (https://marketplace.stripe.com/apps/install/link/com.sylius.stripe).',
                 $paymentMethod->getCode(),
             );
         }
