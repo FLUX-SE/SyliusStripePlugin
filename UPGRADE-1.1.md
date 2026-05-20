@@ -30,3 +30,24 @@ and the related admin form section will be removed.
 
 If your custom code references the class or either service (e.g. via DI decoration, alias or direct injection), 
 remove those references before upgrading to 2.0.
+
+### `secret_key` set to a standard Stripe secret key (`sk_*`) is deprecated
+
+Pasting a standard Stripe secret key (`sk_test_…` / `sk_live_…`) into the `Restricted API key (recommended) or secret key` 
+field of the Stripe gateway configuration is deprecated since 1.1 and will be removed in 2.0. From 2.0 onwards, only
+Restricted API Keys (`rk_test_…` / `rk_live_…`) will be accepted.
+
+A deprecation notice is triggered on every Stripe API client build for payment methods that still hold a `sk_*` key. 
+Existing installations continue to work in 1.1, the field validator and the runtime path are unchanged.
+
+**Migration:**
+
+1. Install the [Sylius Stripe App][link-sylius-stripe-app] on your Stripe account.
+2. Open the App's Settings Page and copy the generated Restricted API Key (`rk_test_…` / `rk_live_…`).
+3. In Sylius admin, edit your Stripe payment method and paste the `rk_*` key into the `Restricted API key (recommended) or secret key` 
+   field, replacing the previous `sk_*` value. Save.
+
+The App ships with the minimum scopes the plugin needs, which is also why it becomes the only supported source for 
+the `secret_key` field in 2.0.
+
+[link-sylius-stripe-app]: https://marketplace.stripe.com/apps/install/link/com.sylius.stripe
