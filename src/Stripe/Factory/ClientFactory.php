@@ -11,9 +11,7 @@ use Webmozart\Assert\Assert;
 
 final readonly class ClientFactory implements ClientFactoryInterface
 {
-    /**
-     * @param class-string<StripeClient> $className
-     */
+    /** @param class-string<StripeClient> $className */
     public function __construct(
         private string $className,
         private StripeConfiguratorInterface $stripeConfigurator,
@@ -37,6 +35,15 @@ final readonly class ClientFactory implements ClientFactoryInterface
 
         /** @var string|null $secretKey */
         $secretKey = $gatewayConfig->getConfig()['secret_key'] ?? null;
+
+        if (is_string($secretKey) && str_starts_with($secretKey, 'sk_')) {
+            trigger_deprecation(
+                'flux-se/sylius-stripe-plugin',
+                '1.1',
+                'Using a Stripe secret key (sk_…) for the "%s" payment method is deprecated since 1.1 and support will be removed in 2.0. Install the Sylius Stripe App (https://marketplace.stripe.com/apps/install/link/com.sylius.stripe) and use a Restricted API Key (rk_…) instead.',
+                $paymentMethod->getCode(),
+            );
+        }
 
         return $this->createNew([
             'api_key' => $secretKey,
