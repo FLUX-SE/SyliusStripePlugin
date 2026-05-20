@@ -1,0 +1,7 @@
+services:
+    flux_se.sylius_stripe.twig.extension.legacy_stripe_key:
+        class: FluxSE\SyliusStripePlugin\Twig\Extension\LegacyStripeKeyExtension
+        arguments:
+            - '@FluxSE\SyliusStripePlugin\Stripe\SecretKey\LegacyKeyDetectorInterface'
+        tags:
+            - { name: 'twig.extension' }
