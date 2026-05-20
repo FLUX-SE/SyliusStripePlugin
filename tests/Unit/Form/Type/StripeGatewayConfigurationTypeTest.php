@@ -46,7 +46,7 @@ final class StripeGatewayConfigurationTypeTest extends TestCase
     }
 
     /** @dataProvider acceptedSecretKeyProvider */
-    public function test_secret_key_field_accepts_secret_and_restricted_keys(string $key): void
+    public function test_secret_key_field_accepts_restricted_keys(string $key): void
     {
         $violations = $this->validator->validate($key, $this->secretKeyConstraints());
 
@@ -56,8 +56,6 @@ final class StripeGatewayConfigurationTypeTest extends TestCase
     /** @return iterable<string, array{string}> */
     public static function acceptedSecretKeyProvider(): iterable
     {
-        yield 'secret key in test mode' => ['sk_test_abc123'];
-        yield 'secret key in live mode' => ['sk_live_abc123'];
         yield 'restricted key in test mode' => ['rk_test_abc123'];
         yield 'restricted key in live mode' => ['rk_live_abc123'];
     }
@@ -74,6 +72,8 @@ final class StripeGatewayConfigurationTypeTest extends TestCase
     public static function rejectedSecretKeyProvider(): iterable
     {
         yield 'empty string' => [''];
+        yield 'standard secret key in test mode' => ['sk_test_abc123'];
+        yield 'standard secret key in live mode' => ['sk_live_abc123'];
         yield 'publishable key pasted by mistake' => ['pk_test_abc123'];
         yield 'webhook signing secret pasted by mistake' => ['whsec_abc123'];
         yield 'random text' => ['random'];
