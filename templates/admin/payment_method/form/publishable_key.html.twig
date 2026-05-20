@@ -1,7 +1,21 @@
 {% set publishable_key_form = hookable_metadata.context.form.gatewayConfig.config.publishable_key %}
 {% set secret_key_form = hookable_metadata.context.form.gatewayConfig.config.secret_key %}
+{% set secret_key_value = secret_key_form.vars.value|default('') %}
 
 <div class="col-12 col-md-6">
     {{ form_row(publishable_key_form, sylius_test_form_attribute('config-publishable-key')) }}
     {{ form_row(secret_key_form, sylius_test_form_attribute('config-secret-key')) }}
+
+    {% if secret_key_value starts with 'sk_' %}
+        <div class="alert alert-warning mt-2" {{ sylius_test_html_attribute('secret-key-legacy-warning') }}>
+            <div class="d-flex align-items-start">
+                <div class="me-2">{{ ux_icon('tabler:alert-triangle', {'class': 'icon alert-icon text-warning'}) }}</div>
+                <div>
+                    <p class="fw-bold mb-0">
+                        {{ 'flux_se_sylius_stripe_plugin.form.gateway_configuration.stripe.info.secret_key_legacy_warning'|trans }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 </div>
