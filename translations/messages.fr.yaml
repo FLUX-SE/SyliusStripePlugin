@@ -6,21 +6,18 @@ flux_se_sylius_stripe_plugin:
         gateway_configuration:
             stripe:
                 publishable_key: Clé publique
-                secret_key: Clé d'API restreinte (recommandée) ou clé secrète
+                secret_key: Clé d'API restreinte
                 use_authorize: Utiliser "authorize"
                 enable_express_checkout: Activer Express Checkout
                 webhook_secret_keys: Clés secrètes du webhook
                 info:
-                    secret_key_recommended_title: Recommandé - Clé d'API restreinte (rk_…)
-                    secret_key_recommended_body: Générez une clé d'API restreinte depuis la page de paramètres de l'application Sylius Stripe. L'application est livrée avec le périmètre minimum nécessaire au plugin et sera la seule option prise en charge en 2.0.
-                    secret_key_legacy_body: Une clé secrète Stripe standard (sk_…) depuis le tableau de bord Stripe est encore acceptée dans cette version.
-                    secret_key_legacy_warning: Cette passerelle utilise une clé secrète Stripe standard. La prise en charge des clés sk_… sera retirée dans la version 2.0 du plugin - passez à une clé d'API restreinte depuis l'application Sylius Stripe dès que possible.
+                    secret_key: Collez les deux clés depuis la page de paramètres de votre application Sylius Stripe - la clé publique (pk_…) et la clé d'API restreinte (rk_…).
+                    secret_key_legacy_warning: Cette passerelle utilise encore une clé secrète Stripe standard (sk_…), qui n'est plus prise en charge en 2.0. L'enregistrement de ce formulaire sera rejeté par le validateur - remplacez la clé par une clé d'API restreinte depuis l'application Sylius Stripe.
                     use_authorize:  Lorsqu'un paiement est autorisé, la banque garantit le montant et le conserve sur la carte du client jusqu'à sept jours.
                     enable_express_checkout: Affichez les boutons de portefeuille sur les pages du panier et du paiement. Les boutons réellement affichés dépendent des portefeuilles activés dans votre tableau de bord Stripe et du navigateur du client. Nécessite des événements webhook et un domaine de méthode de paiement enregistré.
                     webhook_secret_key: Créez un nouveau webhook endpoint pour créer une clé secrète de webhook sur le tableau de bord Stripe et écoutez plusieurs événements.
                 action:
                     open_stripe_app: Ouvrir l'application Sylius Stripe
-                    secret_key: Ouvrir les clés API du tableau de bord Stripe.
                     webhook_secret_key: Créez un nouveau webhook endpoint.
     order_pay:
         web_elements:
