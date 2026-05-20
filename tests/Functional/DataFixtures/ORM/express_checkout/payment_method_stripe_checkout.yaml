@@ -24,6 +24,6 @@ Sylius\Bundle\PayumBundle\Model\GatewayConfig:
             use_authorize: false
             enable_express_checkout: true
             publishable_key: 'pk_test_ece_123'
-            secret_key: 'sk_test_ece_123'
+            secret_key: 'rk_test_ece_123'
             webhook_secret_keys:
                 - 'whsec_test_ece_123'

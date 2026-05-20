@@ -13,7 +13,7 @@ Feature: Adding a new Stripe JS payment method
         When I want to create a new payment method with "Stripe Web Elements" gateway factory
         And I name it "Stripe Web Elements (authorize)" in "English (United States)"
         And I specify its code as "stripe_web_elements_authorize_test"
-        And I configure it with test stripe gateway data "sk_test_TEST" and "pk_test_TEST"
+        And I configure it with test stripe gateway data "rk_test_TEST" and "pk_test_TEST"
         And I add a webhook secret key "TEST"
         And I use authorize
         And I add it
@@ -26,7 +26,7 @@ Feature: Adding a new Stripe JS payment method
         When I want to create a new payment method with "Stripe Web Elements" gateway factory
         And I name it "Stripe Web Elements" in "English (United States)"
         And I specify its code as "stripe_web_elements_test"
-        And I configure it with test stripe gateway data "sk_test_TEST" and "pk_test_TEST"
+        And I configure it with test stripe gateway data "rk_test_TEST" and "pk_test_TEST"
         And I add a webhook secret key "TEST"
         And I don't use authorize
         And I add it

@@ -62,7 +62,7 @@ Sylius\Bundle\PayumBundle\Model\GatewayConfig:
             use_payum: false
             use_authorize: false
             publishable_key: 'pk_test_123'
-            secret_key: 'sk_test_123'
+            secret_key: 'rk_test_123'
             webhook_secret_keys:
                 - 'whsec_test_123'
     gateway_stripe_checkout_authorize:
@@ -72,7 +72,7 @@ Sylius\Bundle\PayumBundle\Model\GatewayConfig:
             use_payum: false
             use_authorize: true
             publishable_key: 'pk_test_123'
-            secret_key: 'sk_test_123'
+            secret_key: 'rk_test_123'
             webhook_secret_keys:
                 - 'whsec_test_123'
     gateway_stripe_web_elements:
@@ -82,7 +82,7 @@ Sylius\Bundle\PayumBundle\Model\GatewayConfig:
             use_payum: false
             use_authorize: false
             publishable_key: 'pk_test_123'
-            secret_key: 'sk_test_123'
+            secret_key: 'rk_test_123'
             webhook_secret_keys:
                 - 'whsec_test_123'
     gateway_stripe_web_elements_authorize:
@@ -92,7 +92,7 @@ Sylius\Bundle\PayumBundle\Model\GatewayConfig:
             use_payum: false
             use_authorize: true
             publishable_key: 'pk_test_123'
-            secret_key: 'sk_test_123'
+            secret_key: 'rk_test_123'
             webhook_secret_keys:
                 - 'whsec_test_123'
     gateway_offline:
