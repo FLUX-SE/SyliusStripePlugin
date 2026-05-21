@@ -6,7 +6,7 @@
     {{ form_row(publishable_key_form, sylius_test_form_attribute('config-publishable-key')) }}
     {{ form_row(secret_key_form, sylius_test_form_attribute('config-secret-key')) }}
 
-    {% if secret_key_value starts with 'sk_' %}
+    {% if sylius_stripe_is_legacy_secret_key(secret_key_value) %}
         <div class="alert alert-warning mt-2" {{ sylius_test_html_attribute('secret-key-legacy-warning') }}>
             <div class="d-flex align-items-start">
                 <div class="me-2">{{ ux_icon('tabler:alert-triangle', {'class': 'icon alert-icon text-warning'}) }}</div>

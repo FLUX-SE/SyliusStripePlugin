@@ -1,0 +1,8 @@
+sylius_twig_hooks:
+    hooks:
+        'sylius_admin.common.component.navbar.items':
+            notifications:
+                component: 'sylius_admin:navbar:notifications'
+                props:
+                    template: '@FluxSESyliusStripePlugin/admin/shared/components/navbar/notifications.html.twig'
+                priority: 100

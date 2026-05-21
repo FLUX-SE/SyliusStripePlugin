@@ -1,0 +1,10 @@
+services:
+    flux_se.sylius_stripe.notification.legacy_stripe_key:
+        class: FluxSE\SyliusStripePlugin\Notification\LegacyStripeKeyNotificationProvider
+        arguments:
+            - '@sylius.repository.payment_method'
+            - '@Sylius\Bundle\PaymentBundle\Provider\GatewayFactoryNameProviderInterface'
+            - '@FluxSE\SyliusStripePlugin\Stripe\SecretKey\LegacyKeyDetectorInterface'
+            - '%flux_se.sylius_stripe.factories%'
+        tags:
+            - { name: 'sylius_admin.notification' }

@@ -1,4 +1,7 @@
 flux_se_sylius_stripe_plugin:
+    admin:
+        notification:
+            legacy_secret_key: 'La méthode de paiement « %payment_method_name% » utilise une clé secrète legacy (sk_…). Passez à une clé d''API restreinte depuis l''application Sylius Stripe.'
     gateway_factory:
         stripe_checkout: Stripe (Checkout)
         stripe_web_elements: Stripe (Web Elements)
