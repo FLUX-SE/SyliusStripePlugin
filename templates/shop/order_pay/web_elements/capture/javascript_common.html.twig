@@ -2,6 +2,7 @@
 {# @var model \Stripe\PaymentIntent #}
 {% set model = hookable_metadata.context.model %}
 {% set action_url = hookable_metadata.context.action_url %}
+{% set customer_email = hookable_metadata.context.customer_email|default(null) %}
 <script type="text/javascript" defer>
     var stripe = Stripe('{{ publishable_key }}');
     var options = {
@@ -53,7 +54,15 @@
     };
 
     // Create an instance of the payment Element.
-    var paymentElement = elements.create('payment');
+    var paymentElement = elements.create('payment', {
+        {% if customer_email is not empty %}
+        defaultValues: {
+            billingDetails: {
+                email: '{{ customer_email|e('js') }}',
+            },
+        },
+        {% endif %}
+    });
 
     // Add an instance of the card Element into the `card-element` <div>.
     paymentElement.mount('#payment-element');
