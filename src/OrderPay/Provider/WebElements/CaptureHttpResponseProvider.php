@@ -8,6 +8,7 @@ use FluxSE\SyliusStripePlugin\Provider\AfterUrlProviderInterface;
 use Stripe\PaymentIntent;
 use Sylius\Bundle\PaymentBundle\Provider\HttpResponseProviderInterface;
 use Sylius\Bundle\ResourceBundle\Controller\RequestConfiguration;
+use Sylius\Component\Core\Model\PaymentInterface;
 use Sylius\Component\Payment\Model\PaymentRequestInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
@@ -39,13 +40,18 @@ final readonly class CaptureHttpResponseProvider implements HttpResponseProvider
             throw new \LogicException('The publishable key must be defined!');
         }
 
+        /** @var PaymentInterface $payment */
+        $payment = $paymentRequest->getPayment();
+        $customerEmail = $payment->getOrder()?->getCustomer()?->getEmail();
+
         return new Response(
             $this->twig->render(
                 '@FluxSESyliusStripePlugin/shop/order_pay/web_elements/capture.html.twig',
                 [
                     'publishable_key' => $publishableKey,
-                    'model' => PaymentIntent::constructFrom($paymentRequest->getPayment()->getDetails()),
+                    'model' => PaymentIntent::constructFrom($payment->getDetails()),
                     'action_url' => $this->afterUrlProvider->getUrl($paymentRequest, AfterUrlProviderInterface::ACTION_URL),
+                    'customer_email' => $customerEmail,
                 ],
             ),
         );
