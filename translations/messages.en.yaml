@@ -20,8 +20,9 @@ flux_se_sylius_stripe_plugin:
                     payment_method_type: It's normally not necessary to define payment methods here, you can manage them using the Stripe dashboard.
                 action:
                     open_stripe_app: Open Sylius Stripe App
-                    secret_key: Open Stripe Dashboard API keys.
-                    webhook_secret_key: Create a new webhook endpoint.
+                    learn_more_restricted_keys: Learn more about restricted API keys
+                    secret_key: Open Stripe Dashboard API keys
+                    webhook_secret_key: Create a new webhook endpoint
     order_pay:
         web_elements:
             pay: Pay
