@@ -11,8 +11,13 @@
             <div class="d-flex align-items-start">
                 <div class="me-2">{{ ux_icon('tabler:alert-triangle', {'class': 'icon alert-icon text-warning'}) }}</div>
                 <div>
-                    <p class="fw-bold mb-0">
+                    <p class="fw-bold">
                         {{ 'flux_se_sylius_stripe_plugin.form.gateway_configuration.stripe.info.secret_key_legacy_warning'|trans }}
+                    </p>
+                    <p class="mb-0">
+                        <a class="fw-bold text-decoration-none" href="https://docs.stripe.com/keys/restricted-api-keys" target="_blank" rel="noopener noreferrer">
+                            {{ 'flux_se_sylius_stripe_plugin.form.gateway_configuration.stripe.action.learn_more_restricted_keys'|trans }}
+                        </a>
                     </p>
                 </div>
             </div>

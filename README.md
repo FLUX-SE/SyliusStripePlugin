@@ -86,6 +86,8 @@ https://dashboard.stripe.com/test/apikeys
 
 In that case, paste a standard secret key (`sk_test_…` / `sk_live_…`) into the "Restricted API key (recommended) or secret key" field.
 
+Restricted API keys are Stripe's officially recommended replacement for standard secret keys, see [Stripe's documentation on restricted API keys][link-stripe-restricted-keys] for the full rationale.
+
 ### Webhook key
 
 Got to :
@@ -194,3 +196,4 @@ This plugin is released under the [MIT License](LICENSE).
 [link-total-downloads]: https://packagist.org/packages/flux-se/sylius-stripe-plugin
 [link-github-actions]: https://github.com/FLUX-SE/SyliusStripePlugin/actions?query=workflow%3A"Build"
 [link-sylius-stripe-app]: https://marketplace.stripe.com/apps/install/link/com.sylius.stripe
+[link-stripe-restricted-keys]: https://docs.stripe.com/keys/restricted-api-keys

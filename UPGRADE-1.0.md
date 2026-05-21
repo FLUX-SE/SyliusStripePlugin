@@ -20,4 +20,7 @@ both keys you need:
 The App ships with the minimum scopes the plugin needs, and **standard secret keys (`sk_*`) will no longer be supported 
 in plugin 2.0** — only Restricted API Keys (`rk_*`) will be accepted. Migrating now keeps you ahead of that change.
 
+For Stripe's own rationale on why restricted keys exist and how they differ from standard secret keys, see [Stripe's documentation on restricted API keys][link-stripe-restricted-keys].
+
 [link-sylius-stripe-app]: https://marketplace.stripe.com/apps/install/link/com.sylius.stripe
+[link-stripe-restricted-keys]: https://docs.stripe.com/keys/restricted-api-keys
